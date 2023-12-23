@@ -1,4 +1,4 @@
-package org.demkiv.architecture;
+package org.demkiv.domain.architecture;
 
 import java.util.List;
 
