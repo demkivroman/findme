@@ -15,7 +15,7 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
-        <project.s3>2.22.0</project.s3>
+        <project.aws.jdk>1.12.625</project.aws.jdk>
         <project.lombok>1.18.30</project.lombok>
         <project.spring.boot>3.2.0</project.spring.boot>
     </properties>
@@ -39,10 +39,15 @@
 
     <dependencies>
         <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>s3</artifactId>
-            <version>${project.s3}</version>
-            <scope>test</scope>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-s3</artifactId>
+            <version>${project.aws.jdk}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jackson-dataformat-cbor</artifactId>
+                    <groupId>com.fasterxml.jackson.dataformat</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -66,6 +71,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
             <version>${project.spring.boot}</version>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+            <version>2.22.0</version>
+            <scope>compile</scope>
         </dependency>
 
     </dependencies>

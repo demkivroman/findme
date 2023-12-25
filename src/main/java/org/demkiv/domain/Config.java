@@ -16,6 +16,9 @@ public class Config {
     private static final String CONFIG_PATH = "/findme/secret.props";
 
     private String s3AccessKey;
+    private String s3SecretKey;
+    private String s3BucketName;
+    private String s3ImageKey;
 
     private Config() {
     }
