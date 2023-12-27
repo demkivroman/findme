@@ -1,4 +1,4 @@
-package org.demkiv.domain.client;
+package org.demkiv.domain.upload;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
