@@ -7,15 +7,19 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.demkiv.domain.Config;
 import org.demkiv.domain.architecture.FileUploader;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 
 @Slf4j
+@AllArgsConstructor
+@Component
 public class S3Uploader implements FileUploader<File> {
-    private final Config config = Config.getInstance();
+    private final Config config;
 
     @Override
     public void upload(File file) {

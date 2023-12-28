@@ -27,6 +27,6 @@ public class Posts {
     @NotNull
     private LocalDateTime time;
     @ManyToOne
-    @JoinColumn(name="person_id", nullable=false)
+    @JoinColumn(name="person_id")
     private Person person;
 }

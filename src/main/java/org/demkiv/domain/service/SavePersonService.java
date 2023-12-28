@@ -10,6 +10,7 @@ import org.demkiv.domain.architecture.EntitySaver;
 import org.demkiv.domain.architecture.FileUploader;
 import org.demkiv.persistance.service.PersistService;
 import org.demkiv.web.model.PersonForm;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,10 +20,11 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 @Slf4j
-@Setter
+@AllArgsConstructor
+@Service
 public class SavePersonService implements EntitySaver<PersonForm, Boolean> {
-    private FileUploader<File> s3Uploader;
-    private PersistService<PersonForm> persistService;
+    private final FileUploader<File> s3Uploader;
+    private final PersistService<PersonForm> persistService;
 
     @Override
     public Boolean saveEntity(PersonForm entity) {

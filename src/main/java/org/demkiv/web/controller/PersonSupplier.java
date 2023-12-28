@@ -1,11 +1,7 @@
 package org.demkiv.web.controller;
 
 import lombok.AllArgsConstructor;
-import org.demkiv.domain.architecture.EntitySaver;
-import org.demkiv.domain.architecture.FileUploader;
 import org.demkiv.domain.service.SavePersonService;
-import org.demkiv.domain.upload.S3Uploader;
-import org.demkiv.persistance.service.PersistService;
 import org.demkiv.web.model.PersonForm;
 import org.demkiv.web.model.ResponseModel;
 import org.springframework.http.MediaType;
@@ -14,12 +10,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-
 @RestController(value = "/api")
 @AllArgsConstructor
 public class PersonSupplier {
-    private final PersistService<PersonForm> persistService;
+    private final SavePersonService saver;
 
     @PostMapping(value = "/person/save",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
@@ -44,18 +38,10 @@ public class PersonSupplier {
                 .personDescription(personDescription)
                 .photo(photo)
                 .build();
-        EntitySaver<PersonForm, Boolean> saver = getSaver();
+
         saver.saveEntity(personForm);
         return ResponseModel.builder()
                 .mode("Success")
                 .build();
-    }
-
-    private EntitySaver<PersonForm, Boolean> getSaver() {
-        FileUploader<File> s3Uploader = new S3Uploader();
-        SavePersonService saver = new SavePersonService();
-        saver.setS3Uploader(s3Uploader);
-        saver.setPersistService(persistService);
-        return saver;
     }
 }

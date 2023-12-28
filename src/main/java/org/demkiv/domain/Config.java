@@ -21,6 +21,10 @@ public class Config {
     private String s3ImageKey;
     private String s3ImageRetrievePath;
 
+    private String dbUrl;
+    private String dbUsername;
+    private String dbPassword;
+
     private Config() {
     }
 
