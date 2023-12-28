@@ -19,10 +19,9 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 @Slf4j
-@RequiredArgsConstructor
 @Setter
 public class SavePersonService implements EntitySaver<PersonForm, Boolean> {
-    private final FileUploader<File> s3Uploader;
+    private FileUploader<File> s3Uploader;
     private PersistService<PersonForm> persistService;
 
     @Override
