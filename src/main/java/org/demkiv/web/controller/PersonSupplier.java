@@ -2,6 +2,9 @@ package org.demkiv.web.controller;
 
 import lombok.AllArgsConstructor;
 import org.demkiv.domain.architecture.EntitySaver;
+import org.demkiv.domain.architecture.FileUploader;
+import org.demkiv.domain.service.SavePersonService;
+import org.demkiv.domain.upload.S3Uploader;
 import org.demkiv.web.model.PersonForm;
 import org.demkiv.web.model.ResponseModel;
 import org.springframework.http.MediaType;
@@ -10,11 +13,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-@RestController(value = "/api")
-@AllArgsConstructor
-public class PersonSupplier {
-    private EntitySaver<PersonForm, Boolean> saver;
+import java.io.File;
 
+@RestController(value = "/api")
+public class PersonSupplier {
     @PostMapping(value = "/person/save",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -38,10 +40,15 @@ public class PersonSupplier {
                 .personDescription(personDescription)
                 .photo(photo)
                 .build();
-
+        EntitySaver<PersonForm, Boolean> saver = getSaver();
         saver.saveEntity(personForm);
         return ResponseModel.builder()
                 .mode("Success")
                 .build();
+    }
+
+    private EntitySaver<PersonForm, Boolean> getSaver() {
+        FileUploader<File> s3Uploader = new S3Uploader();
+        return new SavePersonService(s3Uploader);
     }
 }

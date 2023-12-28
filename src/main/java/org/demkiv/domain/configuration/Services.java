@@ -8,8 +8,5 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class Services {
-    @Bean
-    EntitySaver<PersonForm, Boolean> getSaveService() {
-        return new SavePersonService();
-    }
+
 }

@@ -1,5 +1,8 @@
 package org.demkiv.domain.service;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.demkiv.domain.Config;
@@ -16,9 +19,10 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 @Slf4j
+@RequiredArgsConstructor
 @Setter
 public class SavePersonService implements EntitySaver<PersonForm, Boolean> {
-    private FileUploader<File> s3Uploader;
+    private final FileUploader<File> s3Uploader;
     private PersistService<PersonForm> persistService;
 
     @Override
