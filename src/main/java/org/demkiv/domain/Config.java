@@ -19,6 +19,7 @@ public class Config {
     private String s3SecretKey;
     private String s3BucketName;
     private String s3ImageKey;
+    private String s3ImageRetrievePath;
 
     private Config() {
     }

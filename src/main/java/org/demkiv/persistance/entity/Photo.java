@@ -18,7 +18,7 @@ public class Photo {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-    @Column(name = "description")
+    @Column(name = "url")
     @NotNull
     private String url;
 
