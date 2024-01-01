@@ -3,6 +3,7 @@ package org.demkiv.domain.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.demkiv.domain.Config;
+import org.demkiv.domain.PersonUploadTask;
 import org.demkiv.domain.architecture.EntitySaver;
 import org.demkiv.domain.architecture.FileUploader;
 import org.demkiv.persistance.service.PersistService;
@@ -26,14 +27,10 @@ public class SavePersonService implements EntitySaver<PersonForm, Boolean> {
     @Override
     public Boolean saveEntity(PersonForm entity) {
         try {
-            Config config = Config.getInstance();
             Path tempDirectory = Files.createTempDirectory("temp_photo");
             File tempPhotoPath = getTempPhotoPath(entity, tempDirectory.toFile());
-//            s3Uploader.upload(tempPhotoPath);
-//            log.info("Upload to amazon S3 is finished. File name {}", tempPhotoPath.getPath());
-            String retrievePhotoPath = String.format("%s/%s", config.getS3ImageRetrievePath(), entity.getPhoto().getOriginalFilename());
-            persistService.saveEntity(entity, retrievePhotoPath);
-            log.info("Person is completely stored to database.");
+            PersonUploadTask uploadTask = getS3Uploader(tempPhotoPath, entity);
+            uploadTask.start();
         } catch (Exception exception) {
             throw new RuntimeException(exception.getMessage());
         }
@@ -53,5 +50,14 @@ public class SavePersonService implements EntitySaver<PersonForm, Boolean> {
         }
         log.error("Temp image file is not created.");
         throw new RuntimeException("Temp image file is not created.");
+    }
+
+    private PersonUploadTask getS3Uploader(File uploadFilePath, PersonForm entity) {
+        PersonUploadTask uploadTask = new PersonUploadTask();
+        uploadTask.setS3Uploader(s3Uploader);
+        uploadTask.setPersistService(persistService);
+        uploadTask.setFilePath(uploadFilePath);
+        uploadTask.setEntity(entity);
+        return uploadTask;
     }
 }

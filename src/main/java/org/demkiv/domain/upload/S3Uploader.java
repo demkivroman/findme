@@ -35,6 +35,7 @@ public class S3Uploader implements FileUploader<File> {
             }
         } catch (Exception ex) {
             log.error("{} image is not uploaded. {}", key, ex.getMessage());
+            throw ex;
         }
     }
 
