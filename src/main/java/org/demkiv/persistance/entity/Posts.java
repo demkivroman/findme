@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
@@ -22,6 +23,7 @@ public class Posts {
     private long id;
     @Column(name = "post")
     @NotNull
+    @NotBlank
     private String post;
     @Column(name = "time")
     @NotNull

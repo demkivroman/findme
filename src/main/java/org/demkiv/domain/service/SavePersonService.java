@@ -1,9 +1,6 @@
 package org.demkiv.domain.service;
 
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.demkiv.domain.Config;
 import org.demkiv.domain.architecture.EntitySaver;
@@ -35,7 +32,7 @@ public class SavePersonService implements EntitySaver<PersonForm, Boolean> {
 //            s3Uploader.upload(tempPhotoPath);
 //            log.info("Upload to amazon S3 is finished. File name {}", tempPhotoPath.getPath());
             String retrievePhotoPath = String.format("%s/%s", config.getS3ImageRetrievePath(), entity.getPhoto().getOriginalFilename());
-            persistService.savePerson(entity, retrievePhotoPath);
+            persistService.saveEntity(entity, retrievePhotoPath);
             log.info("Person is completely stored to database.");
         } catch (Exception exception) {
             throw new RuntimeException(exception.getMessage());

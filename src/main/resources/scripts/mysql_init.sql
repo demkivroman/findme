@@ -22,7 +22,7 @@ create table findme_db.POSTS
     ID        INT AUTO_INCREMENT PRIMARY KEY,
     POST      text not null,
     TIME      TIMESTAMP     not null,
-    PERSON_ID INT,
+    PERSON_ID INT not null unique,
     FOREIGN KEY (PERSON_ID) REFERENCES PERSON (ID)
 );
 

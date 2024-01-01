@@ -28,7 +28,7 @@ public class PersistPersonServiceImpl implements PersistService<PersonForm> {
     private PhotoRepository photoRepository;
 
     @Override
-    public void savePerson(PersonForm personForm, String photoUrl) {
+    public void saveEntity(PersonForm personForm, String photoUrl) {
         if (Objects.nonNull(personForm)) {
             Finder finder = getFinder(personForm);
             finderRepository.save(finder);

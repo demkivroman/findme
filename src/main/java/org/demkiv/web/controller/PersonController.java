@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @AllArgsConstructor
-public class PersonSupplier {
+public class PersonController {
     private final SavePersonService saver;
 
     @PostMapping(value = "/api/person/save",
