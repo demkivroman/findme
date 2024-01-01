@@ -18,7 +18,7 @@ import javax.validation.constraints.NotNull;
 @Table(name = "posts")
 public class Posts {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @Column(name = "post")
     @NotNull

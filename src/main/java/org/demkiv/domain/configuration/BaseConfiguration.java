@@ -18,7 +18,6 @@ public class BaseConfiguration {
     @Bean
     public DataSource getDataSource(Config config) {
         DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
-        //dataSourceBuilder.driverClassName("org.h2.Driver");
         dataSourceBuilder.url(config.getDbUrl());
         dataSourceBuilder.username(config.getDbUsername());
         dataSourceBuilder.password(config.getDbPassword());

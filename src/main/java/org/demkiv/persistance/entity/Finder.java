@@ -15,7 +15,7 @@ import javax.persistence.*;
 @Table(name = "finder")
 public class Finder {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @Column(name = "fullname")
     private String fullname;

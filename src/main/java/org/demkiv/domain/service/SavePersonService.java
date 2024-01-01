@@ -32,8 +32,8 @@ public class SavePersonService implements EntitySaver<PersonForm, Boolean> {
             Config config = Config.getInstance();
             Path tempDirectory = Files.createTempDirectory("temp_photo");
             File tempPhotoPath = getTempPhotoPath(entity, tempDirectory.toFile());
-            s3Uploader.upload(tempPhotoPath);
-            log.info("Upload to amazon S3 is finished. File name {}", tempPhotoPath.getPath());
+//            s3Uploader.upload(tempPhotoPath);
+//            log.info("Upload to amazon S3 is finished. File name {}", tempPhotoPath.getPath());
             String retrievePhotoPath = String.format("%s/%s", config.getS3ImageRetrievePath(), entity.getPhoto().getOriginalFilename());
             persistService.savePerson(entity, retrievePhotoPath);
             log.info("Person is completely stored to database.");

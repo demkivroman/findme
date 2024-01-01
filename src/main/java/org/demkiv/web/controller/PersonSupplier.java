@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-@RestController(value = "/api")
+@RestController
 @AllArgsConstructor
 public class PersonSupplier {
     private final SavePersonService saver;
 
-    @PostMapping(value = "/person/save",
+    @PostMapping(value = "/api/person/save",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseModel<?> savePerson(

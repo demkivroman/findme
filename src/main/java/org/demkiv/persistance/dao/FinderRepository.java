@@ -10,6 +10,7 @@ import java.util.Optional;
 public interface FinderRepository extends JpaRepository<Finder, Long> {
     @Override
     <S extends Finder> S save(S finder);
+
     @Override
     Optional<Finder> findById(Long id);
 }

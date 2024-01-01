@@ -3,8 +3,8 @@ create table findme_db.FINDER
     ID          INT AUTO_INCREMENT PRIMARY KEY,
     FULLNAME    varchar(100) not null,
     PHONE       varchar(20),
-    EMAIL       varchar(20),
-    INFORMATION varchar(200)
+    EMAIL       varchar(100),
+    INFORMATION text
 );
 
 create table findme_db.PERSON
@@ -33,3 +33,8 @@ create table findme_db.PHOTO
     PERSON_ID INT,
     FOREIGN KEY (PERSON_ID) REFERENCES PERSON (ID)
 );
+
+-- create table findme_db.hibernate_sequence
+-- (
+--     next_val bigint
+-- );

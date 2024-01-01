@@ -13,13 +13,9 @@ import org.demkiv.web.model.PersonForm;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
-import java.util.Locale;
 import java.util.Objects;
 
 @Slf4j
@@ -63,17 +59,22 @@ public class PersistPersonServiceImpl implements PersistService<PersonForm> {
 
     private Person getPerson(PersonForm personForm, Finder finder) {
         String stringDate = personForm.getPersonBirthDay();
-        String pattern = "M/d/uuuu";
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern, Locale.US);
-        LocalDateTime localDateTime = LocalDateTime.parse(stringDate, dateTimeFormatter);
-        ZoneId zoneId = ZoneId.of("America/Chicago");
-        ZonedDateTime zonedDateTime = localDateTime.atZone(zoneId);
-        Instant instant = zonedDateTime.toInstant();
+        Date birthDay = null;
+        if (!stringDate.equals("")) {
+            birthDay = getDate(stringDate);
+        }
         return Person.builder()
                 .fullname(personForm.getPersonFullName())
-                .birthday(Date.from(instant))
+                .birthday(birthDay)
                 .description(personForm.getPersonDescription())
                 .finder(finder)
                 .build();
+    }
+
+    private Date getDate(String dateString) {
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("d-MMM-yyyy");
+        LocalDate birthDay = LocalDate.parse(dateString, df);
+        Instant instant = Instant.from(birthDay.atStartOfDay(ZoneId.of("GMT")));
+        return Date.from(instant);
     }
 }
