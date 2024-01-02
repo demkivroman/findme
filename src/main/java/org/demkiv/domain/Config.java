@@ -24,6 +24,7 @@ public class Config {
     private String dbUrl;
     private String dbUsername;
     private String dbPassword;
+    private String dbDriver;
 
     private Config() {
     }

@@ -18,11 +18,15 @@ public class PersonUploadTask extends Thread {
 
     @Override
     public void run() {
-        Config config = Config.getInstance();
-        s3Uploader.upload(filePath);
-        log.info("Upload to amazon S3 is finished. File name {}", filePath.getName());
-        String retrievePhotoPath = String.format("%s/%s", config.getS3ImageRetrievePath(), entity.getPhoto().getOriginalFilename());
-        persistService.saveEntity(entity, retrievePhotoPath);
-        log.info("Person is completely stored to database.");
+        try {
+            Config config = Config.getInstance();
+            s3Uploader.upload(filePath);
+            log.info("Upload to amazon S3 is finished. File name {}", filePath.getName());
+            String retrievePhotoPath = String.format("%s/%s", config.getS3ImageRetrievePath(), entity.getPhoto().getOriginalFilename());
+            persistService.saveEntity(entity, retrievePhotoPath);
+            log.info("Person is completely stored to database.");
+        } catch (Throwable ex) {
+            Thread.currentThread().interrupt();
+        }
     }
 }

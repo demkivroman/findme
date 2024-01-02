@@ -21,6 +21,7 @@ public class BaseConfiguration {
         dataSourceBuilder.url(config.getDbUrl());
         dataSourceBuilder.username(config.getDbUsername());
         dataSourceBuilder.password(config.getDbPassword());
+        dataSourceBuilder.driverClassName(config.getDbDriver());
         return dataSourceBuilder.build();
     }
 }
