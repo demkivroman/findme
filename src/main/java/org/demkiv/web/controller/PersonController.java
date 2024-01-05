@@ -1,9 +1,11 @@
 package org.demkiv.web.controller;
 
 import lombok.AllArgsConstructor;
+import org.demkiv.domain.service.PersonPhotoService;
 import org.demkiv.domain.service.PersonService;
 import org.demkiv.web.model.PersonForm;
 import org.demkiv.web.model.PersonPhotoForm;
+import org.demkiv.web.model.PersonResponseModel;
 import org.demkiv.web.model.ResponseModel;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor
 public class PersonController {
     private final PersonService saver;
+    private final PersonPhotoService photoService;
 
     @PostMapping(value = "/api/person/save",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -24,7 +27,10 @@ public class PersonController {
         long result = saver.saveEntity(personForm);
         return ResponseModel.builder()
                 .mode("Success")
-                .body(result)
+                .body(PersonResponseModel
+                        .builder()
+                        .personId(String.valueOf(result))
+                        .build())
                 .build();
     }
 
@@ -39,6 +45,7 @@ public class PersonController {
                 .personId(personId)
                 .photo(photo)
                 .build();
+        photoService.saveEntity(photoForm);
 
         return ResponseModel.builder()
                 .mode("Success")
