@@ -7,7 +7,7 @@ import java.util.List;
 @Data
 @Builder
 public class PersonFoundForm {
-    private String id;
+    private String personId;
     private String personFullName;
     private String personBirthday;
     private String personDescription;

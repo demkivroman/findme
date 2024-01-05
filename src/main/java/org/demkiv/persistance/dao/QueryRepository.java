@@ -5,6 +5,9 @@ import org.demkiv.persistance.service.ConverterService;
 import org.demkiv.web.model.PersonFoundForm;
 import org.springframework.jdbc.core.JdbcTemplate;;
 import org.springframework.stereotype.Repository;
+
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,8 +27,24 @@ public class QueryRepository {
                 "where person.FULLNAME like '%" + fullName + "%'" + " or " + "person.DESCRIPTION like '%" + description + "%'";
 
         List<Map<String, Object>> queryResult = jdbcTemplate.queryForList(query);
-        return queryResult.stream()
+        return convertQueryResults(queryResult);
+    }
+
+    private List<PersonFoundForm> convertQueryResults(List<Map<String, Object>> queryResult) {
+        Map<String, PersonFoundForm> foundPersonFormMap = new HashMap<>();
+        queryResult.stream()
                 .map(converter::convertPersonToPersonFoundForm)
+                .forEach(personObject -> {
+                    PersonFoundForm presentPersonInMap = foundPersonFormMap.get(personObject.getPersonId());
+                    if (presentPersonInMap != null) {
+                        List<String> tempUrls = new LinkedList<>();
+                        tempUrls.addAll(presentPersonInMap.getUrls());
+                        tempUrls.addAll(personObject.getUrls());
+                        personObject.setUrls(tempUrls);
+                    }
+                    foundPersonFormMap.put(personObject.getPersonId(), personObject);
+                });
+        return foundPersonFormMap.values().stream()
                 .collect(Collectors.toList());
     }
 

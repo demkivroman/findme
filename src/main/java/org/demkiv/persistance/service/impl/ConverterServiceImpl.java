@@ -13,7 +13,7 @@ public class ConverterServiceImpl implements ConverterService {
     @Override
     public PersonFoundForm convertPersonToPersonFoundForm(Map<String, Object> value) {
         return PersonFoundForm.builder()
-                .id(Objects.toString(value.get("id")))
+                .personId(Objects.toString(value.get("id")))
                 .personFullName(Objects.toString(value.get("person_fullname")))
                 .personBirthday(Objects.toString(value.get("BIRTHDAY")))
                 .personDescription(Objects.toString(value.get("DESCRIPTION")))
