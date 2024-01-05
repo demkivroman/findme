@@ -1,11 +1,14 @@
 package org.demkiv.web.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class PersonForm {
     private String finderFullName;
     private String finderPhone;
@@ -14,5 +17,4 @@ public class PersonForm {
     private String personFullName;
     private String personBirthDay;
     private String personDescription;
-    private MultipartFile photo;
 }

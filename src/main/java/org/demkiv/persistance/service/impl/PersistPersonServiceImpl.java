@@ -4,10 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.demkiv.persistance.dao.FinderRepository;
 import org.demkiv.persistance.dao.PersonRepository;
-import org.demkiv.persistance.dao.PhotoRepository;
 import org.demkiv.persistance.entity.Finder;
 import org.demkiv.persistance.entity.Person;
-import org.demkiv.persistance.entity.Photo;
 import org.demkiv.persistance.service.PersistService;
 import org.demkiv.web.model.PersonForm;
 import org.springframework.stereotype.Service;
@@ -19,33 +17,25 @@ import java.util.Date;
 import java.util.Objects;
 
 @Slf4j
-@Service
+@Service("persistPerson")
 @AllArgsConstructor
 @Transactional
-public class PersistPersonServiceImpl implements PersistService<PersonForm> {
+public class PersistPersonServiceImpl implements PersistService<PersonForm, Long> {
     private FinderRepository finderRepository;
     private PersonRepository personRepository;
-    private PhotoRepository photoRepository;
 
     @Override
-    public void saveEntity(PersonForm personForm, String photoUrl) {
+    public Long saveEntity(PersonForm personForm) {
         if (Objects.nonNull(personForm)) {
             Finder finder = getFinder(personForm);
             finderRepository.save(finder);
             log.info("Finder is stored to database {}", finder);
             Person person = getPerson(personForm, finder);
-            personRepository.save(person);
-            log.info("Person is stored to database {}", person);
-            photoRepository.save(getPhoto(person, photoUrl));
-            log.info("Photo linked to person is saved to database. URL is {}", photoUrl);
+            Person savedPerson = personRepository.save(person);
+            log.info("Person is stored to database {}", savedPerson);
+            return savedPerson.getId();
         }
-    }
-
-    private Photo getPhoto(Person person, String url) {
-        return Photo.builder()
-                .url(url)
-                .person(person)
-                .build();
+        throw new RuntimeException("Trying save empty person.");
     }
 
     private Finder getFinder(PersonForm personForm) {
