@@ -2,7 +2,7 @@ package org.demkiv.web.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.demkiv.domain.service.PersonFinder;
-import org.demkiv.web.model.PersonFoundForm;
+import org.demkiv.web.model.PersonModel;
 import org.demkiv.web.model.ResponseModel;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +20,7 @@ public class SearchController {
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseModel<?> savePost(@RequestParam("item") String item) {
-        List<PersonFoundForm> foundPersons = finder.findEntity(item);
+        List<PersonModel> foundPersons = finder.findEntity(item);
         return ResponseModel.builder()
                 .mode("Success")
                 .body(foundPersons)
