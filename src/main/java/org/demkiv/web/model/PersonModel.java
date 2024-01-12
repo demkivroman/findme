@@ -2,9 +2,7 @@ package org.demkiv.web.model;
 
 import lombok.Builder;
 import lombok.Data;
-import org.demkiv.persistance.entity.Finder;
-
-import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -14,6 +12,6 @@ public class PersonModel {
     private String birthday;
     private String description;
     private FinderModel finder;
-    private List<PhotoModel> urls;
-    private List<PostModel> posts;
+    private Set<PhotoModel> urls;
+    private Set<PostModel> posts;
 }

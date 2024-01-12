@@ -46,21 +46,29 @@ public class QueryRepository {
         PhotoModel photo = converter.convertToPhotoModel(queryRow);
         PostModel post = converter.convertToPostModel(queryRow);
         currentPerson.setFinder(finder);
-        currentPerson.getUrls().add(photo);
-        currentPerson.getPosts().add(post);
+        currentPerson.setUrls(Set.of(photo));
+        currentPerson.setPosts(Set.of(post));
 
         PersonModel foundPerson = persons.get(currentPerson.getId());
 
         if (foundPerson == null) {
             persons.put(currentPerson.getId(), currentPerson);
         } else {
-            PersonModel personModelNew = combimePersons(foundPerson, currentPerson);
+            PersonModel personModelNew = combinePersons(foundPerson, currentPerson);
             persons.put(personModelNew.getId(), personModelNew);
         }
     }
 
-    private PersonModel combimePersons(PersonModel oldPerson, PersonModel newPerson) {
-        return null;
+    private PersonModel combinePersons(PersonModel oldPerson, PersonModel newPerson) {
+        Set<PhotoModel> tempPhotos = new LinkedHashSet<>();
+        Set<PostModel> tempPosts = new LinkedHashSet<>();
+        tempPhotos.addAll(oldPerson.getUrls());
+        tempPhotos.addAll(newPerson.getUrls());
+        tempPosts.addAll(oldPerson.getPosts());
+        tempPosts.addAll(newPerson.getPosts());
+        newPerson.setUrls(tempPhotos);
+        newPerson.setPosts(tempPosts);
+        return newPerson;
     }
 
 }

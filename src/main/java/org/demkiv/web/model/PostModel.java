@@ -8,5 +8,6 @@ import lombok.Data;
 public class PostModel {
     String id;
     String post;
-    String timestamp;
+    String date;
+    String time;
 }
