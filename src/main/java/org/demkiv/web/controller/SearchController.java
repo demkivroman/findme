@@ -8,7 +8,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.List;
 
 @RestController
@@ -20,6 +19,9 @@ public class SearchController {
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseModel<?> savePost(@RequestParam("item") String item) {
+        if (item.isEmpty()) {
+            throw new RuntimeException("Empty search query.");
+        }
         List<PersonModel> foundPersons = finder.findEntity(item);
         return ResponseModel.builder()
                 .mode("Success")

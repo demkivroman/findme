@@ -42,13 +42,18 @@ public class ConverterServiceImpl implements ConverterService {
 
     @Override
     public PostModel convertToPostModel(Map<String, Object> value) {
+        String id = Objects.toString(value.get("post_id"));
+        if (id.equals("null") || id.isEmpty()) {
+            return null;
+        }
+
         String timestamp = Objects.toString(value.get("time"));
-        String[] dateTimeArr = !timestamp.isEmpty() ? timestamp.split(" ") : new String[0];
+        String[] dateTimeArr = !timestamp.isEmpty() ? timestamp.split(" ") : new String[]{};
         return PostModel.builder()
-                .id(Objects.toString(value.get("post_id")))
+                .id(id)
                 .post(Objects.toString(value.get("post")))
-                .date(dateTimeArr[0])
-                .time(dateTimeArr[1])
+                .date((dateTimeArr.length > 1)? dateTimeArr[0] : "")
+                .time((dateTimeArr.length > 1)? dateTimeArr[1] : "")
                 .build();
     }
 }

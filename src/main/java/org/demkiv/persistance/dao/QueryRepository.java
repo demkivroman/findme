@@ -11,6 +11,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
+import static java.util.Collections.*;
+
 @Repository
 @RequiredArgsConstructor
 public class QueryRepository {
@@ -47,8 +49,7 @@ public class QueryRepository {
         PostModel post = converter.convertToPostModel(queryRow);
         currentPerson.setFinder(finder);
         currentPerson.setUrls(Set.of(photo));
-        currentPerson.setPosts(Set.of(post));
-
+        currentPerson.setPosts((post != null) ? Set.of(post) : EMPTY_SET);
         PersonModel foundPerson = persons.get(currentPerson.getId());
 
         if (foundPerson == null) {
