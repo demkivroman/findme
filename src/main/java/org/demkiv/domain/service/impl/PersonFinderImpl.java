@@ -1,4 +1,4 @@
-package org.demkiv.domain.service;
+package org.demkiv.domain.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +11,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PersonFinder implements EntityFinder<String, PersonModel> {
+public class PersonFinderImpl implements EntityFinder<String, PersonModel> {
     private final QueryRepository repository;
 
     @Override

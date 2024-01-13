@@ -1,5 +1,8 @@
 package org.demkiv.persistance.service.impl;
 
+import org.demkiv.persistance.model.FinderDTO;
+import org.demkiv.persistance.model.PersonDTO;
+import org.demkiv.persistance.model.PhotoDTO;
 import org.demkiv.persistance.service.ConverterService;
 import org.demkiv.web.model.FinderModel;
 import org.demkiv.web.model.PersonModel;
@@ -13,7 +16,7 @@ import java.util.Objects;
 public class ConverterServiceImpl implements ConverterService {
     @Override
     public PersonModel convertToPersonModel(Map<String, Object> value) {
-        String fullName = Objects.toString(value.get("fullname"));
+        String fullName = Objects.toString(value.get("person_fullname"));
         String birthDay = Objects.toString(value.get("BIRTHDAY"));
         String description = Objects.toString(value.get("DESCRIPTION"));
         return PersonModel.builder()
@@ -22,6 +25,32 @@ public class ConverterServiceImpl implements ConverterService {
                 .birthday(birthDay.equals("null") ? "" : birthDay)
                 .description(description.equals("null") ? "" : description)
                 .build();
+    }
+
+    @Override
+    public PersonDTO convertQueryRowToPersonDTO(Map<String, Object> row) {
+        return PersonDTO.builder()
+                .id(getCorrectFieldValue(row, "person_id"))
+                .fullName(getCorrectFieldValue(row, "person_fullname"))
+                .birthday(getCorrectFieldValue(row, "birthday"))
+                .description(getCorrectFieldValue(row, "description"))
+                .build();
+    }
+
+    @Override
+    public FinderDTO convertQueryRowToFinderDTO(Map<String, Object> row) {
+        return FinderDTO.builder()
+                .id(getCorrectFieldValue(row, "finder_id"))
+                .fullName(getCorrectFieldValue(row, "finder_fullname"))
+                .email(getCorrectFieldValue(row, "email"))
+                .phone(getCorrectFieldValue(row, "phone"))
+                .information(getCorrectFieldValue(row, "information"))
+                .build();
+    }
+
+    @Override
+    public PhotoDTO convertQueryRowToPhotoDTO(Map<String, Object> value) {
+        return null;
     }
 
     @Override
@@ -58,5 +87,10 @@ public class ConverterServiceImpl implements ConverterService {
                 .date((dateTimeArr.length > 1)? dateTimeArr[0] : "")
                 .time((dateTimeArr.length > 1)? dateTimeArr[1] : "")
                 .build();
+    }
+
+    private String getCorrectFieldValue(Map<String, Object> row, String field) {
+        String retrievedValue = Objects.toString(row.get(field));
+        return retrievedValue.equals("null") ? "" : retrievedValue;
     }
 }

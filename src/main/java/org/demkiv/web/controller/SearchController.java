@@ -1,7 +1,7 @@
 package org.demkiv.web.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.demkiv.domain.service.PersonFinder;
+import org.demkiv.domain.service.impl.PersonFinderImpl;
 import org.demkiv.web.model.PersonModel;
 import org.demkiv.web.model.ResponseModel;
 import org.springframework.http.MediaType;
@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 public class SearchController {
-    private final PersonFinder finder;
+    private final PersonFinderImpl finder;
 
     @PostMapping(value = "/api/search",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,

@@ -1,4 +1,4 @@
-package org.demkiv.domain.service;
+package org.demkiv.domain.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PostsService implements EntitySaver<PostForm, Boolean> {
+public class PostsServiceImpl implements EntitySaver<PostForm, Boolean> {
     private final PersistPostsService postsService;
 
     @Override

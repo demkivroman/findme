@@ -1,4 +1,4 @@
-package org.demkiv.domain.service;
+package org.demkiv.domain.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.demkiv.domain.PersonUploadTask;
@@ -16,12 +16,12 @@ import java.nio.file.Path;
 
 @Slf4j
 @Service
-public class PersonPhotoService implements EntitySaver<PersonPhotoForm, Boolean> {
+public class PhotoServiceImpl implements EntitySaver<PersonPhotoForm, Boolean> {
     private final FileUploader<File> s3Uploader;
     private final PersistService<PersonPhotoForm, Boolean> persistService;
 
     @Autowired
-    public PersonPhotoService(
+    public PhotoServiceImpl(
             FileUploader<File> s3Uploader,
             @Qualifier("photoService") PersistService<PersonPhotoForm, Boolean> persistService) {
         this.s3Uploader = s3Uploader;
