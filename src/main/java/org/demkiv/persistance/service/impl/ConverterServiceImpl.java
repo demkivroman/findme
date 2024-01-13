@@ -13,11 +13,14 @@ import java.util.Objects;
 public class ConverterServiceImpl implements ConverterService {
     @Override
     public PersonModel convertToPersonModel(Map<String, Object> value) {
+        String fullName = Objects.toString(value.get("fullname"));
+        String birthDay = Objects.toString(value.get("BIRTHDAY"));
+        String description = Objects.toString(value.get("DESCRIPTION"));
         return PersonModel.builder()
                 .id(Objects.toString(value.get("person_id")))
-                .fullName(Objects.toString(value.get("person_fullname")))
-                .birthday(Objects.toString(value.get("BIRTHDAY")))
-                .description(Objects.toString(value.get("DESCRIPTION")))
+                .fullName(fullName.equals("null") ? "" : fullName)
+                .birthday(birthDay.equals("null") ? "" : birthDay)
+                .description(description.equals("null") ? "" : description)
                 .build();
     }
 

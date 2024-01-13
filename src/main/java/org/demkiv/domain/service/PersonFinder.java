@@ -16,7 +16,7 @@ public class PersonFinder implements EntityFinder<String, PersonModel> {
 
     @Override
     public List<PersonModel> findEntity(String information) {
-        List<PersonModel> foundPersons = repository.findPersons(information, information);
+        List<PersonModel> foundPersons = repository.findPersonsAndPhoto(information, information);
         log.info("Searching! For item [{}] found results {}", information, foundPersons);
         return foundPersons;
     }
