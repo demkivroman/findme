@@ -2,7 +2,7 @@ package org.demkiv.web.controller;
 
 import lombok.AllArgsConstructor;
 import org.demkiv.domain.service.impl.PostsServiceImpl;
-import org.demkiv.web.model.PostForm;
+import org.demkiv.web.model.form.PostForm;
 import org.demkiv.web.model.ResponseModel;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;

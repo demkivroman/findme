@@ -1,4 +1,4 @@
-package org.demkiv.web.model;
+package org.demkiv.persistance.model.response;
 
 import lombok.Builder;
 import lombok.Data;

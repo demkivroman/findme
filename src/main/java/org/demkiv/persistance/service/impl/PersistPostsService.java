@@ -7,7 +7,7 @@ import org.demkiv.persistance.dao.PostsRepository;
 import org.demkiv.persistance.entity.Person;
 import org.demkiv.persistance.entity.Posts;
 import org.demkiv.persistance.service.SaveEntityService;
-import org.demkiv.web.model.PostForm;
+import org.demkiv.web.model.form.PostForm;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

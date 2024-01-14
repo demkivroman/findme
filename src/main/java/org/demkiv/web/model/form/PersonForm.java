@@ -1,4 +1,4 @@
-package org.demkiv.web.model;
+package org.demkiv.web.model.form;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -5,7 +5,7 @@ import org.demkiv.domain.PersonUploadTask;
 import org.demkiv.domain.architecture.EntitySaver;
 import org.demkiv.domain.architecture.FileUploader;
 import org.demkiv.persistance.service.PersistService;
-import org.demkiv.web.model.PersonPhotoForm;
+import org.demkiv.web.model.form.PersonPhotoForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;

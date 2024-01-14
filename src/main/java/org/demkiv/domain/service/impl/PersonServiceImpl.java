@@ -5,8 +5,8 @@ import org.demkiv.domain.architecture.EntitySaver;
 import org.demkiv.domain.service.PersonService;
 import org.demkiv.persistance.dao.QueryRepository;
 import org.demkiv.persistance.service.PersistService;
-import org.demkiv.web.model.PersonDetailedModel;
-import org.demkiv.web.model.PersonForm;
+import org.demkiv.web.model.PersonResponseModel;
+import org.demkiv.web.model.form.PersonForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -34,8 +34,8 @@ public class PersonServiceImpl implements EntitySaver<PersonForm, Long>, PersonS
     }
 
     @Override
-    public PersonDetailedModel<?> getDetailedPersonInfo(String personId) {
-        PersonDetailedModel<?> foundInfo = queryRepository.getDetailedPersonInfoFromDB(personId);
+    public PersonResponseModel<?> getDetailedPersonInfo(String personId) {
+        PersonResponseModel<?> foundInfo = queryRepository.getDetailedPersonInfoFromDB(personId);
         log.info("Detailed person information retrieved from DB. ID - {}", personId);
         return foundInfo;
     }

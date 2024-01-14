@@ -2,7 +2,7 @@ package org.demkiv.web.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.demkiv.domain.service.impl.PersonFinderImpl;
-import org.demkiv.web.model.PersonModel;
+import org.demkiv.web.model.PersonResponseModel;
 import org.demkiv.web.model.ResponseModel;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +22,7 @@ public class SearchController {
         if (item.isEmpty()) {
             throw new RuntimeException("Empty search query.");
         }
-        List<PersonModel> foundPersons = finder.findEntity(item);
+        List<PersonResponseModel<?>> foundPersons = finder.findEntity(item);
         return ResponseModel.builder()
                 .mode("Success")
                 .body(foundPersons)

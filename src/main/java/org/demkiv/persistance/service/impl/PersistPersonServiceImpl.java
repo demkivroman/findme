@@ -7,7 +7,7 @@ import org.demkiv.persistance.dao.PersonRepository;
 import org.demkiv.persistance.entity.Finder;
 import org.demkiv.persistance.entity.Person;
 import org.demkiv.persistance.service.PersistService;
-import org.demkiv.web.model.PersonForm;
+import org.demkiv.web.model.form.PersonForm;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

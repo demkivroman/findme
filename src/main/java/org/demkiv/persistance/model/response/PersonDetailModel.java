@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Data
 @Builder
-public class PersonDetail {
+public class PersonDetailModel {
     private PersonDTO person;
     private FinderDTO finder;
     private Set<PhotoDTO> photos;

@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import org.demkiv.domain.service.impl.PhotoServiceImpl;
 import org.demkiv.domain.service.impl.PersonServiceImpl;
 import org.demkiv.web.model.*;
+import org.demkiv.web.model.form.PersonForm;
+import org.demkiv.web.model.form.PersonPhotoForm;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,10 +23,7 @@ public class PersonController {
         long result = personService.saveEntity(personForm);
         return ResponseModel.builder()
                 .mode("Success")
-                .body(PersonResponseModel
-                        .builder()
-                        .personId(String.valueOf(result))
-                        .build())
+                .body(String.valueOf(result))
                 .build();
     }
 
@@ -48,9 +47,9 @@ public class PersonController {
 
     @GetMapping(value = "/api/person/information/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseModel<PersonDetailedModel<?>> getDetailedPersonInfo(@PathVariable String id) {
-        PersonDetailedModel<?> result = personService.getDetailedPersonInfo(id);
-        return ResponseModel.<PersonDetailedModel<?>>builder()
+    public ResponseModel<PersonResponseModel<?>> getDetailedPersonInfo(@PathVariable String id) {
+        PersonResponseModel<?> result = personService.getDetailedPersonInfo(id);
+        return ResponseModel.<PersonResponseModel<?>>builder()
                 .mode("Success")
                 .body(result)
                 .build();

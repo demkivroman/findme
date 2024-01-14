@@ -3,10 +3,7 @@ package org.demkiv.persistance.service;
 import org.demkiv.persistance.model.dto.PersonDTO;
 import org.demkiv.persistance.model.dto.FinderDTO;
 import org.demkiv.persistance.model.dto.PhotoDTO;
-import org.demkiv.web.model.FinderModel;
-import org.demkiv.web.model.PersonModel;
-import org.demkiv.web.model.PhotoModel;
-import org.demkiv.web.model.PostModel;
+import org.demkiv.persistance.model.response.PostModel;
 
 import java.util.Map;
 

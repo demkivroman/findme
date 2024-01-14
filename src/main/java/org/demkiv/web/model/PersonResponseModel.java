@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 @Builder
-public class PersonResponseModel {
-    private String personId;
+public class PersonResponseModel<T> {
+    private T person;
 }

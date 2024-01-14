@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.demkiv.domain.architecture.EntitySaver;
 import org.demkiv.persistance.service.impl.PersistPostsService;
-import org.demkiv.web.model.PostForm;
+import org.demkiv.web.model.form.PostForm;
 import org.springframework.stereotype.Service;
 
 @Slf4j

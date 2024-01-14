@@ -4,7 +4,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.demkiv.domain.architecture.FileUploader;
 import org.demkiv.persistance.service.PersistService;
-import org.demkiv.web.model.PersonPhotoForm;
+import org.demkiv.web.model.form.PersonPhotoForm;
 
 import java.io.File;
 import java.io.IOException;

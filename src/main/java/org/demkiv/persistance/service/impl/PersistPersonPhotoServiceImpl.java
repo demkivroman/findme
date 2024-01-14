@@ -7,7 +7,7 @@ import org.demkiv.persistance.dao.PhotoRepository;
 import org.demkiv.persistance.entity.Person;
 import org.demkiv.persistance.entity.Photo;
 import org.demkiv.persistance.service.PersistService;
-import org.demkiv.web.model.PersonPhotoForm;
+import org.demkiv.web.model.form.PersonPhotoForm;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;

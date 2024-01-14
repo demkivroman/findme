@@ -4,11 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.demkiv.persistance.model.dto.FinderDTO;
 import org.demkiv.persistance.model.dto.PersonDTO;
 import org.demkiv.persistance.model.dto.PhotoDTO;
-import org.demkiv.persistance.model.response.PersonDetail;
+import org.demkiv.persistance.model.response.PersonDetailModel;
 import org.demkiv.persistance.service.ConverterService;
-import org.demkiv.web.model.PersonDetailedModel;
-import org.demkiv.web.model.PersonModel;
-import org.demkiv.web.model.PhotoModel;
+import org.demkiv.web.model.PersonResponseModel;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import java.util.*;
@@ -20,7 +18,7 @@ public class QueryRepository {
     private final ConverterService converter;
 
 
-    public List<PersonModel> findPersonsAndPhoto(String fullName, String description) {
+    public List<PersonResponseModel<?>> findPersonsAndPhoto(String fullName, String description) {
         final String query = "select person.id as person_id, person.FULLNAME as person_fullname, person.BIRTHDAY, person.DESCRIPTION, "  +
                 "photo.id as photo_id, photo.URL from person\n" +
                 "left join photo on person.ID = photo.PERSON_ID\n" +
@@ -30,7 +28,7 @@ public class QueryRepository {
         return convertQueryResults(queryResult);
     }
 
-    public PersonDetailedModel<PersonDetail> getDetailedPersonInfoFromDB(String personId) {
+    public PersonResponseModel<PersonDetailModel> getDetailedPersonInfoFromDB(String personId) {
         final String personInfoQuery = "select person.id as person_id, person.FULLNAME as person_fullname, person.BIRTHDAY, person.DESCRIPTION,\n" +
                 "finder.id as finder_id, finder.FULLNAME as finder_fullname, finder.PHONE, finder.EMAIL, finder.INFORMATION,\n" +
                 "photo.id as photo_id, photo.URL\n" +
@@ -46,7 +44,7 @@ public class QueryRepository {
         return convertQueryResultsToPersonDetailedModel(queryResult, postsCount);
     }
 
-    private PersonDetailedModel<PersonDetail> convertQueryResultsToPersonDetailedModel(
+    private PersonResponseModel<PersonDetailModel> convertQueryResultsToPersonDetailedModel(
             List<Map<String, Object>> queryResult,
             String postsCount) {
         Set<PersonDTO> personSet = new LinkedHashSet<>();
@@ -60,20 +58,20 @@ public class QueryRepository {
                     photoSet.add(converter.convertQueryRowToPhotoDTO(rowMap));
                 });
 
-        PersonDetail detail = PersonDetail.builder()
+        PersonDetailModel detail = PersonDetailModel.builder()
                 .person(personSet.iterator().next())
                 .finder(finderSet.iterator().next())
                 .photos(photoSet)
                 .totalPosts(postsCount)
                 .build();
 
-        return PersonDetailedModel.<PersonDetail>builder()
+        return PersonResponseModel.<PersonDetailModel>builder()
                 .person(detail)
                 .build();
     }
 
-    private List<PersonModel> convertQueryResults(List<Map<String, Object>> queryResult) {
-        Map<String, PersonModel> persons = new HashMap<>();
+    private List<PersonResponseModel<?>> convertQueryResults(List<Map<String, Object>> queryResult) {
+        Map<String, PersonResponseModel<?>> persons = new HashMap<>();
         queryResult.forEach(line -> {
             collectPerson(persons, line);
         });
@@ -81,8 +79,8 @@ public class QueryRepository {
         return new ArrayList<>(persons.values());
     }
 
-    private void collectPerson(Map<String, PersonModel> persons, Map<String, Object> queryRow) {
-        PersonModel currentPerson = converter.convertToPersonModel(queryRow);
+    private void collectPerson(Map<String, PersonResponseModel> persons, Map<String, Object> queryRow) {
+        PersonResponseModel currentPerson = converter.convertToPersonModel(queryRow);
         PhotoModel photo = converter.convertToPhotoModel(queryRow);
         currentPerson.setPhoto(photo);
         persons.putIfAbsent(currentPerson.getId(), currentPerson);
