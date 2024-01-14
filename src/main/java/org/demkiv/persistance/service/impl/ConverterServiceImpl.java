@@ -49,8 +49,11 @@ public class ConverterServiceImpl implements ConverterService {
     }
 
     @Override
-    public PhotoDTO convertQueryRowToPhotoDTO(Map<String, Object> value) {
-        return null;
+    public PhotoDTO convertQueryRowToPhotoDTO(Map<String, Object> row) {
+        return PhotoDTO.builder()
+                .id(getCorrectFieldValue(row, "photo_id"))
+                .url(getCorrectFieldValue(row, "url"))
+                .build();
     }
 
     @Override
