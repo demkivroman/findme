@@ -1,9 +1,10 @@
 package org.demkiv.persistance.dao;
 
 import lombok.RequiredArgsConstructor;
-import org.demkiv.persistance.model.FinderDTO;
-import org.demkiv.persistance.model.PersonDTO;
-import org.demkiv.persistance.model.PhotoDTO;
+import org.demkiv.persistance.model.dto.FinderDTO;
+import org.demkiv.persistance.model.dto.PersonDTO;
+import org.demkiv.persistance.model.dto.PhotoDTO;
+import org.demkiv.persistance.model.response.PersonDetail;
 import org.demkiv.persistance.service.ConverterService;
 import org.demkiv.web.model.PersonDetailedModel;
 import org.demkiv.web.model.PersonModel;
@@ -29,7 +30,7 @@ public class QueryRepository {
         return convertQueryResults(queryResult);
     }
 
-    public PersonDetailedModel<PersonDTO, FinderDTO, PhotoDTO> getDetailedPersonInfoFromDB(String personId) {
+    public PersonDetailedModel<PersonDetail> getDetailedPersonInfoFromDB(String personId) {
         final String personInfoQuery = "select person.id as person_id, person.FULLNAME as person_fullname, person.BIRTHDAY, person.DESCRIPTION,\n" +
                 "finder.id as finder_id, finder.FULLNAME as finder_fullname, finder.PHONE, finder.EMAIL, finder.INFORMATION,\n" +
                 "photo.id as photo_id, photo.URL\n" +
@@ -45,7 +46,7 @@ public class QueryRepository {
         return convertQueryResultsToPersonDetailedModel(queryResult, postsCount);
     }
 
-    private PersonDetailedModel<PersonDTO, FinderDTO, PhotoDTO> convertQueryResultsToPersonDetailedModel(
+    private PersonDetailedModel<PersonDetail> convertQueryResultsToPersonDetailedModel(
             List<Map<String, Object>> queryResult,
             String postsCount) {
         Set<PersonDTO> personSet = new LinkedHashSet<>();
@@ -59,11 +60,15 @@ public class QueryRepository {
                     photoSet.add(converter.convertQueryRowToPhotoDTO(rowMap));
                 });
 
-        return PersonDetailedModel.<PersonDTO, FinderDTO, PhotoDTO>builder()
+        PersonDetail detail = PersonDetail.builder()
                 .person(personSet.iterator().next())
                 .finder(finderSet.iterator().next())
                 .photos(photoSet)
                 .totalPosts(postsCount)
+                .build();
+
+        return PersonDetailedModel.<PersonDetail>builder()
+                .person(detail)
                 .build();
     }
 

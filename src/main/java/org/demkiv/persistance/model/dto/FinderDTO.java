@@ -1,4 +1,4 @@
-package org.demkiv.persistance.model;
+package org.demkiv.persistance.model.dto;
 
 import lombok.Builder;
 import lombok.Data;

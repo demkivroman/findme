@@ -1,8 +1,8 @@
 package org.demkiv.persistance.service.impl;
 
-import org.demkiv.persistance.model.FinderDTO;
-import org.demkiv.persistance.model.PersonDTO;
-import org.demkiv.persistance.model.PhotoDTO;
+import org.demkiv.persistance.model.dto.FinderDTO;
+import org.demkiv.persistance.model.dto.PersonDTO;
+import org.demkiv.persistance.model.dto.PhotoDTO;
 import org.demkiv.persistance.service.ConverterService;
 import org.demkiv.web.model.FinderModel;
 import org.demkiv.web.model.PersonModel;

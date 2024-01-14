@@ -34,8 +34,8 @@ public class PersonServiceImpl implements EntitySaver<PersonForm, Long>, PersonS
     }
 
     @Override
-    public PersonDetailedModel<?,?,?> getDetailedPersonInfo(String personId) {
-        PersonDetailedModel<?,?,?> foundInfo = queryRepository.getDetailedPersonInfoFromDB(personId);
+    public PersonDetailedModel<?> getDetailedPersonInfo(String personId) {
+        PersonDetailedModel<?> foundInfo = queryRepository.getDetailedPersonInfoFromDB(personId);
         log.info("Detailed person information retrieved from DB. ID - {}", personId);
         return foundInfo;
     }
