@@ -5,11 +5,13 @@ import org.demkiv.persistance.model.dto.FinderDTO;
 import org.demkiv.persistance.model.dto.PersonDTO;
 import org.demkiv.persistance.model.dto.PhotoDTO;
 import org.demkiv.persistance.model.response.PersonDetailModel;
+import org.demkiv.persistance.model.response.SearchPersonsModel;
 import org.demkiv.persistance.service.ConverterService;
 import org.demkiv.web.model.PersonResponseModel;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -71,18 +73,25 @@ public class QueryRepository {
     }
 
     private List<PersonResponseModel<?>> convertQueryResults(List<Map<String, Object>> queryResult) {
-        Map<String, PersonResponseModel<?>> persons = new HashMap<>();
-        queryResult.forEach(line -> {
-            collectPerson(persons, line);
+        Map<String, SearchPersonsModel> persons = new HashMap<>();
+        queryResult.forEach(row -> {
+            collectPerson(persons, row);
         });
 
-        return new ArrayList<>(persons.values());
+        return persons.values().stream()
+                .map(entity -> PersonResponseModel.<SearchPersonsModel>builder()
+                        .person(entity)
+                        .build())
+                .collect(Collectors.toList());
     }
 
-    private void collectPerson(Map<String, PersonResponseModel> persons, Map<String, Object> queryRow) {
-        PersonResponseModel currentPerson = converter.convertToPersonModel(queryRow);
-        PhotoModel photo = converter.convertToPhotoModel(queryRow);
-        currentPerson.setPhoto(photo);
-        persons.putIfAbsent(currentPerson.getId(), currentPerson);
+    private void collectPerson(Map<String, SearchPersonsModel> persons, Map<String, Object> queryRow) {
+        PersonDTO personDTO = converter.convertQueryRowToPersonDTO(queryRow);
+        PhotoDTO photoDTO = converter.convertQueryRowToPhotoDTO(queryRow);
+        SearchPersonsModel searchModel = SearchPersonsModel.builder()
+                .person(personDTO)
+                .photo(photoDTO)
+                .build();
+        persons.putIfAbsent(personDTO.getId(), searchModel);
     }
 }
