@@ -11,7 +11,6 @@ import org.demkiv.web.model.PersonResponseModel;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -20,7 +19,7 @@ public class QueryRepository {
     private final ConverterService converter;
 
 
-    public List<PersonResponseModel<?>> findPersonsAndPhoto(String fullName, String description) {
+    public List<?> findPersonsAndPhoto(String fullName, String description) {
         final String query = "select person.id as person_id, person.FULLNAME as person_fullname, person.BIRTHDAY, person.DESCRIPTION, "  +
                 "photo.id as photo_id, photo.URL from person\n" +
                 "left join photo on person.ID = photo.PERSON_ID\n" +
@@ -72,17 +71,13 @@ public class QueryRepository {
                 .build();
     }
 
-    private List<PersonResponseModel<?>> convertQueryResults(List<Map<String, Object>> queryResult) {
+    private List<?> convertQueryResults(List<Map<String, Object>> queryResult) {
         Map<String, SearchPersonsModel> persons = new HashMap<>();
         queryResult.forEach(row -> {
             collectPerson(persons, row);
         });
 
-        return persons.values().stream()
-                .map(entity -> PersonResponseModel.<SearchPersonsModel>builder()
-                        .person(entity)
-                        .build())
-                .collect(Collectors.toList());
+        return new ArrayList<>(persons.values());
     }
 
     private void collectPerson(Map<String, SearchPersonsModel> persons, Map<String, Object> queryRow) {
