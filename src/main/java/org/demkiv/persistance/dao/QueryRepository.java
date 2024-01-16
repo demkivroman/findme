@@ -11,6 +11,7 @@ import org.demkiv.web.model.PersonResponseModel;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -43,6 +44,14 @@ public class QueryRepository {
         List<Map<String, Object>> queryResult = jdbcTemplate.queryForList(String.format(personInfoQuery, personId));
         String postsCount = jdbcTemplate.queryForObject(String.format(postsTotalQuery, personId), String.class);
         return convertQueryResultsToPersonDetailedModel(queryResult, postsCount);
+    }
+
+    public List<?> getPersonPosts(String personId) {
+        final String query = "select posts.ID, posts.POST, posts.TIME from posts where PERSON_ID = %s";
+        List<Map<String, Object>> queryResult = jdbcTemplate.queryForList(String.format(query, personId));
+        return queryResult.stream()
+                .map(converter::convertQueryRowToPostDTO)
+                .collect(Collectors.toList());
     }
 
     private PersonResponseModel<PersonDetailModel> convertQueryResultsToPersonDetailedModel(

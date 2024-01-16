@@ -3,6 +3,7 @@ package org.demkiv.persistance.service.impl;
 import org.demkiv.persistance.model.dto.FinderDTO;
 import org.demkiv.persistance.model.dto.PersonDTO;
 import org.demkiv.persistance.model.dto.PhotoDTO;
+import org.demkiv.persistance.model.dto.PostDTO;
 import org.demkiv.persistance.service.ConverterService;
 import org.springframework.stereotype.Service;
 import java.util.Map;
@@ -40,8 +41,20 @@ public class ConverterServiceImpl implements ConverterService {
                 .build();
     }
 
+    @Override
+    public PostDTO convertQueryRowToPostDTO(Map<String, Object> row) {
+        String timestamp = getCorrectFieldValue(row, "time");
+        String[] dateTimeArr = timestamp.isEmpty() ? null : timestamp.split(" ");
+        return PostDTO.builder()
+                .id(getCorrectFieldValue(row, "id"))
+                .post(getCorrectFieldValue(row, "post"))
+                .date(dateTimeArr == null ? "" : dateTimeArr[0])
+                .time(dateTimeArr == null ? "" : dateTimeArr[1])
+                .build();
+    }
+
     private String getCorrectFieldValue(Map<String, Object> row, String field) {
         String retrievedValue = Objects.toString(row.get(field));
-        return retrievedValue.equals("null") ? "" : retrievedValue;
+        return retrievedValue.equals("null") || retrievedValue.isEmpty() ? "" : retrievedValue;
     }
 }
