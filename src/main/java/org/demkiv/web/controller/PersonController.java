@@ -32,8 +32,7 @@ public class PersonController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseModel<?> savePersonPhoto(
             @RequestParam("person_id") long personId,
-            @RequestParam("photo") MultipartFile photo
-    ) {
+            @RequestParam("photo") MultipartFile photo) {
         PersonPhotoForm photoForm = PersonPhotoForm.builder()
                 .personId(personId)
                 .photo(photo)

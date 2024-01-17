@@ -5,9 +5,9 @@ import org.demkiv.domain.service.impl.PostsServiceImpl;
 import org.demkiv.web.model.form.PostForm;
 import org.demkiv.web.model.ResponseModel;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -19,8 +19,7 @@ public class PostsController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseModel<?> savePost(
             @RequestParam("post") String post,
-            @RequestParam("person_id") long personId
-    ) {
+            @RequestParam("person_id") long personId) {
         PostForm postForm = PostForm.builder()
                 .post(post)
                 .personId(personId)
@@ -29,6 +28,16 @@ public class PostsController {
         postsService.saveEntity(postForm);
         return ResponseModel.builder()
                 .mode("Success")
+                .build();
+    }
+
+    @GetMapping(value = "/api/person/{id}/posts",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseModel<?> getAllPostsForPerson(@PathVariable String id) {
+        List<?> posts = postsService.findEntity(id);
+        return ResponseModel.builder()
+                .mode("Success")
+                .body(posts)
                 .build();
     }
 }

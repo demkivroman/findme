@@ -8,12 +8,14 @@ import org.demkiv.persistance.dao.QueryRepository;
 import org.demkiv.persistance.service.impl.PersistPostsService;
 import org.demkiv.web.model.form.PostForm;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class PostsServiceImpl implements EntitySaver<PostForm, Boolean>, EntityFinder<String, List<?>> {
     private final PersistPostsService postsService;
     private final QueryRepository queryService;
