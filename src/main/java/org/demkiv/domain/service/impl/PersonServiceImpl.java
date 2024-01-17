@@ -10,12 +10,10 @@ import org.demkiv.web.model.form.PersonForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@Transactional
 public class PersonServiceImpl implements EntitySaver<PersonForm, Long>, PersonService {
     private final PersistService<PersonForm, Long> service;
     private final QueryRepository queryRepository;
@@ -34,6 +32,7 @@ public class PersonServiceImpl implements EntitySaver<PersonForm, Long>, PersonS
     }
 
     @Override
+    @Transactional
     public PersonResponseModel<?> getDetailedPersonInfo(String personId) {
         PersonResponseModel<?> foundInfo = queryRepository.getDetailedPersonInfoFromDB(personId);
         log.info("Detailed person information retrieved from DB. ID - {}", personId);
