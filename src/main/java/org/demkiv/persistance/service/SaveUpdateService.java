@@ -1,5 +1,6 @@
 package org.demkiv.persistance.service;
 
-public interface SaveEntityService <T> {
+public interface SaveUpdateService<T> {
     void saveEntity(T entity);
+    void updateEntity(T entity);
 }

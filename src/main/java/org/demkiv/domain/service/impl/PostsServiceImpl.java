@@ -3,7 +3,7 @@ package org.demkiv.domain.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.demkiv.domain.architecture.EntityFinder;
-import org.demkiv.domain.architecture.EntitySaver;
+import org.demkiv.domain.architecture.EntityPersist;
 import org.demkiv.persistance.dao.QueryRepository;
 import org.demkiv.persistance.service.impl.PersistPostsService;
 import org.demkiv.web.model.form.PostForm;
@@ -11,20 +11,28 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class PostsServiceImpl implements EntitySaver<PostForm, Boolean>, EntityFinder<String, List<?>> {
+public class PostsServiceImpl implements EntityPersist<PostForm, Optional<?>>, EntityFinder<String, List<?>> {
     private final PersistPostsService postsService;
     private final QueryRepository queryService;
 
     @Override
-    public Boolean saveEntity(PostForm entity) {
+    public Optional<?> saveEntity(PostForm entity) {
         postsService.saveEntity(entity);
         log.info("Post [ {} ] is saved to database for person {}", entity.getPost(), entity.getPersonId());
-        return true;
+        return Optional.of(true);
+    }
+
+    @Override
+    public Optional<?> updateEntity(PostForm entity) {
+        postsService.updateEntity(entity);
+        log.info("Post [ {} ] is updated in database for person {}", entity.getPost(), entity.getPersonId());
+        return Optional.of(true);
     }
 
     @Override

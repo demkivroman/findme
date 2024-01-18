@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
@@ -38,6 +39,17 @@ public class PostsController {
         return ResponseModel.builder()
                 .mode("Success")
                 .body(posts)
+                .build();
+    }
+
+    @PostMapping(value = "/api/post/update",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseModel<?> updatePostForPerson(@RequestBody PostForm postForm) {
+        Optional<?> result = postsService.updateEntity(postForm);
+        return ResponseModel.builder()
+                .mode("Success")
+                .body(result)
                 .build();
     }
 }
