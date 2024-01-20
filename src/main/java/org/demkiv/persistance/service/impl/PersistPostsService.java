@@ -18,19 +18,20 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 @Transactional
-public class PersistPostsService implements SaveUpdateService<PostForm> {
+public class PersistPostsService implements SaveUpdateService<PostForm, Boolean> {
     private PostsRepository postsRepository;
     private PersonRepository personRepository;
 
     @Override
-    public void saveEntity(PostForm entity) {
+    public Boolean saveEntity(PostForm entity) {
         Posts posts = convertToPostsEntity(entity);
         postsRepository.save(posts);
         log.info("Post entity is saved to database id {}", posts.getId());
+        return true;
     }
 
     @Override
-    public void updateEntity(PostForm entity) {
+    public Boolean updateEntity(PostForm entity) {
         Optional<Posts> postsOptional = postsRepository.findById(entity.getPostId());
         if (postsOptional.isPresent()) {
             Posts post = postsOptional.get();
@@ -38,7 +39,9 @@ public class PersistPostsService implements SaveUpdateService<PostForm> {
             post.setTime(getTimestamp());
             postsRepository.save(post);
             log.info("Post entity is updated in database id {}", post.getId());
+            return true;
         }
+        return false;
     }
 
     private Posts convertToPostsEntity(PostForm postForm) {

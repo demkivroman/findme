@@ -10,6 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Optional;
+
 @RestController
 @AllArgsConstructor
 public class PersonController {
@@ -20,10 +22,23 @@ public class PersonController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseModel<?> savePerson(@RequestBody PersonForm personForm) {
-        long result = personService.saveEntity(personForm);
+        Optional<?> result = personService.saveEntity(personForm);
         return ResponseModel.builder()
                 .mode("Success")
                 .body(String.valueOf(result))
+                .build();
+    }
+
+    @PostMapping(value = "/api/person/{id}/update",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseModel<?> updatePerson(
+            @PathVariable String id,
+            @RequestBody PersonForm personForm) {
+        personForm.setPersonId(Long.parseLong(id));
+        Optional<?> result = personService.updateEntity(personForm);
+        return ResponseModel.builder()
+                .mode("Success")
+                .body(result)
                 .build();
     }
 
