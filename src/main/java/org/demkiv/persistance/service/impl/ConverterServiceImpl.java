@@ -14,11 +14,14 @@ public class ConverterServiceImpl implements ConverterService {
 
     @Override
     public PersonDTO convertQueryRowToPersonDTO(Map<String, Object> row) {
+        String[] dateTimeArr = convertDateTimeToArray(row);
         return PersonDTO.builder()
                 .id(getCorrectFieldValue(row, "person_id"))
                 .fullName(getCorrectFieldValue(row, "person_fullname"))
                 .birthday(getCorrectFieldValue(row, "birthday"))
                 .description(getCorrectFieldValue(row, "description"))
+                .date(dateTimeArr[0])
+                .time(dateTimeArr[1])
                 .build();
     }
 
@@ -43,14 +46,18 @@ public class ConverterServiceImpl implements ConverterService {
 
     @Override
     public PostDTO convertQueryRowToPostDTO(Map<String, Object> row) {
-        String timestamp = getCorrectFieldValue(row, "time");
-        String[] dateTimeArr = timestamp.isEmpty() ? null : timestamp.split(" ");
+        String[] dateTimeArr = convertDateTimeToArray(row);
         return PostDTO.builder()
                 .id(getCorrectFieldValue(row, "id"))
                 .post(getCorrectFieldValue(row, "post"))
-                .date(dateTimeArr == null ? "" : dateTimeArr[0])
-                .time(dateTimeArr == null ? "" : dateTimeArr[1])
+                .date(dateTimeArr[0])
+                .time(dateTimeArr[1])
                 .build();
+    }
+
+    private String[] convertDateTimeToArray(Map<String, Object> row) {
+        String timestamp = getCorrectFieldValue(row, "time");
+        return timestamp.isEmpty() ? new String[]{"",""} : timestamp.split(" ");
     }
 
     private String getCorrectFieldValue(Map<String, Object> row, String field) {

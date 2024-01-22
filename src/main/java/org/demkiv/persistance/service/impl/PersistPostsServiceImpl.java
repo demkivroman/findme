@@ -18,7 +18,7 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 @Transactional
-public class PersistPostsService implements SaveUpdateService<PostForm, Boolean> {
+public class PersistPostsServiceImpl implements SaveUpdateService<PostForm, Boolean> {
     private PostsRepository postsRepository;
     private PersonRepository personRepository;
 

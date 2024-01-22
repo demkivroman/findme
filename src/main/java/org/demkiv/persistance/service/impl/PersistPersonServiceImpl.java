@@ -50,7 +50,7 @@ public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, O
             finder.setEmail(entity.getFinderEmail());
             finder.setInformation(entity.getFinderInformation());
             Finder updatedFinder = finderRepository.save(finder);
-            log.info("Finder is updated in database {}", updatedFinder);
+            log.info("Finder is updated in database {}", updatedFinder.getId());
 
             person.setFullname(entity.getPersonFullName());
             person.setDescription(entity.getPersonDescription());
@@ -59,7 +59,7 @@ public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, O
                 person.setBirthday(getDate(stringDate));
             }
             Person updatedPerson = personRepository.save(person);
-            log.info("Person is updated in database {}", updatedPerson);
+            log.info("Person is updated in database {}", updatedPerson.getId());
             return Optional.of(true);
         }
         return Optional.of(false);
@@ -82,6 +82,7 @@ public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, O
                 .fullname(personForm.getPersonFullName())
                 .birthday(birthDay)
                 .description(personForm.getPersonDescription())
+                .time(LocalDateTime.now())
                 .finder(finder)
                 .build();
     }

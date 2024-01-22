@@ -21,7 +21,7 @@ public class QueryRepository {
 
 
     public List<?> findPersonsAndPhoto(String fullName, String description) {
-        final String query = "select person.id as person_id, person.FULLNAME as person_fullname, person.BIRTHDAY, person.DESCRIPTION, "  +
+        final String query = "select person.id as person_id, person.FULLNAME as person_fullname, person.BIRTHDAY, person.DESCRIPTION, person.TIME,"  +
                 "photo.id as photo_id, photo.URL from person\n" +
                 "left join photo on person.ID = photo.PERSON_ID\n" +
                 "where person.FULLNAME like '%" + fullName + "%'" + " or " + "person.DESCRIPTION like '%" + description + "%'";
@@ -31,7 +31,7 @@ public class QueryRepository {
     }
 
     public PersonResponseModel<PersonDetailModel> getDetailedPersonInfoFromDB(String personId) {
-        final String personInfoQuery = "select person.id as person_id, person.FULLNAME as person_fullname, person.BIRTHDAY, person.DESCRIPTION,\n" +
+        final String personInfoQuery = "select person.id as person_id, person.FULLNAME as person_fullname, person.BIRTHDAY, person.DESCRIPTION, person.TIME,\n" +
                 "finder.id as finder_id, finder.FULLNAME as finder_fullname, finder.PHONE, finder.EMAIL, finder.INFORMATION,\n" +
                 "photo.id as photo_id, photo.URL\n" +
                 "from person\n" +

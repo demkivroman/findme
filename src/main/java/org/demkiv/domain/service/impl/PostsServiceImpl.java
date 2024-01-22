@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.demkiv.domain.architecture.EntityFinder;
 import org.demkiv.domain.architecture.EntityPersist;
 import org.demkiv.persistance.dao.QueryRepository;
-import org.demkiv.persistance.service.impl.PersistPostsService;
+import org.demkiv.persistance.service.impl.PersistPostsServiceImpl;
 import org.demkiv.web.model.form.PostForm;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +18,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Transactional
 public class PostsServiceImpl implements EntityPersist<PostForm, Optional<?>>, EntityFinder<String, List<?>> {
-    private final PersistPostsService postsService;
+    private final PersistPostsServiceImpl postsService;
     private final QueryRepository queryService;
 
     @Override
