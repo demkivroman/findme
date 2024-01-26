@@ -5,7 +5,6 @@ import lombok.Data;
 
 @Data
 @Builder
-public class PostForm {
-    private String post;
-    private long personId;
+public class PersonResponseModel<T> {
+    private T person;
 }

@@ -8,6 +8,7 @@ import java.util.Optional;
 public interface PostsRepository extends JpaRepository<Posts, Long> {
     @Override
     <S extends Posts> S save(S entity);
+
     @Override
     Optional<Posts> findById(Long aLong);
 }

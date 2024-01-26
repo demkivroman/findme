@@ -1,5 +1,5 @@
 package org.demkiv.persistance.service;
 
-public interface PersistService<T> {
-    void saveEntity(T entity, String value);
+public interface PersistService<T, R> {
+    R saveEntity(T entity);
 }

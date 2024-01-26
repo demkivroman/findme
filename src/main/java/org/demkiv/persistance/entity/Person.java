@@ -5,9 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Data
 @Builder
@@ -25,6 +27,9 @@ public class Person {
     private Date birthday;
     @Column(name = "description")
     private String description;
+    @Column(name = "time")
+    @NotNull
+    private LocalDateTime time;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "finder_id", referencedColumnName = "id")

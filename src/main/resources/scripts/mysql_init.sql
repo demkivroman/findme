@@ -13,6 +13,7 @@ create table findme_db.PERSON
     FULLNAME    varchar(100) not null,
     BIRTHDAY    date,
     DESCRIPTION text,
+    TIME      TIMESTAMP     not null,
     FINDER_ID   INT UNIQUE,
     FOREIGN KEY (FINDER_ID) REFERENCES FINDER (ID)
 );
@@ -22,7 +23,7 @@ create table findme_db.POSTS
     ID        INT AUTO_INCREMENT PRIMARY KEY,
     POST      text not null,
     TIME      TIMESTAMP     not null,
-    PERSON_ID INT not null unique,
+    PERSON_ID INT not null,
     FOREIGN KEY (PERSON_ID) REFERENCES PERSON (ID)
 );
 

@@ -1,27 +1,67 @@
 package org.demkiv.persistance.service.impl;
 
+import org.demkiv.persistance.model.dto.FinderDTO;
+import org.demkiv.persistance.model.dto.PersonDTO;
+import org.demkiv.persistance.model.dto.PhotoDTO;
+import org.demkiv.persistance.model.dto.PostDTO;
 import org.demkiv.persistance.service.ConverterService;
-import org.demkiv.web.model.PersonFoundForm;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 @Service
 public class ConverterServiceImpl implements ConverterService {
+
     @Override
-    public PersonFoundForm convertPersonToPersonFoundForm(Map<String, Object> value) {
-        return PersonFoundForm.builder()
-                .id(Objects.toString(value.get("id")))
-                .personFullName(Objects.toString(value.get("person_fullname")))
-                .personBirthday(Objects.toString(value.get("BIRTHDAY")))
-                .personDescription(Objects.toString(value.get("DESCRIPTION")))
-                .finderFullName(Objects.toString(value.get("finder_fullname")))
-                .finderPhone(Objects.toString(value.get("PHONE")))
-                .finderEmail(Objects.toString(value.get("EMAIL")))
-                .finderInformation(Objects.toString(value.get("INFORMATION")))
-                .urls(List.of(Objects.toString(value.get("url"))))
+    public PersonDTO convertQueryRowToPersonDTO(Map<String, Object> row) {
+        String[] dateTimeArr = convertDateTimeToArray(row);
+        return PersonDTO.builder()
+                .id(getCorrectFieldValue(row, "person_id"))
+                .fullName(getCorrectFieldValue(row, "person_fullname"))
+                .birthday(getCorrectFieldValue(row, "birthday"))
+                .description(getCorrectFieldValue(row, "description"))
+                .date(dateTimeArr[0])
+                .time(dateTimeArr[1])
                 .build();
+    }
+
+    @Override
+    public FinderDTO convertQueryRowToFinderDTO(Map<String, Object> row) {
+        return FinderDTO.builder()
+                .id(getCorrectFieldValue(row, "finder_id"))
+                .fullName(getCorrectFieldValue(row, "finder_fullname"))
+                .email(getCorrectFieldValue(row, "email"))
+                .phone(getCorrectFieldValue(row, "phone"))
+                .information(getCorrectFieldValue(row, "information"))
+                .build();
+    }
+
+    @Override
+    public PhotoDTO convertQueryRowToPhotoDTO(Map<String, Object> row) {
+        return PhotoDTO.builder()
+                .id(getCorrectFieldValue(row, "photo_id"))
+                .url(getCorrectFieldValue(row, "url"))
+                .build();
+    }
+
+    @Override
+    public PostDTO convertQueryRowToPostDTO(Map<String, Object> row) {
+        String[] dateTimeArr = convertDateTimeToArray(row);
+        return PostDTO.builder()
+                .id(getCorrectFieldValue(row, "id"))
+                .post(getCorrectFieldValue(row, "post"))
+                .date(dateTimeArr[0])
+                .time(dateTimeArr[1])
+                .build();
+    }
+
+    private String[] convertDateTimeToArray(Map<String, Object> row) {
+        String timestamp = getCorrectFieldValue(row, "time");
+        return timestamp.isEmpty() ? new String[]{"",""} : timestamp.split(" ");
+    }
+
+    private String getCorrectFieldValue(Map<String, Object> row, String field) {
+        String retrievedValue = Objects.toString(row.get(field));
+        return retrievedValue.equals("null") || retrievedValue.isEmpty() ? "" : retrievedValue;
     }
 }

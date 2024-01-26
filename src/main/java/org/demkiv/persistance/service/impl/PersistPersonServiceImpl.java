@@ -2,14 +2,13 @@ package org.demkiv.persistance.service.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.demkiv.domain.FindMeServiceException;
 import org.demkiv.persistance.dao.FinderRepository;
 import org.demkiv.persistance.dao.PersonRepository;
-import org.demkiv.persistance.dao.PhotoRepository;
 import org.demkiv.persistance.entity.Finder;
 import org.demkiv.persistance.entity.Person;
-import org.demkiv.persistance.entity.Photo;
-import org.demkiv.persistance.service.PersistService;
-import org.demkiv.web.model.PersonForm;
+import org.demkiv.persistance.service.SaveUpdateService;
+import org.demkiv.web.model.form.PersonForm;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,35 +16,54 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
-@Service
+@Service("persistPerson")
 @AllArgsConstructor
 @Transactional
-public class PersistPersonServiceImpl implements PersistService<PersonForm> {
+public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, Optional<?>> {
     private FinderRepository finderRepository;
     private PersonRepository personRepository;
-    private PhotoRepository photoRepository;
 
     @Override
-    public void saveEntity(PersonForm personForm, String photoUrl) {
+    public Optional<Long> saveEntity(PersonForm personForm) {
         if (Objects.nonNull(personForm)) {
             Finder finder = getFinder(personForm);
             finderRepository.save(finder);
             log.info("Finder is stored to database {}", finder);
             Person person = getPerson(personForm, finder);
-            personRepository.save(person);
-            log.info("Person is stored to database {}", person);
-            photoRepository.save(getPhoto(person, photoUrl));
-            log.info("Photo linked to person is saved to database. URL is {}", photoUrl);
+            Person savedPerson = personRepository.save(person);
+            log.info("Person is stored to database {}", savedPerson);
+            return Optional.of(savedPerson.getId());
         }
+        throw new FindMeServiceException("Trying save empty person.");
     }
 
-    private Photo getPhoto(Person person, String url) {
-        return Photo.builder()
-                .url(url)
-                .person(person)
-                .build();
+    @Override
+    public Optional<Boolean> updateEntity(PersonForm entity) {
+        Optional<Person> foundPerson = personRepository.findById(entity.getPersonId());
+        if (foundPerson.isEmpty()) {
+            throw new FindMeServiceException(String.format("Person with id - %s is not present in DB.", entity.getPersonId()));
+        }
+        Person person = foundPerson.get();
+        Finder finder = person.getFinder();
+        finder.setFullname(entity.getFinderFullName());
+        finder.setPhone(entity.getFinderPhone());
+        finder.setEmail(entity.getFinderEmail());
+        finder.setInformation(entity.getFinderInformation());
+        Finder updatedFinder = finderRepository.save(finder);
+        log.info("Finder is updated in database {}", updatedFinder.getId());
+
+        person.setFullname(entity.getPersonFullName());
+        person.setDescription(entity.getPersonDescription());
+        String stringDate = entity.getPersonBirthDay();
+        if (!stringDate.equals(String.valueOf(person.getBirthday()))) {
+            person.setBirthday(getDate(stringDate));
+        }
+        Person updatedPerson = personRepository.save(person);
+        log.info("Person is updated in database {}", updatedPerson.getId());
+        return Optional.of(true);
     }
 
     private Finder getFinder(PersonForm personForm) {
@@ -59,19 +77,21 @@ public class PersistPersonServiceImpl implements PersistService<PersonForm> {
 
     private Person getPerson(PersonForm personForm, Finder finder) {
         String stringDate = personForm.getPersonBirthDay();
-        Date birthDay = null;
-        if (!stringDate.equals("")) {
-            birthDay = getDate(stringDate);
-        }
+        Date birthDay;
+        birthDay = getDate(stringDate);
         return Person.builder()
                 .fullname(personForm.getPersonFullName())
                 .birthday(birthDay)
                 .description(personForm.getPersonDescription())
+                .time(LocalDateTime.now())
                 .finder(finder)
                 .build();
     }
 
     private Date getDate(String dateString) {
+        if (dateString.isEmpty()) {
+            return null;
+        }
         DateTimeFormatter df = DateTimeFormatter.ofPattern("d-MMM-yyyy");
         LocalDate birthDay = LocalDate.parse(dateString, df);
         Instant instant = Instant.from(birthDay.atStartOfDay(ZoneId.of("GMT")));
