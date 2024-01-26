@@ -43,27 +43,27 @@ public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, O
     @Override
     public Optional<Boolean> updateEntity(PersonForm entity) {
         Optional<Person> foundPerson = personRepository.findById(entity.getPersonId());
-        if (foundPerson.isPresent()) {
-            Person person = foundPerson.get();
-            Finder finder = person.getFinder();
-            finder.setFullname(entity.getFinderFullName());
-            finder.setPhone(entity.getFinderPhone());
-            finder.setEmail(entity.getFinderEmail());
-            finder.setInformation(entity.getFinderInformation());
-            Finder updatedFinder = finderRepository.save(finder);
-            log.info("Finder is updated in database {}", updatedFinder.getId());
-
-            person.setFullname(entity.getPersonFullName());
-            person.setDescription(entity.getPersonDescription());
-            String stringDate = entity.getPersonBirthDay();
-            if (!stringDate.equals(String.valueOf(person.getBirthday()))) {
-                person.setBirthday(getDate(stringDate));
-            }
-            Person updatedPerson = personRepository.save(person);
-            log.info("Person is updated in database {}", updatedPerson.getId());
-            return Optional.of(true);
+        if (foundPerson.isEmpty()) {
+            throw new FindMeServiceException(String.format("Person with id - %s is not present in DB.", entity.getPersonId()));
         }
-        return Optional.of(false);
+        Person person = foundPerson.get();
+        Finder finder = person.getFinder();
+        finder.setFullname(entity.getFinderFullName());
+        finder.setPhone(entity.getFinderPhone());
+        finder.setEmail(entity.getFinderEmail());
+        finder.setInformation(entity.getFinderInformation());
+        Finder updatedFinder = finderRepository.save(finder);
+        log.info("Finder is updated in database {}", updatedFinder.getId());
+
+        person.setFullname(entity.getPersonFullName());
+        person.setDescription(entity.getPersonDescription());
+        String stringDate = entity.getPersonBirthDay();
+        if (!stringDate.equals(String.valueOf(person.getBirthday()))) {
+            person.setBirthday(getDate(stringDate));
+        }
+        Person updatedPerson = personRepository.save(person);
+        log.info("Person is updated in database {}", updatedPerson.getId());
+        return Optional.of(true);
     }
 
     private Finder getFinder(PersonForm personForm) {
