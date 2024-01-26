@@ -2,6 +2,7 @@ package org.demkiv.persistance.service.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.demkiv.domain.FindMeServiceException;
 import org.demkiv.persistance.dao.PersonRepository;
 import org.demkiv.persistance.dao.PhotoRepository;
 import org.demkiv.persistance.entity.Person;
@@ -25,7 +26,7 @@ public class PersistPersonPhotoServiceImpl implements PersistService<PersonPhoto
     public Boolean saveEntity(PersonPhotoForm entity) {
         Optional<Person> personEntity = personRepository.findById(entity.getPersonId());
         if (personEntity.isEmpty()) {
-            throw new RuntimeException("Can't find person in database by id " + entity.getPersonId());
+            throw new FindMeServiceException("Can't find person in database by id " + entity.getPersonId());
         }
 
         Photo photoEntity = getPhoto(personEntity.get(), entity.getUrl());

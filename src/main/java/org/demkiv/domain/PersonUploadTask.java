@@ -49,6 +49,6 @@ public class PersonUploadTask extends Thread {
             }
         }
         log.error("Temp image file is not created.");
-        throw new RuntimeException("Temp image file is not created.");
+        throw new FindMeServiceException("Temp image file is not created.");
     }
 }

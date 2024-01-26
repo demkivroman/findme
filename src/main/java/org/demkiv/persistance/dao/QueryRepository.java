@@ -1,6 +1,7 @@
 package org.demkiv.persistance.dao;
 
 import lombok.RequiredArgsConstructor;
+import org.demkiv.domain.FindMeServiceException;
 import org.demkiv.persistance.model.dto.FinderDTO;
 import org.demkiv.persistance.model.dto.PersonDTO;
 import org.demkiv.persistance.model.dto.PhotoDTO;
@@ -42,6 +43,9 @@ public class QueryRepository {
         final String postsTotalQuery = "select count(posts.POST) as totalPosts from posts where posts.PERSON_ID = %s";
 
         List<Map<String, Object>> queryResult = jdbcTemplate.queryForList(String.format(personInfoQuery, personId));
+        if (queryResult.isEmpty()) {
+            throw new FindMeServiceException(String.format("Person with id - %s is not present in DB.", personId));
+        }
         String postsCount = jdbcTemplate.queryForObject(String.format(postsTotalQuery, personId), String.class);
         return convertQueryResultsToPersonDetailedModel(queryResult, postsCount);
     }

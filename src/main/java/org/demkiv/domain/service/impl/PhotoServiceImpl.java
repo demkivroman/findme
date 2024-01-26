@@ -1,6 +1,7 @@
 package org.demkiv.domain.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.demkiv.domain.FindMeServiceException;
 import org.demkiv.domain.PersonUploadTask;
 import org.demkiv.domain.architecture.EntitySaver;
 import org.demkiv.domain.architecture.FileUploader;
@@ -35,7 +36,7 @@ public class PhotoServiceImpl implements EntitySaver<PersonPhotoForm, Boolean> {
             PersonUploadTask uploadTask = getS3Uploader(entity, tempDirectory);
             uploadTask.start();
         } catch (Exception exception) {
-            throw new RuntimeException(exception.getMessage());
+            throw new FindMeServiceException(exception.getMessage());
         }
         return false;
     }

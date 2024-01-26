@@ -2,6 +2,7 @@ package org.demkiv.persistance.service.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.demkiv.domain.FindMeServiceException;
 import org.demkiv.persistance.dao.FinderRepository;
 import org.demkiv.persistance.dao.PersonRepository;
 import org.demkiv.persistance.entity.Finder;
@@ -36,7 +37,7 @@ public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, O
             log.info("Person is stored to database {}", savedPerson);
             return Optional.of(savedPerson.getId());
         }
-        throw new RuntimeException("Trying save empty person.");
+        throw new FindMeServiceException("Trying save empty person.");
     }
 
     @Override

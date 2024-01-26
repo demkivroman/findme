@@ -2,6 +2,7 @@ package org.demkiv.persistance.service.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.demkiv.domain.FindMeServiceException;
 import org.demkiv.persistance.dao.PersonRepository;
 import org.demkiv.persistance.dao.PostsRepository;
 import org.demkiv.persistance.entity.Person;
@@ -49,7 +50,7 @@ public class PersistPostsServiceImpl implements SaveUpdateService<PostForm, Bool
         if (person.isEmpty()) {
             String message = String.format("Person with id %s is absent in database", postForm.getPersonId());
             log.error(message);
-            throw new RuntimeException(message);
+            throw new FindMeServiceException(message);
         }
         return Posts.builder()
                 .post(postForm.getPost())

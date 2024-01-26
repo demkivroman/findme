@@ -1,6 +1,7 @@
 package org.demkiv.web.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.demkiv.domain.FindMeServiceException;
 import org.demkiv.domain.service.impl.PersonFinderImpl;
 import org.demkiv.web.model.ResponseModel;
 import org.springframework.http.MediaType;
@@ -19,7 +20,7 @@ public class SearchController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseModel<List<?>> savePost(@RequestParam("item") String item) {
         if (item.isEmpty()) {
-            throw new RuntimeException("Empty search query.");
+            throw new FindMeServiceException("Empty search query.");
         }
         List<?> foundPersons = finder.findEntity(item);
         return ResponseModel.<List<?>>builder()
