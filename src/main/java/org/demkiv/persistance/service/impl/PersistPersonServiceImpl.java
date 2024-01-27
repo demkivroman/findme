@@ -37,6 +37,7 @@ public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, O
             log.info("Person is stored to database {}", savedPerson);
             return Optional.of(savedPerson.getId());
         }
+        log.error("Trying save empty person.");
         throw new FindMeServiceException("Trying save empty person.");
     }
 
@@ -44,6 +45,7 @@ public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, O
     public Optional<Boolean> updateEntity(PersonForm entity) {
         Optional<Person> foundPerson = personRepository.findById(entity.getPersonId());
         if (foundPerson.isEmpty()) {
+            log.error(String.format("Person with id - %s is not present in DB.", entity.getPersonId()));
             throw new FindMeServiceException(String.format("Person with id - %s is not present in DB.", entity.getPersonId()));
         }
         Person person = foundPerson.get();
