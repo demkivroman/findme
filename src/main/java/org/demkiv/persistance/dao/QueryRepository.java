@@ -2,6 +2,7 @@ package org.demkiv.persistance.dao;
 
 import lombok.RequiredArgsConstructor;
 import org.demkiv.domain.FindMeServiceException;
+import org.demkiv.domain.configuration.SqlQueriesProvider;
 import org.demkiv.persistance.model.dto.FinderDTO;
 import org.demkiv.persistance.model.dto.PersonDTO;
 import org.demkiv.persistance.model.dto.PhotoDTO;
@@ -19,13 +20,12 @@ import java.util.stream.Collectors;
 public class QueryRepository {
     private final JdbcTemplate jdbcTemplate;
     private final ConverterService converter;
+    private final SqlQueriesProvider sqlQueriesProvider;
 
 
-    public List<?> findPersonsAndPhoto(String fullName, String description) {
-        final String query = "select person.id as person_id, person.FULLNAME as person_fullname, person.BIRTHDAY, person.DESCRIPTION, person.TIME,"  +
-                "photo.id as photo_id, photo.URL from person\n" +
-                "left join photo on person.ID = photo.PERSON_ID\n" +
-                "where person.FULLNAME like '%" + fullName + "%'" + " or " + "person.DESCRIPTION like '%" + description + "%'";
+    public List<?> findPersonsAndPhoto(String item) {
+        char charValue = '%';
+        String query = String.format(sqlQueriesProvider.getFindPersonInformation(), charValue, item, charValue, charValue, item, charValue);
 
         List<Map<String, Object>> queryResult = jdbcTemplate.queryForList(query);
         return convertQueryResults(queryResult);

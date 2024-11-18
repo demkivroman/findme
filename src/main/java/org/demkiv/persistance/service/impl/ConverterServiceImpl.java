@@ -57,7 +57,7 @@ public class ConverterServiceImpl implements ConverterService {
 
     private String[] convertDateTimeToArray(Map<String, Object> row) {
         String timestamp = getCorrectFieldValue(row, "time");
-        return timestamp.isEmpty() ? new String[]{"",""} : timestamp.split(" ");
+        return timestamp.isEmpty() ? new String[]{"",""} : timestamp.split("(\\s)|(T)");
     }
 
     private String getCorrectFieldValue(Map<String, Object> row, String field) {

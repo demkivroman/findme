@@ -1,5 +1,6 @@
 package org.demkiv.persistance.service.impl;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.demkiv.domain.FindMeServiceException;
@@ -11,7 +12,6 @@ import org.demkiv.persistance.service.PersistService;
 import org.demkiv.web.model.form.PersonPhotoForm;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.util.Optional;
 
 @Slf4j

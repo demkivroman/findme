@@ -15,7 +15,7 @@ public class BaseConfiguration {
         return Config.getInstance();
     }
 
-    @Bean
+
     public DataSource getDataSource(Config config) {
         DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
         dataSourceBuilder.url(config.getDbUrl());

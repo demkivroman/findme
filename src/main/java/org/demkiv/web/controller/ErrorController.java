@@ -19,7 +19,6 @@ import java.util.List;
 @Slf4j
 @ControllerAdvice
 public class ErrorController extends ResponseEntityExceptionHandler {
-    @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         final List<String> errors = new ArrayList<String>();
         for (final FieldError error : ex.getBindingResult().getFieldErrors()) {

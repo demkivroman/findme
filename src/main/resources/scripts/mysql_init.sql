@@ -35,6 +35,14 @@ create table findme_db.PHOTO
     FOREIGN KEY (PERSON_ID) REFERENCES PERSON (ID)
 );
 
+create table findme_db.THUMBNAILS
+(
+    ID        INT AUTO_INCREMENT PRIMARY KEY,
+    URL       varchar(200) not null,
+    PERSON_ID INT,
+    FOREIGN KEY (PERSON_ID) REFERENCES PERSON (ID)
+);
+
 -- create table findme_db.hibernate_sequence
 -- (
 --     next_val bigint
