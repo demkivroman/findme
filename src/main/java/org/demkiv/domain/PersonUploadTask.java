@@ -3,8 +3,10 @@ package org.demkiv.domain;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.demkiv.domain.architecture.FileUploader;
+import org.demkiv.domain.upload.DiskUploader;
 import org.demkiv.persistance.service.PersistService;
 import org.demkiv.web.model.form.PersonPhotoForm;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +19,7 @@ import java.util.Objects;
 @Setter
 public class PersonUploadTask extends Thread {
     private FileUploader<File> s3Uploader;
+    private DiskUploader diskUploader;
     private PersistService<PersonPhotoForm, Boolean> persistService;
     private Path tempDirectory;
     private PersonPhotoForm personPhotoForm;
@@ -24,14 +27,14 @@ public class PersonUploadTask extends Thread {
     @Override
     public void run() {
         try {
-            Config config = Config.getInstance();
-            File filePath = getTempPhotoPath();
-//            s3Uploader.upload(filePath);
-//            log.info("Upload to amazon S3 is finished. File name {}", filePath.getName());
-            String retrievePhotoPath = String.format("%s/%s", config.getS3ImageRetrievePath(), personPhotoForm.getPhoto().getOriginalFilename());
-            personPhotoForm.setUrl(retrievePhotoPath);
-            persistService.saveEntity(personPhotoForm);
-            log.info("Person's photo is completely stored to database.");
+            diskUploader.upload(personPhotoForm.getPhoto());
+            diskUploader.saveEntity(personPhotoForm);
+
+//            ConfigFile configFile = ConfigFile.getInstance();
+//            File filePath = getTempPhotoPath();
+////            s3Uploader.upload(filePath);
+////            log.info("Upload to amazon S3 is finished. File name {}", filePath.getName());
+
         } catch (Throwable ex) {
             log.error("Error when storing image. " + ex.getMessage());
             Thread.currentThread().interrupt();

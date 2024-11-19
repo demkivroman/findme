@@ -1,51 +1,17 @@
 package org.demkiv.domain;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.demkiv.domain.util.PropertyLoader;
+import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
-import java.io.File;
 
-@Slf4j
-@Setter
-@Getter
+@Configuration
+@PropertySource(value = "classpath:application.properties")
+@Data
 public class Config {
-    private volatile static Config uniqueInstance;
-    private static File secretFile;
-    private static final String CONFIG_PATH = "/findme/secret.props";
-
-    private String s3AccessKey;
-    private String s3SecretKey;
-    private String s3BucketName;
-    private String s3ImageKey;
-    private String s3ImageRetrievePath;
-
-    private String dbUrl;
-    private String dbUsername;
-    private String dbPassword;
-    private String dbDriver;
-
-    private Config() {
-    }
-
-    public static Config getInstance() {
-        if (uniqueInstance == null) {
-            synchronized (Config.class) {
-                if (uniqueInstance == null) {
-                    uniqueInstance = new Config();
-
-                    if (secretFile == null) {
-                        secretFile = new File(System.getProperty( "user.home" ) + CONFIG_PATH);
-                    }
-                    if (secretFile.exists()) {
-                        log.info("Initializing properties from {} file", secretFile);
-                        PropertyLoader.loadProperties(secretFile, uniqueInstance);
-                        log.info("Properties initialized from {} file", secretFile);
-                    }
-                }
-            }
-        }
-        return uniqueInstance;
-    }
+    @Value("${photosStorePath}")
+    String photosStorePath;
+    @Value("${photosStoreUrl}")
+    String photosStoreUrl;
 }

@@ -1,6 +1,6 @@
 package org.demkiv.domain.configuration;
 
-import org.demkiv.domain.Config;
+import org.demkiv.domain.ConfigFile;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,16 +11,16 @@ import javax.sql.DataSource;
 public class BaseConfiguration {
 
     @Bean
-    public Config getSecretConfig() {
-        return Config.getInstance();
+    public ConfigFile getSecretConfig() {
+        return ConfigFile.getInstance();
     }
 
 
-    public DataSource getDataSource(Config config) {
+    public DataSource getDataSource(ConfigFile configFile) {
         DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
-        dataSourceBuilder.url(config.getDbUrl());
-        dataSourceBuilder.username(config.getDbUsername());
-        dataSourceBuilder.password(config.getDbPassword());
+        dataSourceBuilder.url(configFile.getDbUrl());
+        dataSourceBuilder.username(configFile.getDbUsername());
+        dataSourceBuilder.password(configFile.getDbPassword());
 //        dataSourceBuilder.driverClassName(config.getDbDriver());
         return dataSourceBuilder.build();
     }

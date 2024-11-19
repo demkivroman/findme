@@ -9,7 +9,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.demkiv.domain.Config;
+import org.demkiv.domain.ConfigFile;
 import org.demkiv.domain.architecture.FileUploader;
 import org.springframework.stereotype.Component;
 
@@ -17,14 +17,14 @@ import java.io.File;
 
 @Slf4j
 @AllArgsConstructor
-@Component
+@Component("s3Uploader")
 public class S3Uploader implements FileUploader<File> {
-    private final Config config;
+    private final ConfigFile configFile;
 
     @Override
     public void upload(File file) {
-        String key = config.getS3ImageKey() + "/" + file.getName();
-        String bucketName = config.getS3BucketName();
+        String key = configFile.getS3ImageKey() + "/" + file.getName();
+        String bucketName = configFile.getS3BucketName();
         AmazonS3 client = getAmazonS3Client();
         try {
             if (!fileExist(client, key ,bucketName)) {
@@ -41,8 +41,8 @@ public class S3Uploader implements FileUploader<File> {
 
     private AmazonS3 getAmazonS3Client() {
         AWSCredentials credentials = new BasicAWSCredentials(
-                config.getS3AccessKey(),
-                config.getS3SecretKey()
+                configFile.getS3AccessKey(),
+                configFile.getS3SecretKey()
         );
 
         return AmazonS3ClientBuilder
