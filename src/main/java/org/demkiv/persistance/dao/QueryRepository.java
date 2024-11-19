@@ -32,15 +32,8 @@ public class QueryRepository {
     }
 
     public PersonResponseModel<PersonDetailModel> getDetailedPersonInfoFromDB(String personId) {
-        final String personInfoQuery = "select person.id as person_id, person.FULLNAME as person_fullname, person.BIRTHDAY, person.DESCRIPTION, person.TIME,\n" +
-                "finder.id as finder_id, finder.FULLNAME as finder_fullname, finder.PHONE, finder.EMAIL, finder.INFORMATION,\n" +
-                "photo.id as photo_id, photo.URL\n" +
-                "from person\n" +
-                "left join finder on person.FINDER_ID = finder.ID\n" +
-                "left join photo on person.ID = photo.PERSON_ID\n" +
-                "where person.id = %s";
-
-        final String postsTotalQuery = "select count(posts.POST) as totalPosts from posts where posts.PERSON_ID = %s";
+        final String personInfoQuery = String.format(sqlQueriesProvider.getPersonDetailedInformation(), personId);
+        final String postsTotalQuery = String.format(sqlQueriesProvider.getPostsTotalQuery(), personId);
 
         List<Map<String, Object>> queryResult = jdbcTemplate.queryForList(String.format(personInfoQuery, personId));
         if (queryResult.isEmpty()) {
@@ -51,7 +44,7 @@ public class QueryRepository {
     }
 
     public List<?> getPersonPosts(String personId) {
-        final String query = "select posts.ID, posts.POST, posts.TIME from posts where PERSON_ID = %s";
+        final String query = String.format(sqlQueriesProvider.getPersonPosts(), personId);
         List<Map<String, Object>> queryResult = jdbcTemplate.queryForList(String.format(query, personId));
         return queryResult.stream()
                 .map(converter::convertQueryRowToPostDTO)
