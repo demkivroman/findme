@@ -14,4 +14,10 @@ public class Config {
     String photosStorePath;
     @Value("${photosStoreUrl}")
     String photosStoreUrl;
+    @Value("${thumbnailStorePath}")
+    String thumbnailStorePath;
+    @Value("${thumbnailStoreUrl}")
+    String thumbnailStoreUrl;
+    @Value("${convertThumbnailCommand}")
+    String convertThumbnailCommand;
 }
