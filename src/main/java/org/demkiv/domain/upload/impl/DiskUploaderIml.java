@@ -7,6 +7,7 @@ import org.demkiv.domain.FindMeServiceException;
 import org.demkiv.domain.upload.Uploader;
 import org.demkiv.persistance.service.PersistService;
 import org.demkiv.web.model.form.PersonPhotoForm;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -20,7 +21,10 @@ import java.util.Objects;
 @Component("diskPhotoUploader")
 public class DiskUploaderIml implements Uploader {
     final Config config;
+    @Qualifier("photoService")
     final PersistService<PersonPhotoForm, Boolean> persistService;
+    @Qualifier("thumbnailService")
+    final PersistService<PersonPhotoForm, Boolean> thumbnailPersistService;
 
     @Override
     public void uploadPhoto(File source) {
@@ -36,8 +40,16 @@ public class DiskUploaderIml implements Uploader {
     }
 
     @Override
-    public void uploadThumbnail(String source) {
-
+    public void uploadThumbnail(File source) {
+        try {
+            if (Objects.nonNull(source)) {
+                File thumbnail = new File(config.getThumbnailStorePath(), source.getName());
+                Files.copy(source.toPath(), Path.of(thumbnail.toURI()));
+                log.info("Thumbnail is stored on the disk {}", thumbnail.getPath());
+            }
+        } catch (IOException e) {
+            throw new FindMeServiceException(e.getMessage(), e);
+        }
     }
 
     @Override
@@ -46,6 +58,15 @@ public class DiskUploaderIml implements Uploader {
         personPhotoForm.setUrl(retrievePhotoPath);
         persistService.saveEntity(personPhotoForm);
         log.info("Person's photo is completely stored to database.");
+        return null;
+    }
+
+    @Override
+    public Boolean saveThumbnailEntity(PersonPhotoForm personPhotoForm, File thumbnailSource) {
+        String retrieveThumbnailPath = String.format("%s/%s", config.getPhotosStoreUrl(), thumbnailSource.getName());
+        personPhotoForm.setUrl(retrieveThumbnailPath);
+        thumbnailPersistService.saveEntity(personPhotoForm);
+        log.info("Person's thumbnail is completely stored to database.");
         return null;
     }
 }

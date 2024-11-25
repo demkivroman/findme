@@ -32,6 +32,8 @@ public class PersonUploadTask extends Thread {
             String thumbnailPath = getThumbnailPath(photo);
             String convertCommand = String.format(config.convertThumbnailCommand, photo.getAbsolutePath(), thumbnailPath);
             processRunner.runProcess(tempDirectory.toFile(), convertCommand, new StringWriter());
+            File thumbnailInTempDir = new File(thumbnailPath);
+            uploader.uploadThumbnail(thumbnailInTempDir);
             uploader.uploadPhoto(photo);
             uploader.saveEntity(personPhotoForm);
         } catch (Throwable ex) {

@@ -35,7 +35,7 @@ create table findme_db.PHOTO
     FOREIGN KEY (PERSON_ID) REFERENCES PERSON (ID)
 );
 
-create table findme_db.THUMBNAILS
+create table findme_db.THUMBNAIL
 (
     ID        INT AUTO_INCREMENT PRIMARY KEY,
     URL       varchar(200) not null,

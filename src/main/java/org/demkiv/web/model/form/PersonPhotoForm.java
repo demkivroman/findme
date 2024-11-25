@@ -10,4 +10,5 @@ public class PersonPhotoForm {
     private long personId;
     private MultipartFile photo;
     private String url;
+    private String thumbnailUrl;
 }

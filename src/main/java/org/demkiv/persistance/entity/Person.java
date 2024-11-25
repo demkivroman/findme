@@ -38,4 +38,6 @@ public class Person {
     private Set<Posts> posts;
     @OneToMany(mappedBy="person")
     private Set<Photo> photos;
+    @OneToMany(mappedBy="person")
+    private Set<Thumbnail> thumbnails;
 }
