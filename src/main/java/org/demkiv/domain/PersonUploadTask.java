@@ -34,10 +34,11 @@ public class PersonUploadTask extends Thread {
             processRunner.runProcess(tempDirectory.toFile(), convertCommand, new StringWriter());
             File thumbnailInTempDir = new File(thumbnailPath);
             uploader.uploadThumbnail(thumbnailInTempDir);
+            uploader.saveThumbnailEntity(personPhotoForm, thumbnailInTempDir);
             uploader.uploadPhoto(photo);
             uploader.saveEntity(personPhotoForm);
         } catch (Throwable ex) {
-            log.error("Error when storing image. " + ex.getMessage());
+            log.error("Error when storing an image. " + ex.getMessage());
             Thread.currentThread().interrupt();
         }
     }

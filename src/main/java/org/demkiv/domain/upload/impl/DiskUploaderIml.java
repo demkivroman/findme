@@ -1,12 +1,12 @@
 package org.demkiv.domain.upload.impl;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.demkiv.domain.Config;
 import org.demkiv.domain.FindMeServiceException;
 import org.demkiv.domain.upload.Uploader;
 import org.demkiv.persistance.service.PersistService;
 import org.demkiv.web.model.form.PersonPhotoForm;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -17,14 +17,23 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 @Slf4j
-@AllArgsConstructor
 @Component("diskPhotoUploader")
 public class DiskUploaderIml implements Uploader {
-    final Config config;
-    @Qualifier("photoService")
-    final PersistService<PersonPhotoForm, Boolean> persistService;
-    @Qualifier("thumbnailService")
-    final PersistService<PersonPhotoForm, Boolean> thumbnailPersistService;
+    Config config;
+    PersistService<PersonPhotoForm, Boolean> persistService;
+    PersistService<PersonPhotoForm, Boolean> thumbnailPersistService;
+
+    @Autowired
+    public DiskUploaderIml(
+            Config config,
+            @Qualifier("photoService")
+            PersistService<PersonPhotoForm, Boolean> persistService,
+            @Qualifier("thumbnailService")
+            PersistService<PersonPhotoForm, Boolean> thumbnailPersistService) {
+        this.config = config;
+        this.persistService = persistService;
+        this.thumbnailPersistService = thumbnailPersistService;
+    }
 
     @Override
     public void uploadPhoto(File source) {
@@ -63,8 +72,8 @@ public class DiskUploaderIml implements Uploader {
 
     @Override
     public Boolean saveThumbnailEntity(PersonPhotoForm personPhotoForm, File thumbnailSource) {
-        String retrieveThumbnailPath = String.format("%s/%s", config.getPhotosStoreUrl(), thumbnailSource.getName());
-        personPhotoForm.setUrl(retrieveThumbnailPath);
+        String retrieveThumbnailPath = String.format("%s/%s", config.getThumbnailStoreUrl(), thumbnailSource.getName());
+        personPhotoForm.setThumbnailUrl(retrieveThumbnailPath);
         thumbnailPersistService.saveEntity(personPhotoForm);
         log.info("Person's thumbnail is completely stored to database.");
         return null;

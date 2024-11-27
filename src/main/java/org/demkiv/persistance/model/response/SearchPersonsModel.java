@@ -9,5 +9,5 @@ import org.demkiv.persistance.model.dto.PhotoDTO;
 @Builder
 public class SearchPersonsModel {
     private PersonDTO person;
-    private PhotoDTO photo;
+    private PhotoDTO thumbnail;
 }

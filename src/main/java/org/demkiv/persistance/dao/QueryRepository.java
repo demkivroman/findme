@@ -91,7 +91,7 @@ public class QueryRepository {
         PhotoDTO photoDTO = converter.convertQueryRowToPhotoDTO(queryRow);
         SearchPersonsModel searchModel = SearchPersonsModel.builder()
                 .person(personDTO)
-                .photo(photoDTO)
+                .thumbnail(photoDTO)
                 .build();
         persons.putIfAbsent(personDTO.getId(), searchModel);
     }
