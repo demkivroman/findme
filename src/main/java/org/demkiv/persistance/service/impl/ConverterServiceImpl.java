@@ -6,6 +6,10 @@ import org.demkiv.persistance.model.dto.PhotoDTO;
 import org.demkiv.persistance.model.dto.PostDTO;
 import org.demkiv.persistance.service.ConverterService;
 import org.springframework.stereotype.Service;
+
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -14,12 +18,20 @@ public class ConverterServiceImpl implements ConverterService {
 
     @Override
     public PersonDTO convertQueryRowToPersonDTO(Map<String, Object> row) {
-        String[] dateTimeArr = convertDateTimeToArray(row);
+        String birthday = convertDateTimeToArray(getCorrectFieldValue(row, "birthday"))[0];
+        String[] dateTimeArr = convertDateTimeToArray(getCorrectFieldValue(row, "time"));
+        ZonedDateTime today = ZonedDateTime.now(ZoneId.of("UTC"));
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-M-d");
+        LocalDate birthDay = LocalDate.parse(birthday, df);
+        ZonedDateTime zoned = birthDay.atStartOfDay(ZoneId.of("UTC"));
+        int age = today.getYear() - zoned.getYear();
+
         return PersonDTO.builder()
                 .id(getCorrectFieldValue(row, "person_id"))
                 .fullName(getCorrectFieldValue(row, "person_fullname"))
-                .birthday(getCorrectFieldValue(row, "birthday"))
+                .birthday(birthday)
                 .description(getCorrectFieldValue(row, "description"))
+                .age(age)
                 .date(dateTimeArr[0])
                 .time(dateTimeArr[1])
                 .build();
@@ -46,7 +58,7 @@ public class ConverterServiceImpl implements ConverterService {
 
     @Override
     public PostDTO convertQueryRowToPostDTO(Map<String, Object> row) {
-        String[] dateTimeArr = convertDateTimeToArray(row);
+        String[] dateTimeArr = convertDateTimeToArray(getCorrectFieldValue(row, "time"));
         return PostDTO.builder()
                 .id(getCorrectFieldValue(row, "id"))
                 .post(getCorrectFieldValue(row, "post"))
@@ -55,8 +67,7 @@ public class ConverterServiceImpl implements ConverterService {
                 .build();
     }
 
-    private String[] convertDateTimeToArray(Map<String, Object> row) {
-        String timestamp = getCorrectFieldValue(row, "time");
+    private String[] convertDateTimeToArray(String timestamp) {
         return timestamp.isEmpty() ? new String[]{"",""} : timestamp.split("(\\s)|(T)");
     }
 

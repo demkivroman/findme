@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.demkiv.domain.FindMeServiceException;
 import org.demkiv.domain.service.impl.PersonFinderImpl;
-import org.demkiv.web.model.ResponseModel;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,15 +19,11 @@ public class SearchController {
     @PostMapping(value = "/api/search",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseModel<List<?>> savePost(@RequestParam("item") String item) {
+    public List<?> savePost(@RequestParam("item") String item) {
         if (item.isEmpty()) {
             log.error("Empty search query.");
             throw new FindMeServiceException("Empty search query.");
         }
-        List<?> foundPersons = finder.findEntity(item);
-        return ResponseModel.<List<?>>builder()
-                .mode("Success")
-                .body(foundPersons)
-                .build();
+        return finder.findEntity(item);
     }
 }

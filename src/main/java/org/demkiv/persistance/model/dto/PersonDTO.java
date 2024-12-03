@@ -10,6 +10,7 @@ public class PersonDTO {
     private String fullName;
     private String birthday;
     private String description;
+    private int age;
     private String date;
     private String time;
 }

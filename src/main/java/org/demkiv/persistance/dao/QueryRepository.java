@@ -89,10 +89,19 @@ public class QueryRepository {
     private void collectPerson(Map<String, SearchPersonsModel> persons, Map<String, Object> queryRow) {
         PersonDTO personDTO = converter.convertQueryRowToPersonDTO(queryRow);
         PhotoDTO photoDTO = converter.convertQueryRowToPhotoDTO(queryRow);
-        SearchPersonsModel searchModel = SearchPersonsModel.builder()
-                .person(personDTO)
-                .thumbnail(photoDTO)
-                .build();
-        persons.putIfAbsent(personDTO.getId(), searchModel);
+        List<PhotoDTO> photoDTOS = new ArrayList<>();
+
+        if (persons.containsKey(personDTO.getId())) {
+            List<PhotoDTO> existedPhotos = persons.get(personDTO.getId()).getThumbnail();
+            photoDTOS.addAll(existedPhotos);
+            photoDTOS.add(photoDTO);
+            persons.get(personDTO.getId()).setThumbnail(photoDTOS);
+        } else {
+            SearchPersonsModel searchModel = SearchPersonsModel.builder()
+                    .person(personDTO)
+                    .thumbnail(List.of(photoDTO))
+                    .build();
+            persons.putIfAbsent(personDTO.getId(), searchModel);
+        }
     }
 }
