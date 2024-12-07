@@ -18,22 +18,26 @@ public class ConverterServiceImpl implements ConverterService {
 
     @Override
     public PersonDTO convertQueryRowToPersonDTO(Map<String, Object> row) {
-        String birthday = convertDateTimeToArray(getCorrectFieldValue(row, "birthday"))[0];
+        String[] birthday = convertDateTimeToArray(getCorrectFieldValue(row, "birthday"));
+        int age = 0;
         String[] dateTimeArr = convertDateTimeToArray(getCorrectFieldValue(row, "time"));
         ZonedDateTime today = ZonedDateTime.now(ZoneId.of("UTC"));
         DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-M-d");
-        LocalDate birthDay = LocalDate.parse(birthday, df);
-        ZonedDateTime zoned = birthDay.atStartOfDay(ZoneId.of("UTC"));
-        int age = today.getYear() - zoned.getYear();
+        if (birthday.length > 0) {
+            LocalDate birthDay = LocalDate.parse(birthday[0], df);
+            ZonedDateTime zoned = birthDay.atStartOfDay(ZoneId.of("UTC"));
+            age = today.getYear() - zoned.getYear();
+        }
+        String time = dateTimeArr[1].substring(0, dateTimeArr[1].lastIndexOf("."));
 
         return PersonDTO.builder()
                 .id(getCorrectFieldValue(row, "person_id"))
                 .fullName(getCorrectFieldValue(row, "person_fullname"))
-                .birthday(birthday)
+                .birthday(birthday.length > 0 ? birthday[0] : null)
                 .description(getCorrectFieldValue(row, "description"))
-                .age(age)
+                .age(birthday.length > 0 ? age : -1)
                 .date(dateTimeArr[0])
-                .time(dateTimeArr[1])
+                .time(time)
                 .build();
     }
 
@@ -68,7 +72,7 @@ public class ConverterServiceImpl implements ConverterService {
     }
 
     private String[] convertDateTimeToArray(String timestamp) {
-        return timestamp.isEmpty() ? new String[]{"",""} : timestamp.split("(\\s)|(T)");
+        return timestamp.isEmpty() ? new String[]{} : timestamp.split("(\\s)|(T)");
     }
 
     private String getCorrectFieldValue(Map<String, Object> row, String field) {
