@@ -31,6 +31,32 @@ public class QueryRepository {
         return convertQueryResults(queryResult);
     }
 
+    public List<?> getPersonsDataAndThumbnails(Set<Long> personIds) {
+        StringBuilder queryConditionBuilder = new StringBuilder();
+        personIds.forEach(personId -> {
+            queryConditionBuilder.append("(")
+            .append("person.id=")
+            .append(personId)
+            .append(" and ")
+            .append("thumbnail.person_id=")
+            .append(personId)
+            .append(")")
+            .append(" or ");
+            });
+        queryConditionBuilder.delete(queryConditionBuilder.length() - 4, queryConditionBuilder.length());
+        StringBuilder queryCondition2Builder = new StringBuilder();
+        personIds.forEach(personId -> {
+            queryCondition2Builder.append("person.id=")
+                    .append(personId)
+                    .append(" or ");
+
+        });
+        queryCondition2Builder.delete(queryCondition2Builder.length() - 4, queryCondition2Builder.length());
+        String query = String.format(sqlQueriesProvider.getSelectPersonsAndThumbnailsByIds(), queryConditionBuilder, queryCondition2Builder);
+        List<Map<String, Object>> queryResult = jdbcTemplate.queryForList(query);
+        return convertQueryResults(queryResult);
+    }
+
     public PersonResponseModel<PersonDetailModel> getDetailedPersonInfoFromDB(String personId) {
         final String personInfoQuery = String.format(sqlQueriesProvider.getPersonDetailedInformation(), personId);
         final String postsTotalQuery = String.format(sqlQueriesProvider.getPostsTotalQuery(), personId);
@@ -49,6 +75,10 @@ public class QueryRepository {
         return queryResult.stream()
                 .map(converter::convertQueryRowToPostDTO)
                 .collect(Collectors.toList());
+    }
+
+    public List<Long> getPersonIds() {
+        return jdbcTemplate.queryForList(sqlQueriesProvider.getPersonIds(), Long.class);
     }
 
     private PersonResponseModel<PersonDetailModel> convertQueryResultsToPersonDetailedModel(
@@ -99,7 +129,7 @@ public class QueryRepository {
         } else {
             SearchPersonsModel searchModel = SearchPersonsModel.builder()
                     .person(personDTO)
-                    .thumbnail(List.of(photoDTO))
+                    .thumbnail((photoDTO.getId().isEmpty()) ? List.of() : List.of(photoDTO))
                     .build();
             persons.putIfAbsent(personDTO.getId(), searchModel);
         }

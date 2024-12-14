@@ -12,7 +12,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -44,5 +47,29 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
         PersonResponseModel<?> foundInfo = queryRepository.getDetailedPersonInfoFromDB(personId);
         log.info("Detailed person information retrieved from DB. ID - {}", personId);
         return foundInfo;
+    }
+
+    @Override
+    @Transactional
+    public List<?> getRandomPersons(int count) {
+        List<Long> ids = queryRepository.getPersonIds();
+        Set<Long> idSetForCount = randomIds(ids, count);
+        return queryRepository.getPersonsDataAndThumbnails(idSetForCount);
+    }
+
+    private Set<Long> randomIds(List<Long> ids, int count) {
+        Set<Long> personIds = new HashSet<>();
+
+        while (personIds.size() < count && personIds.size() < ids.size()) {
+            int randomIndex = getRandomDiceNumber(ids.size());
+            personIds.add(ids.get(randomIndex));
+        }
+
+        return personIds;
+    }
+
+    public int getRandomDiceNumber(int count)
+    {
+        return (int) (Math.random() * count);
     }
 }

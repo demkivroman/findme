@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -67,5 +68,11 @@ public class PersonController {
                 .mode("Success")
                 .body(result)
                 .build();
+    }
+
+    @GetMapping(value = "/api/random/persons/{count}",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<?> getRandomGeneratedPersons(@PathVariable int count) {
+        return personService.getRandomPersons(count);
     }
 }

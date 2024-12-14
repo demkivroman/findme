@@ -17,4 +17,8 @@ public class SqlQueriesProvider {
     String postsTotalQuery;
     @Value("${personPosts}")
     String personPosts;
+    @Value("${personIds}")
+    String personIds;
+    @Value("${selectPersonsAndThumbnailsByIds}")
+    String selectPersonsAndThumbnailsByIds;
 }
