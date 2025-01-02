@@ -98,7 +98,7 @@ public class QueryRepository {
         PersonDetailModel detail = PersonDetailModel.builder()
                 .person(personSet.iterator().next())
                 .finder(finderSet.iterator().next())
-                .photos(photoSet)
+                .photos(photoSet.stream().filter(Objects::nonNull).collect(Collectors.toSet()))
                 .totalPosts(postsCount)
                 .build();
 
@@ -129,7 +129,7 @@ public class QueryRepository {
         } else {
             SearchPersonsModel searchModel = SearchPersonsModel.builder()
                     .person(personDTO)
-                    .thumbnail((photoDTO.getId().isEmpty()) ? List.of() : List.of(photoDTO))
+                    .thumbnail((photoDTO == null) ? List.of() : List.of(photoDTO))
                     .build();
             persons.putIfAbsent(personDTO.getId(), searchModel);
         }

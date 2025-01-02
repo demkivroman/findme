@@ -40,8 +40,10 @@ public class DiskUploaderIml implements Uploader {
         try {
             if (Objects.nonNull(source)) {
                 File image = new File(config.getPhotosStorePath(), source.getName());
-                Files.copy(source.toPath(), Path.of(image.toURI()));
-                log.info("Image is stored on the disk {}", image.getPath());
+                if (!image.exists()) {
+                    Files.copy(source.toPath(), Path.of(image.toURI()));
+                    log.info("Image is stored on the disk {}", image.getPath());
+                }
             }
         } catch (IOException e) {
             throw new FindMeServiceException(e.getMessage(), e);
@@ -53,8 +55,10 @@ public class DiskUploaderIml implements Uploader {
         try {
             if (Objects.nonNull(source)) {
                 File thumbnail = new File(config.getThumbnailStorePath(), source.getName());
-                Files.copy(source.toPath(), Path.of(thumbnail.toURI()));
-                log.info("Thumbnail is stored on the disk {}", thumbnail.getPath());
+                if (!thumbnail.exists()) {
+                    Files.copy(source.toPath(), Path.of(thumbnail.toURI()));
+                    log.info("Thumbnail is stored on the disk {}", thumbnail.getPath());
+                }
             }
         } catch (IOException e) {
             throw new FindMeServiceException(e.getMessage(), e);

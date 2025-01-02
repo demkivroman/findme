@@ -26,7 +26,7 @@ public class PersonController {
         Optional<?> result = personService.saveEntity(personForm);
         return ResponseModel.builder()
                 .mode("Success")
-                .body(String.valueOf(result))
+                .body(String.valueOf(result.get()))
                 .build();
     }
 

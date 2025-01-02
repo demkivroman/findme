@@ -94,7 +94,7 @@ public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, O
         if (dateString.isEmpty()) {
             return null;
         }
-        DateTimeFormatter df = DateTimeFormatter.ofPattern("d-MMM-yyyy");
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate birthDay = LocalDate.parse(dateString, df);
         Instant instant = Instant.from(birthDay.atStartOfDay(ZoneId.of("GMT")));
         return Date.from(instant);
