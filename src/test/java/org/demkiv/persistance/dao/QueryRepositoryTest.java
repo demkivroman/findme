@@ -46,7 +46,7 @@ public class QueryRepositoryTest {
     void shouldProperlyConstructQuerySelectPersonsAndThumbnailsByIds() {
         // given
         String givenQuery = "select person.id as person_id, person.FULLNAME as person_fullname, person.BIRTHDAY, person.DESCRIPTION, person.TIME, thumbnail.id as photo_id, " +
-                "thumbnail.URL, thumbnail.person_id from person inner join thumbnail on " +
+                "thumbnail.URL as photo_url, thumbnail.person_id from person left join thumbnail on " +
                 "(person.id=1 and thumbnail.person_id=1) or " +
                 "(person.id=2 and thumbnail.person_id=2) or " +
                 "(person.id=3 and thumbnail.person_id=3)" +
@@ -61,7 +61,6 @@ public class QueryRepositoryTest {
         List<?> results = queryRepository.getPersonsDataAndThumbnails(givenIds);
 
         // then
-        System.out.println(queryCaptor.getValue());
         assertThat(givenQuery).isEqualTo(queryCaptor.getValue());
     }
 }

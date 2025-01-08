@@ -26,6 +26,8 @@ public class Posts {
     @NotNull
     @NotBlank
     private String post;
+    @Column(name = "author")
+    private String author;
     @Column(name = "time")
     @NotNull
     private LocalDateTime time;

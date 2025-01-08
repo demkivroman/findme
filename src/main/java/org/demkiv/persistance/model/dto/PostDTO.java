@@ -7,6 +7,7 @@ import lombok.Data;
 @Builder
 public class PostDTO {
     private String id;
+    private String author;
     private String post;
     private String date;
     private String time;

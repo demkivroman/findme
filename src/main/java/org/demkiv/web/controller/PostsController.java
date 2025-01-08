@@ -19,10 +19,12 @@ public class PostsController {
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseModel<?> savePost(
+            @RequestParam("author") String author,
             @RequestParam("post") String post,
             @RequestParam("person_id") long personId) {
         PostForm postForm = PostForm.builder()
                 .post(post)
+                .author(author)
                 .personId(personId)
                 .build();
 

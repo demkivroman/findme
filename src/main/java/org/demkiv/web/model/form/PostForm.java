@@ -12,5 +12,6 @@ import lombok.NoArgsConstructor;
 public class PostForm {
     private long postId;
     private long personId;
+    private String author;
     private String post;
 }

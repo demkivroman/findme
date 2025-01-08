@@ -71,6 +71,7 @@ public class ConverterServiceImpl implements ConverterService {
         String[] dateTimeArr = convertDateTimeToArray(getCorrectFieldValue(row, "time"));
         return PostDTO.builder()
                 .id(getCorrectFieldValue(row, "id"))
+                .author(getCorrectFieldValue(row, "author"))
                 .post(getCorrectFieldValue(row, "post"))
                 .date(dateTimeArr[0])
                 .time(dateTimeArr[1])

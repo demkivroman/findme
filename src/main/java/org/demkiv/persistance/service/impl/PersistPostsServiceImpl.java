@@ -25,9 +25,9 @@ public class PersistPostsServiceImpl implements SaveUpdateService<PostForm, Bool
 
     @Override
     public Boolean saveEntity(PostForm entity) {
-        Posts posts = convertToPostsEntity(entity);
-        postsRepository.save(posts);
-        log.info("Post entity is saved to database id {}", posts.getId());
+        Posts post = convertToPostsEntity(entity);
+        postsRepository.save(post);
+        log.info("Post entity is saved to database id {}", post.getId());
         return true;
     }
 
@@ -54,6 +54,7 @@ public class PersistPostsServiceImpl implements SaveUpdateService<PostForm, Bool
         }
         return Posts.builder()
                 .post(postForm.getPost())
+                .author(postForm.getAuthor())
                 .person(person.get())
                 .time(getTimestamp())
                 .build();
