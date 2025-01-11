@@ -10,6 +10,7 @@ import org.demkiv.persistance.model.response.PersonDetailModel;
 import org.demkiv.persistance.model.response.SearchPersonsModel;
 import org.demkiv.persistance.service.ConverterService;
 import org.demkiv.web.model.PersonResponseModel;
+import org.springframework.core.OrderComparator;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import java.util.*;
@@ -74,7 +75,7 @@ public class QueryRepository {
         List<Map<String, Object>> queryResult = jdbcTemplate.queryForList(String.format(query, personId));
         return queryResult.stream()
                 .map(converter::convertQueryRowToPostDTO)
-                .sorted()
+                .sorted(Comparator.reverseOrder())
                 .collect(Collectors.toList());
     }
 

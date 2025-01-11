@@ -1,6 +1,7 @@
 package org.demkiv.persistance.dao;
 
 import org.demkiv.domain.configuration.SqlQueriesProvider;
+import org.demkiv.persistance.model.dto.PostDTO;
 import org.demkiv.persistance.service.ConverterService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,10 +15,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith({MockitoExtension.class})
@@ -26,7 +29,7 @@ public class QueryRepositoryTest {
 
     @Mock
     JdbcTemplate jdbcTemplate;
-    @Mock
+    @Autowired
     ConverterService converter;
     @Autowired
     SqlQueriesProvider sqlQueriesProvider;
@@ -62,5 +65,46 @@ public class QueryRepositoryTest {
 
         // then
         assertThat(givenQuery).isEqualTo(queryCaptor.getValue());
+    }
+
+    @Test
+    void whenCheckPostsOrder_shouldReturnReverse() {
+        // given
+        List<Map<String, Object>> givenList = List.of(
+                Map.of(
+                        "id", 1 ,
+                        "author", "testAuthor",
+                        "post", "some post",
+                        "time", "2024-12-07 10:42:26"
+                ),
+                Map.of(
+                        "id", 2,
+                        "author", "testAuthor",
+                        "post", "some post",
+                        "time", "2024-12-07 10:42:27"
+                ),
+                Map.of(
+                        "id", 3,
+                        "author", "testAuthor",
+                        "post", "some post",
+                        "time", "2024-12-08 10:42:26"
+                )
+        );
+
+        when(jdbcTemplate.queryForList(anyString())).thenReturn(givenList);
+
+        // when
+        List<?> posts = queryRepository.getPersonPosts("testID");
+
+        // then
+        assertThat(posts).hasSize(3);
+        assertThat(((PostDTO) posts.get(0)).getId())
+                .isEqualTo("3");
+
+        assertThat(((PostDTO) posts.get(1)).getId())
+                .isEqualTo("2");
+
+        assertThat(((PostDTO) posts.get(2)).getId())
+                .isEqualTo("1");
     }
 }

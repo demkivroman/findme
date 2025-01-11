@@ -68,13 +68,14 @@ public class ConverterServiceImpl implements ConverterService {
 
     @Override
     public PostDTO convertQueryRowToPostDTO(Map<String, Object> row) {
-        String[] dateTimeArr = convertDateTimeToArray(getCorrectFieldValue(row, "time"));
+        String dateTime = getCorrectFieldValue(row, "time").replaceAll("\\..*", "");
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime timestamp = LocalDateTime.parse(dateTime, df);
         return PostDTO.builder()
                 .id(getCorrectFieldValue(row, "id"))
                 .author(getCorrectFieldValue(row, "author"))
                 .post(getCorrectFieldValue(row, "post"))
-                .date(dateTimeArr[0])
-                .time(dateTimeArr[1])
+                .timestamp(timestamp)
                 .build();
     }
 
