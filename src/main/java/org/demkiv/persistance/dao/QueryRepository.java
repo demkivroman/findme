@@ -74,6 +74,7 @@ public class QueryRepository {
         List<Map<String, Object>> queryResult = jdbcTemplate.queryForList(String.format(query, personId));
         return queryResult.stream()
                 .map(converter::convertQueryRowToPostDTO)
+                .sorted()
                 .collect(Collectors.toList());
     }
 
