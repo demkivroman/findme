@@ -8,7 +8,7 @@ import lombok.Data;
 public class FinderDTO {
     private String id;
     private String fullName;
-    private String phone;
-    private String email;
+    private boolean isPhoneProvided;
+    private boolean isEmailProvided;
     private String information;
 }

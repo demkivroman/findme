@@ -46,8 +46,8 @@ public class ConverterServiceImpl implements ConverterService {
         return FinderDTO.builder()
                 .id(getCorrectFieldValue(row, "finder_id"))
                 .fullName(getCorrectFieldValue(row, "finder_fullname"))
-                .email(getCorrectFieldValue(row, "email"))
-                .phone(getCorrectFieldValue(row, "phone"))
+                .isPhoneProvided(!getCorrectFieldValue(row, "phone").isEmpty())
+                .isEmailProvided(!getCorrectFieldValue(row, "email").isEmpty())
                 .information(getCorrectFieldValue(row, "information"))
                 .build();
     }
