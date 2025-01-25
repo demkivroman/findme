@@ -1,5 +1,6 @@
 package org.demkiv.web.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.demkiv.domain.service.impl.PhotoServiceImpl;
 import org.demkiv.domain.service.impl.PersonServiceImpl;
@@ -7,6 +8,7 @@ import org.demkiv.web.model.*;
 import org.demkiv.web.model.form.PersonForm;
 import org.demkiv.web.model.form.PersonPhotoForm;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -74,5 +76,11 @@ public class PersonController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public List<?> getRandomGeneratedPersons(@PathVariable int count) {
         return personService.getRandomPersons(count);
+    }
+
+    @GetMapping(value = "/api/capcha/create/{personId}")
+    public ResponseEntity<Boolean> createCapchaMessage(@PathVariable long personId, HttpServletRequest request) {
+        boolean result = personService.generateCapchaAndPushToSessionAndSendEmail(personId, request);
+        return ResponseEntity.ok(result);
     }
 }

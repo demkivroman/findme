@@ -1,10 +1,14 @@
 package org.demkiv.domain.service.impl;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.demkiv.domain.architecture.EntityPersist;
+import org.demkiv.domain.architecture.EntitySender;
 import org.demkiv.domain.service.PersonService;
 import org.demkiv.persistance.dao.QueryRepository;
 import org.demkiv.persistance.service.SaveUpdateService;
+import org.demkiv.web.model.EmailModel;
 import org.demkiv.web.model.PersonResponseModel;
 import org.demkiv.web.model.form.PersonForm;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,23 +16,23 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Service
 public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>, PersonService {
     private final SaveUpdateService<PersonForm, Optional<?>> service;
     private final QueryRepository queryRepository;
+    private final EntitySender<Boolean, EmailModel> emailSender;
 
     @Autowired
     public PersonServiceImpl(
             @Qualifier("persistPerson") SaveUpdateService<PersonForm, Optional<?>> service,
-            QueryRepository queryRepository) {
+            QueryRepository queryRepository,
+            @Qualifier("emailSender") EntitySender<Boolean, EmailModel> emailSender) {
         this.service = service;
         this.queryRepository = queryRepository;
+        this.emailSender = emailSender;
     }
 
     @Override
@@ -55,6 +59,37 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
         List<Long> ids = queryRepository.getPersonIds();
         Set<Long> idSetForCount = randomIds(ids, count);
         return queryRepository.getPersonsDataAndThumbnails(idSetForCount);
+    }
+
+    @Override
+    public boolean generateCapchaAndPushToSessionAndSendEmail(Long personId, HttpServletRequest request) {
+        String captcha = generateCapcha();
+
+        HttpSession session = request.getSession();
+        Map<Long, String> capchaMap = (Map<Long, String>) session.getAttribute("captcha");
+        if (capchaMap == null) {
+            session.setAttribute("captcha", Map.of(personId, captcha));
+        } else {
+            capchaMap.put(personId, captcha);
+        }
+
+        EmailModel emailModel = EmailModel.builder()
+                .body(captcha)
+                .build();
+        return emailSender.send(emailModel);
+    }
+
+    private String generateCapcha() {
+        final int captchaLength = 10;
+        final char[] numericAlphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@#&!".toCharArray();
+        StringBuilder caphaBuilder = new StringBuilder();
+
+        for (int i = 0; i < captchaLength; i++) {
+            int randomIndex = getRandomDiceNumber(numericAlphabet.length - 1);
+            caphaBuilder.append(numericAlphabet[randomIndex]);
+        }
+
+        return caphaBuilder.toString();
     }
 
     private Set<Long> randomIds(List<Long> ids, int count) {
