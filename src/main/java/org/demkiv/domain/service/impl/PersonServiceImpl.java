@@ -1,5 +1,6 @@
 package org.demkiv.domain.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
@@ -66,11 +67,15 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
         String captcha = generateCapcha();
 
         HttpSession session = request.getSession();
-        Map<Long, String> capchaMap = (Map<Long, String>) session.getAttribute("captcha");
+        ObjectMapper oMapper = new ObjectMapper();
+        Map<String, Object> capchaMap = oMapper.convertValue(session.getAttribute("captcha"), Map.class);
         if (capchaMap == null) {
+            log.debug("Capcha map is null");
             session.setAttribute("captcha", Map.of(personId, captcha));
         } else {
-            capchaMap.put(personId, captcha);
+            log.debug("Capcha map found {}", capchaMap);
+            capchaMap.put(String.valueOf(personId), captcha);
+            session.setAttribute("captcha", capchaMap);
         }
 
         EmailModel emailModel = EmailModel.builder()
