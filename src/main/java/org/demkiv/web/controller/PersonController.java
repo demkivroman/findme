@@ -7,6 +7,7 @@ import org.demkiv.domain.service.impl.PersonServiceImpl;
 import org.demkiv.web.model.*;
 import org.demkiv.web.model.form.PersonForm;
 import org.demkiv.web.model.form.PersonPhotoForm;
+import org.demkiv.web.model.form.ValidateCaptchaForm;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -78,9 +79,16 @@ public class PersonController {
         return personService.getRandomPersons(count);
     }
 
-    @GetMapping(value = "/api/capcha/create/{personId}")
-    public ResponseEntity<Boolean> createCapchaMessage(@PathVariable long personId, HttpServletRequest request) {
-        boolean result = personService.generateCapchaAndPushToSessionAndSendEmail(personId, request);
+    @GetMapping(value = "/api/captcha/create/{personId}")
+    public ResponseEntity<Boolean> createCaptchaMessage(@PathVariable long personId, HttpServletRequest request) {
+        boolean result = personService.generateCaptchaAndPushToSessionAndSendEmail(personId, request);
         return ResponseEntity.ok(result);
+    }
+
+    @PostMapping(value = "/api/captcha/validate",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Boolean> validateCaptchaMessage(@RequestBody ValidateCaptchaForm captchaForm, HttpServletRequest request) {
+        return ResponseEntity.ok(personService.getCaptchaFromSessionAndValidate(captchaForm, request));
     }
 }

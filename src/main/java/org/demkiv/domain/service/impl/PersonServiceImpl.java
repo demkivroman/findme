@@ -12,6 +12,7 @@ import org.demkiv.persistance.service.SaveUpdateService;
 import org.demkiv.web.model.EmailModel;
 import org.demkiv.web.model.PersonResponseModel;
 import org.demkiv.web.model.form.PersonForm;
+import org.demkiv.web.model.form.ValidateCaptchaForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -63,17 +64,15 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
     }
 
     @Override
-    public boolean generateCapchaAndPushToSessionAndSendEmail(Long personId, HttpServletRequest request) {
-        String captcha = generateCapcha();
+    public boolean generateCaptchaAndPushToSessionAndSendEmail(Long personId, HttpServletRequest request) {
+        String captcha = generateCaptcha();
 
         HttpSession session = request.getSession();
         ObjectMapper oMapper = new ObjectMapper();
         Map<String, Object> capchaMap = oMapper.convertValue(session.getAttribute("captcha"), Map.class);
         if (capchaMap == null) {
-            log.debug("Capcha map is null");
             session.setAttribute("captcha", Map.of(personId, captcha));
         } else {
-            log.debug("Capcha map found {}", capchaMap);
             capchaMap.put(String.valueOf(personId), captcha);
             session.setAttribute("captcha", capchaMap);
         }
@@ -84,17 +83,33 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
         return emailSender.send(emailModel);
     }
 
-    private String generateCapcha() {
+    @Override
+    public boolean getCaptchaFromSessionAndValidate(ValidateCaptchaForm captchaForm, HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        ObjectMapper oMapper = new ObjectMapper();
+        Map<String, Object> capchaMap = oMapper.convertValue(session.getAttribute("captcha"), Map.class);
+
+        if (capchaMap == null) {
+            return false;
+        }
+
+        String captcha = capchaMap.get(captchaForm.getPersonId()).toString();
+        log.info("Captcha retrieved from Session. PERSON_ID - {}, Captcha - {}", captchaForm.getPersonId(), captcha);
+
+        return captcha.equals(captchaForm.getCaptcha());
+    }
+
+    private String generateCaptcha() {
         final int captchaLength = 10;
         final char[] numericAlphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@#&!".toCharArray();
-        StringBuilder caphaBuilder = new StringBuilder();
+        StringBuilder captchaBuilder = new StringBuilder();
 
         for (int i = 0; i < captchaLength; i++) {
             int randomIndex = getRandomDiceNumber(numericAlphabet.length - 1);
-            caphaBuilder.append(numericAlphabet[randomIndex]);
+            captchaBuilder.append(numericAlphabet[randomIndex]);
         }
 
-        return caphaBuilder.toString();
+        return captchaBuilder.toString();
     }
 
     private Set<Long> randomIds(List<Long> ids, int count) {
