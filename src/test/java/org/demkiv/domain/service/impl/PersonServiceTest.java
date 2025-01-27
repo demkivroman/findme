@@ -1,34 +1,38 @@
 package org.demkiv.domain.service.impl;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import org.demkiv.domain.architecture.EntitySender;
 import org.demkiv.persistance.dao.QueryRepository;
 import org.demkiv.persistance.service.SaveUpdateService;
+import org.demkiv.web.model.EmailModel;
 import org.demkiv.web.model.form.PersonForm;
+import org.demkiv.web.model.form.ValidateCaptchaForm;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
-
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith({MockitoExtension.class})
 public class PersonServiceTest {
+
     @Mock
     SaveUpdateService<PersonForm, Optional<?>> service;
     @Mock
     QueryRepository queryRepository;
+    @Mock
+    EntitySender<Boolean, EmailModel> emailSenderMock;
+
     @InjectMocks
     PersonServiceImpl personService;
     @Captor
@@ -80,6 +84,168 @@ public class PersonServiceTest {
 
         // then
         assertThat(idsFirst).isNotEqualTo(idsSecond);
+    }
+
+    @Test
+    void whenCheckCaptchaIsGenerated_shouldHaveLengthTen() {
+        // given
+        long givenId = 1L;
+        HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
+        HttpSession session = Mockito.mock(HttpSession.class);
+        ArgumentCaptor<EmailModel> argumentCaptor = ArgumentCaptor.forClass(EmailModel.class);
+        when(httpServletRequestMock.getSession()).thenReturn(session);
+        when(emailSenderMock.send(argumentCaptor.capture())).thenReturn(true);
+
+        // when
+        boolean result = personService.generateCaptchaAndPushToSessionAndSendEmail(givenId, httpServletRequestMock);
+        boolean result2 = personService.generateCaptchaAndPushToSessionAndSendEmail(givenId, httpServletRequestMock);
+        boolean result3 = personService.generateCaptchaAndPushToSessionAndSendEmail(givenId, httpServletRequestMock);
+        boolean result4 = personService.generateCaptchaAndPushToSessionAndSendEmail(givenId, httpServletRequestMock);
+        boolean result5 = personService.generateCaptchaAndPushToSessionAndSendEmail(givenId, httpServletRequestMock);
+
+        // then
+        Set<EmailModel> givenSet = new HashSet<>(argumentCaptor.getAllValues());
+        assertThat(givenSet).size().isEqualTo(5);
+        givenSet.forEach(entry -> {
+            assertThat(entry).isNotNull();
+            assertThat(entry.getBody().length()).isEqualTo(10);
+        });
+    }
+
+    @Test
+    void whenCheckSetCaptchaToHttpSessionAsMap() {
+        // given
+        long givenId = 1L;
+        HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
+        HttpSession session = Mockito.mock(HttpSession.class);
+        ArgumentCaptor<String> captchaCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Map<String, Object>> sessionMapCaptor = ArgumentCaptor.forClass(Map.class);
+        ArgumentCaptor<EmailModel> argumentCaptor = ArgumentCaptor.forClass(EmailModel.class);
+        when(httpServletRequestMock.getSession()).thenReturn(session);
+        doNothing().when(session).setAttribute(captchaCaptor.capture(), sessionMapCaptor.capture());
+        when(emailSenderMock.send(argumentCaptor.capture())).thenReturn(true);
+
+        // when
+        boolean result = personService.generateCaptchaAndPushToSessionAndSendEmail(givenId, httpServletRequestMock);
+
+        // then
+        Map<String, Object> captchaMapCaptured = sessionMapCaptor.getValue();
+        String captcha = argumentCaptor.getValue().getBody();
+        assertThat(result).isTrue();
+        assertThat(captchaCaptor.getValue()).isEqualTo("captcha");
+        assertThat(captchaMapCaptured).hasSize(1);
+        assertThat(captchaMapCaptured.get("1")).isEqualTo(captcha);
+    }
+
+    @Test
+    void whenCheckCaptchaMapIsAlreadyInHttpSession_shouldPopulateMapWithNewIdAndCaptcha() {
+        // given
+        Map<String, Object> givenCaptchaMap = Map.of("1", "0123456789");
+        ArgumentCaptor<Map<String, Object>> sessionMapCaptor = ArgumentCaptor.forClass(Map.class);
+        ArgumentCaptor<EmailModel> argumentCaptor = ArgumentCaptor.forClass(EmailModel.class);
+        HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
+        HttpSession session = Mockito.mock(HttpSession.class);
+        when(httpServletRequestMock.getSession()).thenReturn(session);
+        when(session.getAttribute("captcha")).thenReturn(givenCaptchaMap);
+        doNothing().when(session).setAttribute(eq("captcha"), sessionMapCaptor.capture());
+        when(emailSenderMock.send(argumentCaptor.capture())).thenReturn(true);
+
+        // when
+        boolean result = personService.generateCaptchaAndPushToSessionAndSendEmail(2L, httpServletRequestMock);
+
+        // then
+        Map<String, Object> captchaMap = sessionMapCaptor.getValue();
+        String captcha = argumentCaptor.getValue().getBody();
+        assertThat(result).isTrue();
+        assertThat(captchaMap).hasSize(2);
+        assertThat(captchaMap.get("1")).isEqualTo("0123456789");
+        assertThat(captchaMap.get("2")).isEqualTo(captcha);
+
+    }
+
+    @Test
+    void whenCheckCaptchaInSessionWithSameId_shouldReplaceCaptchaMessage() {
+        // given
+        Map<String, Object> givenCaptchaMap = Map.of("1", "0123456789");
+        ArgumentCaptor<Map<String, Object>> sessionMapCaptor = ArgumentCaptor.forClass(Map.class);
+        ArgumentCaptor<EmailModel> argumentCaptor = ArgumentCaptor.forClass(EmailModel.class);
+        HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
+        HttpSession session = Mockito.mock(HttpSession.class);
+        when(httpServletRequestMock.getSession()).thenReturn(session);
+        when(session.getAttribute("captcha")).thenReturn(givenCaptchaMap);
+        doNothing().when(session).setAttribute(eq("captcha"), sessionMapCaptor.capture());
+        when(emailSenderMock.send(argumentCaptor.capture())).thenReturn(true);
+
+        // when
+        boolean result = personService.generateCaptchaAndPushToSessionAndSendEmail(1L, httpServletRequestMock);
+
+        // then
+        Map<String, Object> captchaMap = sessionMapCaptor.getValue();
+        String captcha = argumentCaptor.getValue().getBody();
+        assertThat(result).isTrue();
+        assertThat(captchaMap).hasSize(1);
+        assertThat(captchaMap.get("1")).isNotEqualTo("0123456789");
+        assertThat(captchaMap.get("1")).isEqualTo(captcha);
+        assertThat(captcha.length()).isEqualTo(10);
+    }
+
+    @Test
+    void whenCheckCaptchaValidation_shouldBeEqual() {
+        // given
+        ValidateCaptchaForm givenCaptchaForm = ValidateCaptchaForm.builder()
+                .personId("1")
+                .captcha("0123456789")
+                .build();
+        Map<String, Object> givenCaptchaMap = Map.of("1", "0123456789");
+        HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
+        HttpSession session = Mockito.mock(HttpSession.class);
+        when(httpServletRequestMock.getSession()).thenReturn(session);
+        when(session.getAttribute("captcha")).thenReturn(givenCaptchaMap);
+
+        // when
+        boolean result = personService.getCaptchaFromSessionAndValidate(givenCaptchaForm, httpServletRequestMock);
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void whenCheckCaptchaValidation_shouldBeNotEqual() {
+        // given
+        ValidateCaptchaForm givenCaptchaForm = ValidateCaptchaForm.builder()
+                .personId("1")
+                .captcha("0123456766")
+                .build();
+        Map<String, Object> givenCaptchaMap = Map.of("1", "0123456789");
+        HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
+        HttpSession session = Mockito.mock(HttpSession.class);
+        when(httpServletRequestMock.getSession()).thenReturn(session);
+        when(session.getAttribute("captcha")).thenReturn(givenCaptchaMap);
+
+        // when
+        boolean result = personService.getCaptchaFromSessionAndValidate(givenCaptchaForm, httpServletRequestMock);
+
+        // then
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void whenCheckSessionDoesNotContainCaptcha_shouldBeFalse() {
+        // given
+        ValidateCaptchaForm givenCaptchaForm = ValidateCaptchaForm.builder()
+                .personId("1")
+                .captcha("0123456789")
+                .build();
+        HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
+        HttpSession session = Mockito.mock(HttpSession.class);
+        when(httpServletRequestMock.getSession()).thenReturn(session);
+        when(session.getAttribute("captcha")).thenReturn(null);
+
+        // when
+        boolean result = personService.getCaptchaFromSessionAndValidate(givenCaptchaForm, httpServletRequestMock);
+
+        // then
+        assertThat(result).isFalse();
     }
 
     private static Stream<Arguments> parametersForInputArray() {

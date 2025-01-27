@@ -71,7 +71,7 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
         ObjectMapper oMapper = new ObjectMapper();
         Map<String, Object> capchaMap = oMapper.convertValue(session.getAttribute("captcha"), Map.class);
         if (capchaMap == null) {
-            session.setAttribute("captcha", Map.of(personId, captcha));
+            session.setAttribute("captcha", Map.of((String.valueOf(personId)), captcha));
         } else {
             capchaMap.put(String.valueOf(personId), captcha);
             session.setAttribute("captcha", capchaMap);
