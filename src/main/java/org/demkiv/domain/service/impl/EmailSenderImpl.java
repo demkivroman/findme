@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 public class EmailSenderImpl implements EntitySender<Boolean, EmailModel> {
     @Override
     public Boolean send(EmailModel entity) {
-        log.info("Sending email {}", entity.getBody());
+        log.info("Sending email: {}", entity.getBody());
         return true;
     }
 }

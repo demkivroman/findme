@@ -9,7 +9,6 @@ import org.demkiv.web.model.form.PersonForm;
 import org.demkiv.web.model.form.PersonPhotoForm;
 import org.demkiv.web.model.form.ValidateCaptchaForm;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -73,6 +72,15 @@ public class PersonController {
                 .build();
     }
 
+    @GetMapping(value = "/api/generate/session/id",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseModel<String> generateSessionId() {
+        return ResponseModel.<String>builder()
+                .mode("Success")
+                .body(personService.generateSessionId())
+                .build();
+    }
+
     @GetMapping(value = "/api/random/persons/{count}",
             produces = MediaType.APPLICATION_JSON_VALUE)
     public List<?> getRandomGeneratedPersons(@PathVariable int count) {
@@ -80,15 +88,22 @@ public class PersonController {
     }
 
     @GetMapping(value = "/api/captcha/create/{personId}")
-    public ResponseEntity<Boolean> createCaptchaMessage(@PathVariable long personId, HttpServletRequest request) {
+    public ResponseModel<Boolean> createCaptchaMessage(@PathVariable long personId, HttpServletRequest request) {
         boolean result = personService.generateCaptchaAndPushToSessionAndSendEmail(personId, request);
-        return ResponseEntity.ok(result);
+        return ResponseModel.<Boolean>builder()
+                .mode("Success")
+                .body(result)
+                .build();
     }
 
     @PostMapping(value = "/api/captcha/validate",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Boolean> validateCaptchaMessage(@RequestBody ValidateCaptchaForm captchaForm, HttpServletRequest request) {
-        return ResponseEntity.ok(personService.getCaptchaFromSessionAndValidate(captchaForm, request));
+    public ResponseModel<Boolean> validateCaptchaMessage(@RequestBody ValidateCaptchaForm captchaForm, HttpServletRequest request) {
+        boolean result = personService.getCaptchaFromSessionAndValidate(captchaForm, request);
+        return ResponseModel.<Boolean>builder()
+                .mode("Success")
+                .body(result)
+                .build();
     }
 }

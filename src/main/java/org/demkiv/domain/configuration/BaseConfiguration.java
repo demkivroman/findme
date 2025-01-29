@@ -25,7 +25,9 @@ public class BaseConfiguration implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .maxAge(3600)
                 .allowedMethods("*")
-                .allowedOriginPatterns(crossOriginPattern.split(","));
+                .allowedHeaders("*")
+                .allowedOriginPatterns(crossOriginPattern.split(","))
+                .allowCredentials(true);
     }
 
     public DataSource getDataSource(ConfigFile configFile) {

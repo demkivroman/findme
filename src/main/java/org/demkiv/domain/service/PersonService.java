@@ -11,4 +11,5 @@ public interface PersonService {
     List<?> getRandomPersons(int count);
     boolean generateCaptchaAndPushToSessionAndSendEmail(Long personId, HttpServletRequest request);
     boolean getCaptchaFromSessionAndValidate(ValidateCaptchaForm captchaForm, HttpServletRequest request);
+    String generateSessionId();
 }
