@@ -22,5 +22,9 @@ public class SqlQueriesProvider {
     @Value("${selectPersonsAndThumbnailsByIds}")
     String selectPersonsAndThumbnailsByIds;
     @Value("${deletePhotoById}")
-    String deletePhotoById = "DELETE FROM photos WHERE id = ?";
+    String deletePhotoById;
+    @Value("${deleteThumbnailById}")
+    String deleteThumbnailById;
+    @Value("${findThumbnailIdByPhotoUrl}")
+    String findThumbnailIdByName;
 }

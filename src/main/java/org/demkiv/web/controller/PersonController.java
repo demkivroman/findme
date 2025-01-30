@@ -7,6 +7,7 @@ import org.demkiv.domain.service.impl.PersonServiceImpl;
 import org.demkiv.web.model.*;
 import org.demkiv.web.model.form.PersonForm;
 import org.demkiv.web.model.form.PersonPhotoForm;
+import org.demkiv.web.model.form.PhotoForm;
 import org.demkiv.web.model.form.ValidateCaptchaForm;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -62,9 +63,11 @@ public class PersonController {
                 .build();
     }
 
-    @DeleteMapping(value = "/api/person/delete/photo/{id}")
-    public ResponseModel<Boolean> deletePersonPhoto(@PathVariable long id) {
-        boolean result = personService.deletePhotoFromDB(id);
+    @PostMapping(value = "/api/person/delete/photo",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseModel<Boolean> deletePersonPhoto(@RequestBody PhotoForm photoForm) {
+        boolean result = personService.deletePhotoAndThumbnailFromDB(photoForm.getId(), photoForm.getUrl());
         return ResponseModel.<Boolean>builder()
                 .mode("Success")
                 .body(result)

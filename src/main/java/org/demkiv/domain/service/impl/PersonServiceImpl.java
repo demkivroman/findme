@@ -111,14 +111,30 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
 
     @Override
     @Transactional
-    public boolean deletePhotoFromDB(long id) {
+    public boolean deletePhotoAndThumbnailFromDB(String id, String url) {
         boolean isDeleted = queryRepository.deletePhotoByIdFromDB(id);
         if (!isDeleted) {
             throw new FindMeServiceException("Could not delete photo from database");
         }
-
         log.info("Deleted photo from DB. ID - {}", id);
+
+        String thumbnailName = getThumbnailNameFromUrl(url);
+        List<String> thumbnailIds = queryRepository.findThumbnailIdByName(thumbnailName);
+        thumbnailIds.forEach(itemId -> {
+            boolean isThumbnailDeleted = queryRepository.deleteThumbnailByIdFromDB(itemId);
+            if (!isThumbnailDeleted) {
+                throw new FindMeServiceException("Could not delete thumbnail from database");
+            }
+            log.info("Deleted thumbnail from DB. ID - {}. Name - {}.", itemId, thumbnailName);
+        });
+
         return true;
+    }
+
+    private String getThumbnailNameFromUrl(String url) {
+        String nameSuffix = url.substring(url.lastIndexOf('/') + 1);
+        String name = nameSuffix.substring(0, nameSuffix.lastIndexOf('.'));
+        return name + "_thumbnail.gif";
     }
 
     private String generateCaptcha() {

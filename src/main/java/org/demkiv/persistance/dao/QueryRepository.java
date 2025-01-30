@@ -10,7 +10,6 @@ import org.demkiv.persistance.model.response.PersonDetailModel;
 import org.demkiv.persistance.model.response.SearchPersonsModel;
 import org.demkiv.persistance.service.ConverterService;
 import org.demkiv.web.model.PersonResponseModel;
-import org.springframework.core.OrderComparator;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import java.util.*;
@@ -23,10 +22,11 @@ public class QueryRepository {
     private final ConverterService converter;
     private final SqlQueriesProvider sqlQueriesProvider;
 
+    private final static char CHAR_VALUE = '%';
+
 
     public List<?> findPersonsAndPhoto(String item) {
-        char charValue = '%';
-        String query = String.format(sqlQueriesProvider.getFindPersonInformation(), charValue, item, charValue, charValue, item, charValue);
+        String query = String.format(sqlQueriesProvider.getFindPersonInformation(), CHAR_VALUE, item, CHAR_VALUE, CHAR_VALUE, item, CHAR_VALUE);
 
         List<Map<String, Object>> queryResult = jdbcTemplate.queryForList(query);
         return convertQueryResults(queryResult);
@@ -79,8 +79,19 @@ public class QueryRepository {
                 .collect(Collectors.toList());
     }
 
-    public boolean deletePhotoByIdFromDB(long photoId) {
+    public boolean deletePhotoByIdFromDB(String photoId) {
         final String query = String.format(sqlQueriesProvider.getDeletePhotoById(), photoId);
+        jdbcTemplate.execute(query);
+        return true;
+    }
+
+    public List<String> findThumbnailIdByName(String thumbnailName) {
+       final String query = String.format(sqlQueriesProvider.getFindThumbnailIdByName(), CHAR_VALUE, thumbnailName);
+        return jdbcTemplate.queryForList(query, String.class);
+    }
+
+    public boolean deleteThumbnailByIdFromDB(String id) {
+        final String query = String.format(sqlQueriesProvider.getDeleteThumbnailById(), id);
         jdbcTemplate.execute(query);
         return true;
     }
