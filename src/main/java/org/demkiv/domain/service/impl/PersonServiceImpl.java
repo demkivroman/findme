@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
+import org.demkiv.domain.FindMeServiceException;
 import org.demkiv.domain.architecture.EntityPersist;
 import org.demkiv.domain.architecture.EntitySender;
 import org.demkiv.domain.service.PersonService;
@@ -106,6 +107,18 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
     public String generateSessionId() {
         UUID uuid = UUID.randomUUID();
         return uuid.toString();
+    }
+
+    @Override
+    @Transactional
+    public boolean deletePhotoFromDB(long id) {
+        boolean isDeleted = queryRepository.deletePhotoByIdFromDB(id);
+        if (!isDeleted) {
+            throw new FindMeServiceException("Could not delete photo from database");
+        }
+
+        log.info("Deleted photo from DB. ID - {}", id);
+        return true;
     }
 
     private String generateCaptcha() {

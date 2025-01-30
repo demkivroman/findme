@@ -62,6 +62,15 @@ public class PersonController {
                 .build();
     }
 
+    @DeleteMapping(value = "/api/person/delete/photo/{id}")
+    public ResponseModel<Boolean> deletePersonPhoto(@PathVariable long id) {
+        boolean result = personService.deletePhotoFromDB(id);
+        return ResponseModel.<Boolean>builder()
+                .mode("Success")
+                .body(result)
+                .build();
+    }
+
     @GetMapping(value = "/api/person/information/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseModel<PersonResponseModel<?>> getDetailedPersonInfo(@PathVariable String id) {

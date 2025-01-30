@@ -79,6 +79,12 @@ public class QueryRepository {
                 .collect(Collectors.toList());
     }
 
+    public boolean deletePhotoByIdFromDB(long photoId) {
+        final String query = String.format(sqlQueriesProvider.getDeletePhotoById(), photoId);
+        jdbcTemplate.execute(query);
+        return true;
+    }
+
     public List<Long> getPersonIds() {
         return jdbcTemplate.queryForList(sqlQueriesProvider.getPersonIds(), Long.class);
     }

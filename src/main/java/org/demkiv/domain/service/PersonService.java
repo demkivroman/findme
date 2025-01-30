@@ -12,4 +12,5 @@ public interface PersonService {
     boolean generateCaptchaAndPushToSessionAndSendEmail(Long personId, HttpServletRequest request);
     boolean getCaptchaFromSessionAndValidate(ValidateCaptchaForm captchaForm, HttpServletRequest request);
     String generateSessionId();
+    boolean deletePhotoFromDB(long id);
 }
