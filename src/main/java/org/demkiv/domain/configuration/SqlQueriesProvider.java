@@ -27,4 +27,6 @@ public class SqlQueriesProvider {
     String deleteThumbnailById;
     @Value("${findThumbnailIdByPhotoUrl}")
     String findThumbnailIdByName;
+    @Value("${getImagesUrlByPersonId}")
+    String getImagesUrlByPersonId;
 }

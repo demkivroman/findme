@@ -131,6 +131,12 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
         return true;
     }
 
+    @Override
+    @Transactional
+    public List<?> getPhotoUrlsFromDBForPerson(String id) {
+        return queryRepository.getImagesUrlByPersonId(id);
+    }
+
     private String getThumbnailNameFromUrl(String url) {
         String nameSuffix = url.substring(url.lastIndexOf('/') + 1);
         String name = nameSuffix.substring(0, nameSuffix.lastIndexOf('.'));

@@ -10,6 +10,7 @@ import org.demkiv.web.model.form.PersonPhotoForm;
 import org.demkiv.web.model.form.PhotoForm;
 import org.demkiv.web.model.form.ValidateCaptchaForm;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -71,6 +72,15 @@ public class PersonController {
         return ResponseModel.<Boolean>builder()
                 .mode("Success")
                 .body(result)
+                .build();
+    }
+
+    @GetMapping(value = "/api/person/images/{id}",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseModel<List<?>> getImagesForPerson(@PathVariable String id) {
+        return ResponseModel.<List<?>>builder()
+                .mode("Success")
+                .body(personService.getPhotoUrlsFromDBForPerson(id))
                 .build();
     }
 

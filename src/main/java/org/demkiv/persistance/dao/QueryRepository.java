@@ -100,6 +100,15 @@ public class QueryRepository {
         return jdbcTemplate.queryForList(sqlQueriesProvider.getPersonIds(), Long.class);
     }
 
+    public List<PhotoDTO> getImagesUrlByPersonId(String personId) {
+        final String query = String.format(sqlQueriesProvider.getGetImagesUrlByPersonId(), personId);
+        List<Map<String, Object>> queryResult = jdbcTemplate.queryForList(query);
+        List<PhotoDTO> l = queryResult.stream()
+                .map(converter::convertQueryRowToPhotoDTO)
+                .collect(Collectors.toList());
+        return l;
+    }
+
     private PersonResponseModel<PersonDetailModel> convertQueryResultsToPersonDetailedModel(
             List<Map<String, Object>> queryResult,
             String postsCount) {

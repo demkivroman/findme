@@ -13,4 +13,5 @@ public interface PersonService {
     boolean getCaptchaFromSessionAndValidate(ValidateCaptchaForm captchaForm, HttpServletRequest request);
     String generateSessionId();
     boolean deletePhotoAndThumbnailFromDB(String id, String url);
+    List<?> getPhotoUrlsFromDBForPerson(String id);
 }
