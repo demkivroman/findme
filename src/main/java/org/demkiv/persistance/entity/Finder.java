@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -25,6 +27,6 @@ public class Finder {
     @Column(name = "information")
     private String information;
 
-    @OneToOne(mappedBy = "finder")
-    private Person person;
+    @OneToMany(mappedBy="finder")
+    private Set<Person> persons;
 }

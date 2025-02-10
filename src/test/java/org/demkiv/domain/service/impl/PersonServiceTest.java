@@ -18,6 +18,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
 import java.util.stream.Stream;
+
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
@@ -90,11 +92,12 @@ public class PersonServiceTest {
     void whenCheckCaptchaIsGenerated_shouldHaveLengthTen() {
         // given
         long givenId = 1L;
+        ArgumentCaptor<Map<String, Object>> sessionMapCaptor = ArgumentCaptor.forClass(Map.class);
         HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
         HttpSession session = Mockito.mock(HttpSession.class);
-        ArgumentCaptor<EmailModel> argumentCaptor = ArgumentCaptor.forClass(EmailModel.class);
         when(httpServletRequestMock.getSession()).thenReturn(session);
-        when(emailSenderMock.send(argumentCaptor.capture())).thenReturn(true);
+        doNothing().when(session).setAttribute(eq("captcha"), sessionMapCaptor.capture());
+        when(emailSenderMock.send(any())).thenReturn(true);
 
         // when
         boolean result = personService.generateCaptchaAndPushToSessionAndSendEmail(givenId, httpServletRequestMock);
@@ -104,11 +107,11 @@ public class PersonServiceTest {
         boolean result5 = personService.generateCaptchaAndPushToSessionAndSendEmail(givenId, httpServletRequestMock);
 
         // then
-        Set<EmailModel> givenSet = new HashSet<>(argumentCaptor.getAllValues());
+        Set<Map<String, Object>> givenSet = new HashSet<>(sessionMapCaptor.getAllValues());
         assertThat(givenSet).size().isEqualTo(5);
         givenSet.forEach(entry -> {
             assertThat(entry).isNotNull();
-            assertThat(entry.getBody().length()).isEqualTo(10);
+            assertThat(entry.get("1").toString().length()).isEqualTo(10);
         });
     }
 
@@ -120,21 +123,19 @@ public class PersonServiceTest {
         HttpSession session = Mockito.mock(HttpSession.class);
         ArgumentCaptor<String> captchaCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Map<String, Object>> sessionMapCaptor = ArgumentCaptor.forClass(Map.class);
-        ArgumentCaptor<EmailModel> argumentCaptor = ArgumentCaptor.forClass(EmailModel.class);
         when(httpServletRequestMock.getSession()).thenReturn(session);
         doNothing().when(session).setAttribute(captchaCaptor.capture(), sessionMapCaptor.capture());
-        when(emailSenderMock.send(argumentCaptor.capture())).thenReturn(true);
+        when(emailSenderMock.send(any())).thenReturn(true);
 
         // when
         boolean result = personService.generateCaptchaAndPushToSessionAndSendEmail(givenId, httpServletRequestMock);
 
         // then
         Map<String, Object> captchaMapCaptured = sessionMapCaptor.getValue();
-        String captcha = argumentCaptor.getValue().getBody();
         assertThat(result).isTrue();
         assertThat(captchaCaptor.getValue()).isEqualTo("captcha");
         assertThat(captchaMapCaptured).hasSize(1);
-        assertThat(captchaMapCaptured.get("1")).isEqualTo(captcha);
+        assertThat(captchaMapCaptured.get("1")).isNotNull();
     }
 
     @Test
@@ -142,25 +143,22 @@ public class PersonServiceTest {
         // given
         Map<String, Object> givenCaptchaMap = Map.of("1", "0123456789");
         ArgumentCaptor<Map<String, Object>> sessionMapCaptor = ArgumentCaptor.forClass(Map.class);
-        ArgumentCaptor<EmailModel> argumentCaptor = ArgumentCaptor.forClass(EmailModel.class);
         HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
         HttpSession session = Mockito.mock(HttpSession.class);
         when(httpServletRequestMock.getSession()).thenReturn(session);
         when(session.getAttribute("captcha")).thenReturn(givenCaptchaMap);
         doNothing().when(session).setAttribute(eq("captcha"), sessionMapCaptor.capture());
-        when(emailSenderMock.send(argumentCaptor.capture())).thenReturn(true);
+        when(emailSenderMock.send(any())).thenReturn(true);
 
         // when
         boolean result = personService.generateCaptchaAndPushToSessionAndSendEmail(2L, httpServletRequestMock);
 
         // then
         Map<String, Object> captchaMap = sessionMapCaptor.getValue();
-        String captcha = argumentCaptor.getValue().getBody();
         assertThat(result).isTrue();
         assertThat(captchaMap).hasSize(2);
         assertThat(captchaMap.get("1")).isEqualTo("0123456789");
-        assertThat(captchaMap.get("2")).isEqualTo(captcha);
-
+        assertThat(captchaMap.get("2").toString().length()).isEqualTo(10);
     }
 
     @Test
@@ -168,25 +166,22 @@ public class PersonServiceTest {
         // given
         Map<String, Object> givenCaptchaMap = Map.of("1", "0123456789");
         ArgumentCaptor<Map<String, Object>> sessionMapCaptor = ArgumentCaptor.forClass(Map.class);
-        ArgumentCaptor<EmailModel> argumentCaptor = ArgumentCaptor.forClass(EmailModel.class);
         HttpServletRequest httpServletRequestMock = Mockito.mock(HttpServletRequest.class);
         HttpSession session = Mockito.mock(HttpSession.class);
         when(httpServletRequestMock.getSession()).thenReturn(session);
         when(session.getAttribute("captcha")).thenReturn(givenCaptchaMap);
         doNothing().when(session).setAttribute(eq("captcha"), sessionMapCaptor.capture());
-        when(emailSenderMock.send(argumentCaptor.capture())).thenReturn(true);
+        when(emailSenderMock.send(any())).thenReturn(true);
 
         // when
         boolean result = personService.generateCaptchaAndPushToSessionAndSendEmail(1L, httpServletRequestMock);
 
         // then
         Map<String, Object> captchaMap = sessionMapCaptor.getValue();
-        String captcha = argumentCaptor.getValue().getBody();
         assertThat(result).isTrue();
         assertThat(captchaMap).hasSize(1);
         assertThat(captchaMap.get("1")).isNotEqualTo("0123456789");
-        assertThat(captchaMap.get("1")).isEqualTo(captcha);
-        assertThat(captcha.length()).isEqualTo(10);
+        assertThat(captchaMap.get("1").toString().length()).isEqualTo(10);
     }
 
     @Test

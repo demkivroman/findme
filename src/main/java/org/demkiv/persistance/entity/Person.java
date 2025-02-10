@@ -31,8 +31,8 @@ public class Person {
     @NotNull
     private LocalDateTime time;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "finder_id", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name="finder_id", nullable=false)
     private Finder finder;
     @OneToMany(mappedBy="person")
     private Set<Posts> posts;

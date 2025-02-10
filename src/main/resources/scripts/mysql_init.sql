@@ -14,7 +14,6 @@ create table findme_db.PERSON
     BIRTHDAY    date,
     DESCRIPTION text,
     TIME      TIMESTAMP     not null,
-    FINDER_ID   INT UNIQUE,
     FOREIGN KEY (FINDER_ID) REFERENCES FINDER (ID)
 );
 
