@@ -1,13 +1,11 @@
 package org.demkiv.persistance.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 
@@ -27,9 +25,6 @@ public class Person {
     private Date birthday;
     @Column(name = "description")
     private String description;
-    @Column(name = "time")
-    @NotNull
-    private LocalDateTime time;
 
     @ManyToOne
     @JoinColumn(name="finder_id", nullable=false)
@@ -40,4 +35,6 @@ public class Person {
     private Set<Photo> photos;
     @OneToMany(mappedBy="person")
     private Set<Thumbnail> thumbnails;
+    @OneToOne(mappedBy = "person")
+    private PersonStatus personStatus;
 }

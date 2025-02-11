@@ -13,8 +13,17 @@ create table findme_db.PERSON
     FULLNAME    varchar(100) not null,
     BIRTHDAY    date,
     DESCRIPTION text,
-    TIME      TIMESTAMP     not null,
     FOREIGN KEY (FINDER_ID) REFERENCES FINDER (ID)
+);
+
+create table findme_db.person_status
+(
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    person_id INT UNIQUE,
+    isFound boolean,
+    createdAt timestamp not null,
+    removedAt timestamp,
+    FOREIGN KEY (person_id) REFERENCES PERSON(id));
 );
 
 create table findme_db.POSTS
@@ -41,8 +50,3 @@ create table findme_db.THUMBNAIL
     PERSON_ID INT,
     FOREIGN KEY (PERSON_ID) REFERENCES PERSON (ID)
 );
-
--- create table findme_db.hibernate_sequence
--- (
---     next_val bigint
--- );
