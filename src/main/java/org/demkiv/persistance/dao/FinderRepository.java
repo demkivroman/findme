@@ -13,4 +13,6 @@ public interface FinderRepository extends JpaRepository<Finder, Long> {
 
     @Override
     Optional<Finder> findById(Long id);
+    Optional<Finder> findByEmail(String email);
+    Optional<Finder> findByPhone(String phone);
 }

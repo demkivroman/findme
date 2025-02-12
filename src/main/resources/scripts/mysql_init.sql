@@ -10,6 +10,7 @@ create table findme_db.FINDER
 create table findme_db.PERSON
 (
     ID          INT AUTO_INCREMENT PRIMARY KEY,
+    FINDER_ID INT UNIQUE,
     FULLNAME    varchar(100) not null,
     BIRTHDAY    date,
     DESCRIPTION text,
@@ -23,30 +24,30 @@ create table findme_db.person_status
     isFound boolean,
     createdAt timestamp not null,
     removedAt timestamp,
-    FOREIGN KEY (person_id) REFERENCES PERSON(id));
+    FOREIGN KEY (person_id) REFERENCES PERSON(id)
 );
 
 create table findme_db.POSTS
 (
     ID        INT AUTO_INCREMENT PRIMARY KEY,
+    PERSON_ID INT UNIQUE,
     POST      text not null,
     TIME      TIMESTAMP     not null,
-    PERSON_ID INT not null,
     FOREIGN KEY (PERSON_ID) REFERENCES PERSON (ID)
 );
 
 create table findme_db.PHOTO
 (
     ID        INT AUTO_INCREMENT PRIMARY KEY,
+    PERSON_ID INT UNIQUE,
     URL       varchar(200) not null,
-    PERSON_ID INT,
     FOREIGN KEY (PERSON_ID) REFERENCES PERSON (ID)
 );
 
 create table findme_db.THUMBNAIL
 (
     ID        INT AUTO_INCREMENT PRIMARY KEY,
+    PERSON_ID INT UNIQUE,
     URL       varchar(200) not null,
-    PERSON_ID INT,
     FOREIGN KEY (PERSON_ID) REFERENCES PERSON (ID)
 );
