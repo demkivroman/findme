@@ -38,7 +38,7 @@ public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, O
             Person person = getPerson(personForm, finder);
             Person savedPerson = personRepository.save(person);
             log.info("Person is stored to database {}", savedPerson);
-            PersonStatus personStatus = getPersonStatus();
+            PersonStatus personStatus = getPersonStatus(person);
             PersonStatus savedPersonStatus = personStatusRepository.save(personStatus);
             log.info("PersonStatus is stored to database {}", savedPersonStatus);
             return Optional.of(savedPerson.getId());
@@ -74,10 +74,11 @@ public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, O
         return Optional.of(true);
     }
 
-    private PersonStatus getPersonStatus() {
+    private PersonStatus getPersonStatus(Person person) {
         return PersonStatus.builder()
                 .isFound(false)
                 .createdAt(LocalDateTime.now())
+                .person(person)
                 .build();
     }
 

@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PersonStatusRepository extends JpaRepository<PersonStatus, Long> {
+public interface PersonStatusRepository extends JpaRepository<PersonStatus, Integer> {
     @Override
     <S extends PersonStatus> S save(S entity);
 }

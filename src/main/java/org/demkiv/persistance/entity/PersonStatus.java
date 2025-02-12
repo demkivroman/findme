@@ -18,8 +18,11 @@ public class PersonStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Column(name = "isFound")
     private boolean isFound;
+    @Column(name = "createdAt")
     private LocalDateTime createdAt;
+    @Column(name = "removedAt")
     private LocalDateTime removedAt;
 
     @OneToOne
