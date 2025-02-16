@@ -33,29 +33,14 @@ public class QueryRepository {
     }
 
     public List<?> getPersonsDataAndThumbnails(Set<Long> personIds) {
-        StringBuilder queryConditionBuilder = new StringBuilder();
-        personIds.forEach(personId -> {
-            queryConditionBuilder.append("(")
-            .append("person.id=")
-            .append(personId)
-            .append(" and ")
-            .append("thumbnail.person_id=")
-            .append(personId)
-            .append(")")
-            .append(" or ");
-            });
-        queryConditionBuilder.delete(queryConditionBuilder.length() - 4, queryConditionBuilder.length());
-        StringBuilder queryCondition2Builder = new StringBuilder();
-        personIds.forEach(personId -> {
-            queryCondition2Builder.append("person.id=")
-                    .append(personId)
-                    .append(" or ");
-
-        });
-        queryCondition2Builder.delete(queryCondition2Builder.length() - 4, queryCondition2Builder.length());
-        String query = String.format(sqlQueriesProvider.getSelectPersonsAndThumbnailsByIds(), queryConditionBuilder, queryCondition2Builder);
-        List<Map<String, Object>> queryResult = jdbcTemplate.queryForList(query);
-        return convertQueryResults(queryResult);
+        return personIds.stream()
+                        .map(id -> {
+                            String query = String.format(sqlQueriesProvider.getSelectPersonsAndThumbnailsByIds(), id);
+                            List<Map<String, Object>> queryResult = jdbcTemplate.queryForList(query);
+                            return convertQueryResults(queryResult);
+                        })
+                        .flatMap(List::stream)
+                        .collect(Collectors.toList());
     }
 
     public PersonResponseModel<PersonDetailModel> getDetailedPersonInfoFromDB(String personId) {
@@ -151,9 +136,11 @@ public class QueryRepository {
 
         if (persons.containsKey(personDTO.getId())) {
             List<PhotoDTO> existedPhotos = persons.get(personDTO.getId()).getThumbnail();
-            photoDTOS.addAll(existedPhotos);
-            photoDTOS.add(photoDTO);
-            persons.get(personDTO.getId()).setThumbnail(photoDTOS);
+            if (existedPhotos.size() < 5) {
+                photoDTOS.addAll(existedPhotos);
+                photoDTOS.add(photoDTO);
+                persons.get(personDTO.getId()).setThumbnail(photoDTOS);
+            }
         } else {
             SearchPersonsModel searchModel = SearchPersonsModel.builder()
                     .person(personDTO)

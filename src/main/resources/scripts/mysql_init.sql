@@ -2,15 +2,15 @@ create table findme_db.FINDER
 (
     ID          INT AUTO_INCREMENT PRIMARY KEY,
     FULLNAME    varchar(100) not null,
-    PHONE       varchar(20),
-    EMAIL       varchar(100),
+    PHONE       varchar(20) UNIQUE ,
+    EMAIL       varchar(100) UNIQUE ,
     INFORMATION text
 );
 
 create table findme_db.PERSON
 (
     ID          INT AUTO_INCREMENT PRIMARY KEY,
-    FINDER_ID INT UNIQUE,
+    FINDER_ID INT,
     FULLNAME    varchar(100) not null,
     BIRTHDAY    date,
     DESCRIPTION text,
@@ -30,8 +30,9 @@ create table findme_db.person_status
 create table findme_db.POSTS
 (
     ID        INT AUTO_INCREMENT PRIMARY KEY,
-    PERSON_ID INT UNIQUE,
+    PERSON_ID INT not null ,
     POST      text not null,
+    author    varchar(100),
     TIME      TIMESTAMP     not null,
     FOREIGN KEY (PERSON_ID) REFERENCES PERSON (ID)
 );
@@ -39,15 +40,15 @@ create table findme_db.POSTS
 create table findme_db.PHOTO
 (
     ID        INT AUTO_INCREMENT PRIMARY KEY,
-    PERSON_ID INT UNIQUE,
-    URL       varchar(200) not null,
+    PERSON_ID INT not null ,
+    URL       varchar(200) UNIQUE not null,
     FOREIGN KEY (PERSON_ID) REFERENCES PERSON (ID)
 );
 
 create table findme_db.THUMBNAIL
 (
     ID        INT AUTO_INCREMENT PRIMARY KEY,
-    PERSON_ID INT UNIQUE,
-    URL       varchar(200) not null,
+    PERSON_ID INT not null ,
+    URL       varchar(200) UNIQUE not null,
     FOREIGN KEY (PERSON_ID) REFERENCES PERSON (ID)
 );

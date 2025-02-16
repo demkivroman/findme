@@ -105,16 +105,16 @@ public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, O
     }
 
     private void mergeFinderInfo(PersonForm personForm, Finder finder) {
-        if (personForm.getFinderEmail() != null) {
+        if (!personForm.getFinderFullName().isEmpty()) {
             finder.setFullname(personForm.getFinderFullName());
         }
-        if (personForm.getFinderEmail() != null) {
+        if (!personForm.getFinderEmail().isEmpty()) {
             finder.setEmail(personForm.getFinderEmail());
         }
-        if (personForm.getFinderPhone() != null) {
+        if (!personForm.getFinderPhone().isEmpty()) {
             finder.setPhone(personForm.getFinderPhone());
         }
-        if (personForm.getFinderInformation() != null) {
+        if (!personForm.getFinderInformation().isEmpty()) {
             finder.setInformation(personForm.getFinderInformation());
         }
     }
