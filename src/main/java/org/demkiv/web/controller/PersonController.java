@@ -10,7 +10,6 @@ import org.demkiv.web.model.form.PersonPhotoForm;
 import org.demkiv.web.model.form.PhotoForm;
 import org.demkiv.web.model.form.ValidateCaptchaForm;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
