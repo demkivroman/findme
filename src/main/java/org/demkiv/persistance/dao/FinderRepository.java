@@ -1,6 +1,7 @@
 package org.demkiv.persistance.dao;
 
 import org.demkiv.persistance.entity.Finder;
+import org.demkiv.persistance.model.dto.FinderContactsDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,4 +16,5 @@ public interface FinderRepository extends JpaRepository<Finder, Long> {
     Optional<Finder> findById(Long id);
     Optional<Finder> findByEmail(String email);
     Optional<Finder> findByPhone(String phone);
+    Optional<FinderContactsDTO> findPhoneAndEmailById(long id);
 }

@@ -29,4 +29,6 @@ public class SqlQueriesProvider {
     String findThumbnailIdByName;
     @Value("${getImagesUrlByPersonId}")
     String getImagesUrlByPersonId;
+    @Value("${getContactsInfoFromFinder}")
+    String getContactsInfoFromFinder;
 }
