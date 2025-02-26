@@ -10,10 +10,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PersonForm {
-    private long personId;
+    private String personId;
     private String personFullName;
     private String personBirthDay;
     private String personDescription;
+    private String finderId;
     private String finderFullName;
     private String finderPhone;
     private String finderEmail;

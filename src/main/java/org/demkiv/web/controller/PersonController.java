@@ -10,6 +10,7 @@ import org.demkiv.web.model.form.PersonPhotoForm;
 import org.demkiv.web.model.form.PhotoForm;
 import org.demkiv.web.model.form.ValidateCaptchaForm;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,17 +34,15 @@ public class PersonController {
                 .build();
     }
 
-    @PostMapping(value = "/api/person/{id}/update",
+    @PostMapping(value = "/api/person/update",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseModel<?> updatePerson(
-            @PathVariable String id,
-            @RequestBody PersonForm personForm) {
-        personForm.setPersonId(Long.parseLong(id));
+    public ResponseEntity<?> updatePerson(@RequestBody PersonForm personForm) {
         Optional<?> result = personService.updateEntity(personForm);
-        return ResponseModel.builder()
-                .mode("Success")
-                .body(result)
-                .build();
+        if (result.isPresent()) {
+            return ResponseEntity.ok("{\"updated\" : true}");
+        }
+        return ResponseEntity.ok("{\"updated\" : false}");
     }
 
     @PostMapping(value = "/api/person/save/photo",

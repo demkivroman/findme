@@ -48,24 +48,30 @@ public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, O
     }
 
     @Override
-    public Optional<Boolean> updateEntity(PersonForm entity) {
-        Optional<Person> foundPerson = personRepository.findById(entity.getPersonId());
-        if (foundPerson.isEmpty()) {
-            log.error(String.format("Person with id - %s is not present in DB.", entity.getPersonId()));
-            throw new FindMeServiceException(String.format("Person with id - %s is not present in DB.", entity.getPersonId()));
+    public Optional<Boolean> updateEntity(PersonForm personForm) {
+        Optional<Finder> foundFinder = finderRepository.findById(Long.parseLong(personForm.getFinderId()));
+        if (foundFinder.isEmpty()) {
+            log.error("Finder with id - {} is not present in DB.", personForm.getFinderId());
+            throw new FindMeServiceException(String.format("Finder with id - %s is not present in DB.", personForm.getFinderId()));
         }
-        Person person = foundPerson.get();
-        Finder finder = person.getFinder();
-        finder.setFullname(entity.getFinderFullName());
-        finder.setPhone(entity.getFinderPhone());
-        finder.setEmail(entity.getFinderEmail());
-        finder.setInformation(entity.getFinderInformation());
+
+        Finder finder = foundFinder.get();
+        finder.setFullname(personForm.getFinderFullName());
+        finder.setPhone(personForm.getFinderPhone());
+        finder.setEmail(personForm.getFinderEmail());
+        finder.setInformation(personForm.getFinderInformation());
         Finder updatedFinder = finderRepository.save(finder);
         log.info("Finder is updated in database {}", updatedFinder.getId());
 
-        person.setFullname(entity.getPersonFullName());
-        person.setDescription(entity.getPersonDescription());
-        String stringDate = entity.getPersonBirthDay();
+        Optional<Person> foundPerson = personRepository.findById(Long.parseLong(personForm.getPersonId()));
+        if (foundPerson.isEmpty()) {
+            log.error(String.format("Person with id - %s is not present in DB.", personForm.getPersonId()));
+            throw new FindMeServiceException(String.format("Person with id - %s is not present in DB.", personForm.getPersonId()));
+        }
+        Person person = foundPerson.get();
+        person.setFullname(personForm.getPersonFullName());
+        person.setDescription(personForm.getPersonDescription());
+        String stringDate = personForm.getPersonBirthDay();
         if (!stringDate.equals(String.valueOf(person.getBirthday()))) {
             person.setBirthday(getDate(stringDate));
         }
