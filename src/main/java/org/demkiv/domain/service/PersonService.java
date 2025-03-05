@@ -14,4 +14,5 @@ public interface PersonService {
     String generateSessionId();
     boolean deletePhotoAndThumbnailFromDB(String id, String url);
     List<?> getPhotoUrlsFromDBForPerson(String id);
+    boolean markPersonAsFound(long personId);
 }

@@ -8,6 +8,7 @@ import org.demkiv.domain.FindMeServiceException;
 import org.demkiv.domain.architecture.EntityPersist;
 import org.demkiv.domain.architecture.EntitySender;
 import org.demkiv.domain.service.PersonService;
+import org.demkiv.persistance.dao.PersonStatusRepository;
 import org.demkiv.persistance.dao.QueryRepository;
 import org.demkiv.persistance.service.SaveUpdateService;
 import org.demkiv.web.model.EmailModel;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Slf4j
@@ -27,15 +29,18 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
     private final SaveUpdateService<PersonForm, Optional<?>> service;
     private final QueryRepository queryRepository;
     private final EntitySender<Boolean, EmailModel> emailSender;
+    private final PersonStatusRepository personStatusRepository;
 
     @Autowired
     public PersonServiceImpl(
             @Qualifier("persistPerson") SaveUpdateService<PersonForm, Optional<?>> service,
             QueryRepository queryRepository,
-            @Qualifier("emailSender") EntitySender<Boolean, EmailModel> emailSender) {
+            @Qualifier("emailSender") EntitySender<Boolean, EmailModel> emailSender,
+            PersonStatusRepository personStatusRepository) {
         this.service = service;
         this.queryRepository = queryRepository;
         this.emailSender = emailSender;
+        this.personStatusRepository = personStatusRepository;
     }
 
     @Override
@@ -143,9 +148,17 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
         return name + "_thumbnail.gif";
     }
 
+    @Override
+    @Transactional
+    public boolean markPersonAsFound(long personId) {
+        personStatusRepository.markPersonAsFound(personId, LocalDateTime.now());
+        log.info("Marked person as found in DB. ID - {}", personId);
+        return true;
+    }
+
     private String generateCaptcha() {
         final int captchaLength = 10;
-        final char[] numericAlphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@#&!".toCharArray();
+        final char[] numericAlphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$@&!".toCharArray();
         StringBuilder captchaBuilder = new StringBuilder();
 
         for (int i = 0; i < captchaLength; i++) {

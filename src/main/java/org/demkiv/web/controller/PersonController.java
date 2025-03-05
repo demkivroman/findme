@@ -126,4 +126,11 @@ public class PersonController {
                 .body(result)
                 .build();
     }
+
+    @GetMapping(value = "/api/person/found/{personId}",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> markPersonAsFound(@PathVariable long personId) {
+        personService.markPersonAsFound(personId);
+        return ResponseEntity.ok("{\"updated\" : true}");
+    }
 }
