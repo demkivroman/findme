@@ -27,6 +27,16 @@ create table findme_db.person_status
     FOREIGN KEY (person_id) REFERENCES PERSON(id)
 );
 
+create table findme_db.person_payment
+(
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    person_id INT UNIQUE,
+    payedAt timestamp not null,
+    days int not null,
+    costPerDay float not null,
+    FOREIGN KEY (person_id) REFERENCES PERSON(id)
+);
+
 create table findme_db.POSTS
 (
     ID        INT AUTO_INCREMENT PRIMARY KEY,
