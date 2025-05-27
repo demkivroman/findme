@@ -74,7 +74,6 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
         String captcha = generateCaptcha();
 
         HttpSession session = request.getSession();
-        log.debug("session ID - {}", session.getId());
         ObjectMapper oMapper = new ObjectMapper();
         Map<String, Object> capchaMap = oMapper.convertValue(session.getAttribute("captcha"), Map.class);
         if (capchaMap == null) {
@@ -93,12 +92,10 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
     @Override
     public boolean getCaptchaFromSessionAndValidate(ValidateCaptchaForm captchaForm, HttpServletRequest request) {
         HttpSession session = request.getSession();
-        log.debug("session ID - {}", session.getId());
         ObjectMapper oMapper = new ObjectMapper();
         Map<String, Object> capchaMap = oMapper.convertValue(session.getAttribute("captcha"), Map.class);
 
         if (capchaMap == null) {
-            log.debug("There is no captcha data in the session");
             return false;
         }
 

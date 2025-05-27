@@ -26,6 +26,8 @@
         <assertj.version>3.26.3</assertj.version>
         <junit-platform.version>1.11.3</junit-platform.version>
         <mockito.version>4.4.0</mockito.version>
+        <slf4j.version>2.0.7</slf4j.version>
+        <logback.version>1.5.6</logback.version>
     </properties>
 
     <dependencies>
@@ -37,6 +39,10 @@
                 <exclusion>
                     <artifactId>jackson-dataformat-cbor</artifactId>
                     <groupId>com.fasterxml.jackson.dataformat</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -61,9 +67,19 @@
             <artifactId>spring-boot-starter-test</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-log4j2</artifactId>
-            <version>2.3.12.RELEASE</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

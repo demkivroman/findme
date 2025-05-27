@@ -66,8 +66,8 @@ public class DiskUploaderIml implements Uploader {
     }
 
     @Override
-    public Boolean saveEntity(PersonPhotoForm personPhotoForm) {
-        String retrievePhotoPath = String.format("%s/%s", config.getPhotosStoreUrl(), personPhotoForm.getPhoto().getOriginalFilename());
+    public Boolean saveEntity(PersonPhotoForm personPhotoForm, File photoSource) {
+        String retrievePhotoPath = String.format("%s/%s", config.getPhotosStoreUrl(), photoSource.getName());
         personPhotoForm.setUrl(retrievePhotoPath);
         persistService.saveEntity(personPhotoForm);
         log.info("Person's photo is completely stored to database.");

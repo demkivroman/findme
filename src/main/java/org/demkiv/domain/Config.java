@@ -20,4 +20,6 @@ public class Config {
     String thumbnailStoreUrl;
     @Value("${convertThumbnailCommand}")
     String convertThumbnailCommand;
+    @Value("${convertPhotoCommand}")
+    String convertPhotoCommand;
 }
