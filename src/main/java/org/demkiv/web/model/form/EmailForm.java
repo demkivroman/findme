@@ -9,5 +9,7 @@ public class EmailForm {
 
     private String personId;
     private String sendMode;
+    private String subject;
+    private String sendTo;
     private String body;
 }
