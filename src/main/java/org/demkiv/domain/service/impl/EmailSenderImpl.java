@@ -1,11 +1,14 @@
 package org.demkiv.domain.service.impl;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.demkiv.domain.FindMeServiceException;
 import org.demkiv.domain.architecture.EntitySender;
 import org.demkiv.web.model.EmailModel;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -17,13 +20,18 @@ public class EmailSenderImpl implements EntitySender<Boolean, EmailModel> {
 
     @Override
     public Boolean send(EmailModel entity) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(entity.getEmailFrom());
-        message.setTo(entity.getEmailTo());
-        message.setSubject(entity.getSubject());
-        message.setText(entity.getBody());
-        emailSender.send(message);
-        log.info("Email sent successfully to {}", entity.getEmailTo());
-        return true;
+        try {
+            MimeMessage message = emailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, "utf-8");
+            helper.setFrom(entity.getEmailFrom());
+            helper.setTo(entity.getEmailTo());
+            helper.setSubject(entity.getSubject());
+            helper.setText(entity.getBody(), true);
+            emailSender.send(message);
+            log.info("Email sent successfully to {}", entity.getEmailTo());
+            return true;
+        } catch (MessagingException e) {
+            throw new FindMeServiceException("Email sending failed", e);
+        }
     }
 }
