@@ -3,8 +3,9 @@ package org.demkiv.domain;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.demkiv.domain.architecture.FileUploader;
+import org.demkiv.domain.model.S3UploaderModel;
 import org.demkiv.domain.service.ProcessRunner;
-import org.demkiv.domain.upload.Uploader;
+import org.demkiv.persistance.service.PersistService;
 import org.demkiv.web.model.form.PersonPhotoForm;
 
 import java.io.File;
@@ -14,13 +15,13 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
-import java.util.UUID;
 
 @Slf4j
 @Setter
 public class PersonUploadTask extends Thread {
-    private FileUploader<File> s3Uploader;
-    private Uploader uploader;
+    private FileUploader<S3UploaderModel> s3Uploader;
+    private PersistService<PersonPhotoForm, Boolean> persistPhotoService;
+    private PersistService<PersonPhotoForm, Boolean> persistThumbnailService;
     private ProcessRunner processRunner;
     private PersonPhotoForm personPhotoForm;
     private Config config;
@@ -30,7 +31,7 @@ public class PersonUploadTask extends Thread {
         try {
             Path tempDirectory = Files.createTempDirectory("temp_photo");
             File photo = getTempPhotoPath(tempDirectory);
-            String convertedPhotoPath = getConvertedPhotoPath(photo);
+            String convertedPhotoPath = photo.getAbsolutePath();
             String convertPhotoCommand = String.format(config.convertPhotoCommand, photo.getAbsolutePath(), convertedPhotoPath);
             processRunner.runProcess(tempDirectory.toFile(), convertPhotoCommand, new StringWriter());
             File photoInTempDir = new File(convertedPhotoPath);
@@ -38,25 +39,24 @@ public class PersonUploadTask extends Thread {
             String convertCommand = String.format(config.convertThumbnailCommand, photo.getAbsolutePath(), thumbnailPath);
             processRunner.runProcess(tempDirectory.toFile(), convertCommand, new StringWriter());
             File thumbnailInTempDir = new File(thumbnailPath);
-            uploader.uploadThumbnail(thumbnailInTempDir);
-            uploader.saveThumbnailEntity(personPhotoForm, thumbnailInTempDir);
-            uploader.uploadPhoto(photoInTempDir);
-            uploader.saveEntity(personPhotoForm, photoInTempDir);
+            S3UploaderModel s3ThumbnailsModel = S3UploaderModel.builder()
+                    .directory("thumbnails")
+                    .file(thumbnailInTempDir)
+                    .build();
+            s3Uploader.upload(s3ThumbnailsModel);
+            S3UploaderModel s3PhotosModel = S3UploaderModel.builder()
+                    .directory("photos")
+                    .file(photoInTempDir)
+                    .build();
+            s3Uploader.upload(s3PhotosModel);
+            personPhotoForm.setUrl(String.format(config.getPhotosStoreUrl(), photoInTempDir.getName()));
+            personPhotoForm.setThumbnailUrl(String.format(config.getThumbnailStoreUrl(), thumbnailInTempDir.getName()));
+            persistPhotoService.saveEntity(personPhotoForm);
+            persistThumbnailService.saveEntity(personPhotoForm);
         } catch (Throwable ex) {
             log.error("Error when storing an image. " + ex.getMessage());
             Thread.currentThread().interrupt();
         }
-    }
-
-    private String getConvertedPhotoPath(File photo) {
-        UUID uuid = UUID.randomUUID();
-        String uuidString = uuid.toString().replace("-", "");
-        String photoPath = photo.getAbsolutePath();
-        String dirPath = photoPath.substring(0, photoPath.lastIndexOf(File.separator));
-        String fileName = photoPath.substring(photoPath.lastIndexOf(File.separator) + 1);
-        String[] arr = fileName.split("\\.");
-        String photoName = String.format("%s_%s.gif", arr[0], uuidString);
-        return dirPath + File.separator + photoName;
     }
 
     private String getThumbnailPath(File photo) {

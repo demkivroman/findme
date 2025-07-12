@@ -28,24 +28,10 @@
         <mockito.version>4.4.0</mockito.version>
         <slf4j.version>2.0.7</slf4j.version>
         <logback.version>1.5.6</logback.version>
+        <aws-java-sdk.version>1.12.765</aws-java-sdk.version>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-s3</artifactId>
-            <version>${project.aws.jdk}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>jackson-dataformat-cbor</artifactId>
-                    <groupId>com.fasterxml.jackson.dataformat</groupId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -142,6 +128,11 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${mockito.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-s3</artifactId>
+            <version>${aws-java-sdk.version}</version>
         </dependency>
     </dependencies>
 

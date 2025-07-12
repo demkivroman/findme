@@ -1,63 +1,36 @@
 package org.demkiv.domain.upload;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.demkiv.domain.ConfigFile;
 import org.demkiv.domain.architecture.FileUploader;
+import org.demkiv.domain.model.S3UploaderModel;
 import org.springframework.stereotype.Component;
-
-import java.io.File;
 
 @Slf4j
 @AllArgsConstructor
 @Component("s3Uploader")
-public class S3Uploader implements FileUploader<File> {
-    private final ConfigFile configFile;
+public class S3Uploader implements FileUploader<S3UploaderModel> {
+    private final ConfigFile config;
 
     @Override
-    public void upload(File file) {
-        String key = configFile.getS3ImageKey() + "/" + file.getName();
-        String bucketName = configFile.getS3BucketName();
-        AmazonS3 client = getAmazonS3Client();
+    public void upload(S3UploaderModel model) {
         try {
-            if (!fileExist(client, key ,bucketName)) {
-                client.putObject(bucketName, key, file);
-                log.info("{} image is uploaded.", key);
-            } else {
-                log.info("{} already exists on S3", key);
-            }
+            String key = String.format("%s/%s", model.getDirectory(), model.getFile().getName());
+            AmazonS3 client = getAmazonS3Client();
+            client.putObject(config.getS3BucketName(), key, model.getFile());
+            log.info("Uploaded file to S3 {}", key);
         } catch (Exception ex) {
-            log.error("{} image is not uploaded. {}", key, ex.getMessage());
+            log.error("File is not uploaded to S3.", ex);
             throw ex;
         }
     }
 
     private AmazonS3 getAmazonS3Client() {
-        AWSCredentials credentials = new BasicAWSCredentials(
-                configFile.getS3AccessKey(),
-                configFile.getS3SecretKey()
-        );
-
-        return AmazonS3ClientBuilder
-                .standard()
-                .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                .withRegion(Regions.US_EAST_2)
+        return AmazonS3ClientBuilder.standard()
+                .withRegion(config.getS3Region())
                 .build();
-    }
-
-    private boolean fileExist(AmazonS3 client, String key, String awsBucketName) {
-            try {
-                client.getObjectMetadata(awsBucketName, key);
-            } catch (AmazonS3Exception ex) {
-                return false;
-            }
-        return true;
     }
 }

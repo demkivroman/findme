@@ -23,16 +23,16 @@ public class PersistPersonPhotoServiceImpl implements PersistService<PersonPhoto
     private PersonRepository personRepository;
 
     @Override
-    public Boolean saveEntity(PersonPhotoForm entity) {
-        Optional<Person> personEntity = personRepository.findById(entity.getPersonId());
+    public Boolean saveEntity(PersonPhotoForm personPhotoForm) {
+        Optional<Person> personEntity = personRepository.findById(personPhotoForm.getPersonId());
         if (personEntity.isEmpty()) {
-            log.error("Can't find person in database by id " + entity.getPersonId());
-            throw new FindMeServiceException("Can't find person in database by id " + entity.getPersonId());
+            log.error("Can't find person in database by id " + personPhotoForm.getPersonId());
+            throw new FindMeServiceException("Can't find person in database by id " + personPhotoForm.getPersonId());
         }
 
-        Photo photoEntity = getPhoto(personEntity.get(), entity.getUrl());
+        Photo photoEntity = getPhoto(personEntity.get(), personPhotoForm.getUrl());
         photoRepository.save(photoEntity);
-        log.info("Photo is saved to database. URL is {}", entity.getUrl());
+        log.info("Photo is saved to database. URL is {}", personPhotoForm.getUrl());
         return true;
     }
 

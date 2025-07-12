@@ -3,6 +3,7 @@ package org.demkiv.domain;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.demkiv.domain.upload.S3Uploader;
 import org.demkiv.domain.util.PropertyLoader;
 
 import java.io.File;
@@ -18,8 +19,7 @@ public class ConfigFile {
     private String s3AccessKey;
     private String s3SecretKey;
     private String s3BucketName;
-    private String s3ImageKey;
-    private String s3ImageRetrievePath;
+    private String s3Region;
 
     private String dbUrl;
     private String dbUsername;
