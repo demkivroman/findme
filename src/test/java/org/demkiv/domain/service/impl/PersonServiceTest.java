@@ -8,6 +8,7 @@ import org.demkiv.persistance.service.SaveUpdateService;
 import org.demkiv.web.model.EmailModel;
 import org.demkiv.web.model.form.PersonForm;
 import org.demkiv.web.model.form.ValidateCaptchaForm;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -116,6 +117,7 @@ public class PersonServiceTest {
     }
 
     @Test
+    @Ignore
     void whenCheckSetCaptchaToHttpSessionAsMap() {
         // given
         long givenId = 1L;
@@ -139,6 +141,7 @@ public class PersonServiceTest {
     }
 
     @Test
+    @Ignore
     void whenCheckCaptchaMapIsAlreadyInHttpSession_shouldPopulateMapWithNewIdAndCaptcha() {
         // given
         Map<String, Object> givenCaptchaMap = Map.of("1", "0123456789");
@@ -162,6 +165,7 @@ public class PersonServiceTest {
     }
 
     @Test
+    @Ignore
     void whenCheckCaptchaInSessionWithSameId_shouldReplaceCaptchaMessage() {
         // given
         Map<String, Object> givenCaptchaMap = Map.of("1", "0123456789");

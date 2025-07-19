@@ -8,8 +8,11 @@ import org.demkiv.domain.FindMeServiceException;
 import org.demkiv.domain.architecture.EntityPersist;
 import org.demkiv.domain.architecture.EntitySender;
 import org.demkiv.domain.service.PersonService;
+import org.demkiv.persistance.dao.PersonRepository;
 import org.demkiv.persistance.dao.PersonStatusRepository;
 import org.demkiv.persistance.dao.QueryRepository;
+import org.demkiv.persistance.entity.Finder;
+import org.demkiv.persistance.entity.Person;
 import org.demkiv.persistance.service.SaveUpdateService;
 import org.demkiv.web.model.EmailModel;
 import org.demkiv.web.model.PersonResponseModel;
@@ -17,6 +20,7 @@ import org.demkiv.web.model.form.PersonForm;
 import org.demkiv.web.model.form.ValidateCaptchaForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,21 +30,28 @@ import java.util.*;
 @Slf4j
 @Service
 public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>, PersonService {
+
+    @Value("${emailFrom}")
+    private String emailFrom;
+
     private final SaveUpdateService<PersonForm, Optional<?>> service;
     private final QueryRepository queryRepository;
     private final EntitySender<Boolean, EmailModel> emailSender;
     private final PersonStatusRepository personStatusRepository;
+    private final PersonRepository personRepository;
 
     @Autowired
     public PersonServiceImpl(
             @Qualifier("persistPerson") SaveUpdateService<PersonForm, Optional<?>> service,
             QueryRepository queryRepository,
             @Qualifier("emailSender") EntitySender<Boolean, EmailModel> emailSender,
-            PersonStatusRepository personStatusRepository) {
+            PersonStatusRepository personStatusRepository,
+            PersonRepository personRepository) {
         this.service = service;
         this.queryRepository = queryRepository;
         this.emailSender = emailSender;
         this.personStatusRepository = personStatusRepository;
+        this.personRepository = personRepository;
     }
 
     @Override
@@ -83,8 +94,13 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
             session.setAttribute("captcha", capchaMap);
         }
 
+        Person foundPerson = personRepository.findById(personId).get();
+        String finderEmail = foundPerson.getFinder().getEmail();
         EmailModel emailModel = EmailModel.builder()
-                .body(String.format("personId - %s, captcha - %s", personId, captcha))
+                .emailFrom(emailFrom)
+                .emailTo(finderEmail)
+                .body(String.format("This is code to use for %s. Captcha - %s", foundPerson.getFullname(), captcha))
+                .subject(String.format("Captcha code for %s", foundPerson.getFullname()))
                 .build();
         return emailSender.send(emailModel);
     }

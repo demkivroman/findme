@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -65,8 +66,8 @@ public class PersonPaymentImpl implements EntitySaver<PaymentForm, Boolean>, Ent
 
     private PayedPersonInfoModel convertPersonToPayedPersonInfoModel(Person person) {
         Optional<Thumbnail> thumbnail = person.getThumbnails().stream().findFirst();
-        LocalDate birthDay = person.getBirthday().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        int age = LocalDate.now().getYear() - birthDay.getYear();
+        LocalDate birthDay = Objects.isNull(person.getBirthday())? null : person.getBirthday().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        int age = Objects.isNull(birthDay) ? 0 : LocalDate.now().getYear() - birthDay.getYear();
         return PayedPersonInfoModel.builder()
                 .id(person.getId())
                 .fullName(person.getFullname())
