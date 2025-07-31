@@ -1,4 +1,4 @@
-create table findme_db.FINDER
+create table findmeDB.FINDER
 (
     ID          INT AUTO_INCREMENT PRIMARY KEY,
     FULLNAME    varchar(100) not null,
@@ -7,7 +7,7 @@ create table findme_db.FINDER
     INFORMATION text
 );
 
-create table findme_db.PERSON
+create table findmeDB.PERSON
 (
     ID          INT AUTO_INCREMENT PRIMARY KEY,
     FINDER_ID INT,
@@ -17,7 +17,7 @@ create table findme_db.PERSON
     FOREIGN KEY (FINDER_ID) REFERENCES FINDER (ID)
 );
 
-create table findme_db.person_status
+create table findmeDB.person_status
 (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     person_id INT UNIQUE,
@@ -27,7 +27,7 @@ create table findme_db.person_status
     FOREIGN KEY (person_id) REFERENCES PERSON(id)
 );
 
-create table findme_db.person_payment
+create table findmeDB.person_payment
 (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     person_id INT UNIQUE,
@@ -37,7 +37,7 @@ create table findme_db.person_payment
     FOREIGN KEY (person_id) REFERENCES PERSON(id)
 );
 
-create table findme_db.POSTS
+create table findmeDB.POSTS
 (
     ID        INT AUTO_INCREMENT PRIMARY KEY,
     PERSON_ID INT not null ,
@@ -47,7 +47,7 @@ create table findme_db.POSTS
     FOREIGN KEY (PERSON_ID) REFERENCES PERSON (ID)
 );
 
-create table findme_db.PHOTO
+create table findmeDB.PHOTO
 (
     ID        INT AUTO_INCREMENT PRIMARY KEY,
     PERSON_ID INT not null ,
@@ -55,7 +55,7 @@ create table findme_db.PHOTO
     FOREIGN KEY (PERSON_ID) REFERENCES PERSON (ID)
 );
 
-create table findme_db.THUMBNAIL
+create table findmeDB.THUMBNAIL
 (
     ID        INT AUTO_INCREMENT PRIMARY KEY,
     PERSON_ID INT not null ,

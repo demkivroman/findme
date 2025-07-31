@@ -48,13 +48,13 @@ public class PhotoServiceImpl implements EntitySaver<PersonPhotoForm, Boolean> {
         return false;
     }
 
-    private PersonUploadTask getS3Uploader(PersonPhotoForm entity) {
+    private PersonUploadTask getS3Uploader(PersonPhotoForm personPhotoForm) {
         PersonUploadTask uploadTask = new PersonUploadTask();
         uploadTask.setS3Uploader(s3Uploader);
         uploadTask.setProcessRunner(processRunner);
         uploadTask.setPersistPhotoService(persistPhotoService);
         uploadTask.setPersistThumbnailService(persistThumbnailService);
-        uploadTask.setPersonPhotoForm(entity);
+        uploadTask.setPersonPhotoForm(personPhotoForm);
         uploadTask.setConfig(config);
         return uploadTask;
     }
