@@ -141,7 +141,8 @@ public class PersonController {
     public ResponseModel<List<?>> getImagesForPerson(@PathVariable String id) {
         return ResponseModel.<List<?>>builder()
                 .mode("Success")
-                .body(personService.getPhotoUrlsFromDBForPerson(id))
+//                .body(personService.getPhotoUrlsFromDBForPerson(id))
+                .body(List.of())
                 .build();
     }
 

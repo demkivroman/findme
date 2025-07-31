@@ -25,7 +25,8 @@ public class PersonUploadTask extends Thread {
 
     @Override
     public void run() {
-        try(TempDirectory tempDirectory = personPhotoForm.getTempDirectory()) {
+        try {
+            TempDirectory tempDirectory = personPhotoForm.getTempDirectory();
             log.info("Start uploading person photo prcess");
             Path photoPath = personPhotoForm.getPhotoPath();
             File tempDir = tempDirectory.getPath().toFile();
@@ -49,6 +50,7 @@ public class PersonUploadTask extends Thread {
             s3Uploader.upload(s3PhotosModel);
             personPhotoForm.setUrl(String.format(config.getPhotosStoreUrl(), photoInTempDir.getName()));
             personPhotoForm.setThumbnailUrl(String.format(config.getThumbnailStoreUrl(), thumbnailInTempDir.getName()));
+            log.debug("After setting properties to personPhotoForm {}", personPhotoForm);
             persistPhotoService.saveEntity(personPhotoForm);
             persistThumbnailService.saveEntity(personPhotoForm);
         } catch (Throwable ex) {

@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration debug="true">
+<configuration>
 
-    <property resource="application.properties" />
+    <!-- Load properties from application.properties -->
+    <property resource="application.properties"/>
 
+    <!-- File appender -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${findme.log.file}</file>
         <append>true</append>
@@ -15,14 +17,25 @@
         </encoder>
     </appender>
 
+    <!-- Console appender -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <root level="ERROR">
+    <!-- Root level: WARN, to suppress external verbosity -->
+    <root level="WARN">
         <appender-ref ref="FILE"/>
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="STDOUT"/>
     </root>
+
+    <!-- Your application's package at DEBUG level for detailed logs -->
+    <logger name="org.demkiv" level="DEBUG" />
+
+    <!-- Reduce external library logs to WARN -->
+    <logger name="org.apache" level="WARN" />
+    <logger name="org.springframework" level="WARN" />
+    <logger name="org.hibernate" level="WARN" />
+
 </configuration>
