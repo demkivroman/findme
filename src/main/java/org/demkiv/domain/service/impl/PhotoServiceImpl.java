@@ -76,27 +76,23 @@ public class PhotoServiceImpl implements EntitySaver<PersonPhotoForm, Boolean> {
             s3Uploader.upload(s3PhotosModel);
             personPhotoForm.setUrl(String.format(config.getPhotosStoreUrl(), photoInTempDir.getName()));
             personPhotoForm.setThumbnailUrl(String.format(config.getThumbnailStoreUrl(), thumbnailInTempDir.getName()));
-            log.debug("After setting properties to personPhotoForm {} {}", personPhotoForm.getPersonId(), personPhotoForm.getUrl());
             savePhotoToDB(personPhotoForm);
-//            persistThumbnailService.saveEntity(personPhotoForm);
+            persistThumbnailService.saveEntity(personPhotoForm);
+            return true;
         } catch (Throwable ex) {
             log.error("Error when storing an image. " + ex.getMessage());
             throw new FindMeServiceException("Error when storing an image. " + ex.getMessage(), ex);
         }
-        return true;
     }
 
     private void savePhotoToDB(PersonPhotoForm personPhotoForm) {
-        log.debug("saveEntity() was called for personId={}", personPhotoForm.getPersonId());
         Optional<Person> personEntity = personRepository.findById(personPhotoForm.getPersonId());
-        log.debug("Person photo form found id: {}, url: {}", personPhotoForm.getPersonId(),  personPhotoForm.getUrl());
         if (personEntity.isEmpty()) {
             log.error("Can't find person in database by id " + personPhotoForm.getPersonId());
             throw new FindMeServiceException("Can't find person in database by id " + personPhotoForm.getPersonId());
         }
 
         Photo photoEntity = getPhoto(personEntity.get(), personPhotoForm.getUrl());
-        log.debug("photoEntity: " + photoEntity);
         photoRepository.save(photoEntity);
         log.info("Photo is saved to database. URL is {}", personPhotoForm.getUrl());
     }
