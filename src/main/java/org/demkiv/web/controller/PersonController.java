@@ -64,13 +64,12 @@ public class PersonController {
             @RequestParam("person_id") long personId,
             @RequestParam("photo") MultipartFile photo) {
 
-        try {
-            TempDirectory tempDirectory = new TempDirectory("temp_photo");
+        try(TempDirectory tempDirectory = new TempDirectory("temp_photo")) {
             Path photoPath = getTempPhotoPath(tempDirectory.getPath(), photo);
             PersonPhotoForm photoForm = PersonPhotoForm.builder()
                     .personId(personId)
                     .photoPath(photoPath)
-                    .tempDirectory(tempDirectory)
+                    .tempDirectory(tempDirectory.getPath())
                     .build();
 
             log.info("Processing save for person ID {}", personId);
