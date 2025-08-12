@@ -11,5 +11,5 @@ import java.util.List;
 @Builder
 public class SearchPersonsModel {
     private PersonDTO person;
-    private List<PhotoDTO> thumbnail;
+    private List<PhotoDTO> photo;
 }

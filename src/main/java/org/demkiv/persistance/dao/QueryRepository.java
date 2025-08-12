@@ -135,16 +135,16 @@ public class QueryRepository {
         List<PhotoDTO> photoDTOS = new ArrayList<>();
 
         if (persons.containsKey(personDTO.getId())) {
-            List<PhotoDTO> existedPhotos = persons.get(personDTO.getId()).getThumbnail();
+            List<PhotoDTO> existedPhotos = persons.get(personDTO.getId()).getPhoto();
             if (existedPhotos.size() < 5) {
                 photoDTOS.addAll(existedPhotos);
                 photoDTOS.add(photoDTO);
-                persons.get(personDTO.getId()).setThumbnail(photoDTOS);
+                persons.get(personDTO.getId()).setPhoto(photoDTOS);
             }
         } else {
             SearchPersonsModel searchModel = SearchPersonsModel.builder()
                     .person(personDTO)
-                    .thumbnail((photoDTO == null) ? List.of() : List.of(photoDTO))
+                    .photo((photoDTO == null) ? List.of() : List.of(photoDTO))
                     .build();
             persons.putIfAbsent(personDTO.getId(), searchModel);
         }

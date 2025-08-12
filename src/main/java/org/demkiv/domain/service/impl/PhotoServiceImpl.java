@@ -20,7 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.StringWriter;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 
 @Slf4j
@@ -55,29 +57,29 @@ public class PhotoServiceImpl implements EntitySaver<PersonPhotoForm, Boolean> {
         try {
             log.info("Start uploading person photo prcess");
             Path photoPath = personPhotoForm.getPhotoPath();
-            File tempDir = personPhotoForm.getTempDirectory().toFile();
             String convertedPhotoPath = getConvertedPhotoPath(photoPath);
-            String convertPhotoCommand = String.format(config.getConvertPhotoCommand(), photoPath, convertedPhotoPath);
-            processRunner.runProcess(tempDir, convertPhotoCommand, new StringWriter());
+            Files.copy(photoPath, Path.of(convertedPhotoPath), StandardCopyOption.REPLACE_EXISTING);
             File photoInTempDir = new File(convertedPhotoPath);
-            String thumbnailPath = getThumbnailPath(photoPath);
-            String convertThumbnailCommand = String.format(config.getConvertThumbnailCommand(), photoPath, thumbnailPath);
-            processRunner.runProcess(tempDir, convertThumbnailCommand, new StringWriter());
-            File thumbnailInTempDir = new File(thumbnailPath);
-            S3UploaderModel s3ThumbnailsModel = S3UploaderModel.builder()
-                    .directory("thumbnails")
-                    .file(thumbnailInTempDir)
-                    .build();
-            s3Uploader.upload(s3ThumbnailsModel);
+//            String convertPhotoCommand = String.format(config.getConvertPhotoCommand(), photoPath, convertedPhotoPath);
+//            processRunner.runProcess(tempDir, convertPhotoCommand, new StringWriter());
+//            String thumbnailPath = getThumbnailPath(photoPath);
+//            String convertThumbnailCommand = String.format(config.getConvertThumbnailCommand(), photoPath, thumbnailPath);
+//            processRunner.runProcess(tempDir, convertThumbnailCommand, new StringWriter());
+//            File thumbnailInTempDir = new File(thumbnailPath);
+//            S3UploaderModel s3ThumbnailsModel = S3UploaderModel.builder()
+//                    .directory("thumbnails")
+//                    .file(thumbnailInTempDir)
+//                    .build();
+//            s3Uploader.upload(s3ThumbnailsModel);
             S3UploaderModel s3PhotosModel = S3UploaderModel.builder()
                     .directory("photos")
                     .file(photoInTempDir)
                     .build();
             s3Uploader.upload(s3PhotosModel);
             personPhotoForm.setUrl(String.format(config.getPhotosStoreUrl(), photoInTempDir.getName()));
-            personPhotoForm.setThumbnailUrl(String.format(config.getThumbnailStoreUrl(), thumbnailInTempDir.getName()));
+//            personPhotoForm.setThumbnailUrl(String.format(config.getThumbnailStoreUrl(), thumbnailInTempDir.getName()));
             savePhotoToDB(personPhotoForm);
-            persistThumbnailService.saveEntity(personPhotoForm);
+//            persistThumbnailService.saveEntity(personPhotoForm);
             return true;
         } catch (Throwable ex) {
             log.error("Error when storing an image. " + ex.getMessage());
