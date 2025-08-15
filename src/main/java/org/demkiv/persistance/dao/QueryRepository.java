@@ -35,7 +35,7 @@ public class QueryRepository {
     public List<?> getPersonsDataAndThumbnails(Set<Long> personIds) {
         return personIds.stream()
                         .map(id -> {
-                            String query = String.format(sqlQueriesProvider.getSelectPersonsAndThumbnailsByIds(), id);
+                            String query = String.format(sqlQueriesProvider.getSelectPersonsAndPhotosByIds(), id);
                             List<Map<String, Object>> queryResult = jdbcTemplate.queryForList(query);
                             return convertQueryResults(queryResult);
                         })
@@ -136,11 +136,9 @@ public class QueryRepository {
 
         if (persons.containsKey(personDTO.getId())) {
             List<PhotoDTO> existedPhotos = persons.get(personDTO.getId()).getPhoto();
-            if (existedPhotos.size() < 5) {
-                photoDTOS.addAll(existedPhotos);
-                photoDTOS.add(photoDTO);
-                persons.get(personDTO.getId()).setPhoto(photoDTOS);
-            }
+            photoDTOS.addAll(existedPhotos);
+            photoDTOS.add(photoDTO);
+            persons.get(personDTO.getId()).setPhoto(photoDTOS);
         } else {
             SearchPersonsModel searchModel = SearchPersonsModel.builder()
                     .person(personDTO)

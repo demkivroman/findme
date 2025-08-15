@@ -4,9 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.demkiv.persistance.model.dto.PersonDTO;
+import org.demkiv.persistance.model.dto.PhotoDTO;
 
-import java.time.LocalDate;
-import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -14,9 +15,6 @@ import java.util.Date;
 @Builder
 public class PayedPersonInfoModel {
 
-    private long id;
-    private String fullName;
-    private LocalDate birthDay;
-    private int age;
-    String thumbnail;
+    private PersonDTO person;
+    private List<PhotoDTO> photo;
 }

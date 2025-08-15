@@ -19,8 +19,8 @@ public class SqlQueriesProvider {
     String personPosts;
     @Value("${personIds}")
     String personIds;
-    @Value("${selectPersonsAndThumbnailsByIds}")
-    String selectPersonsAndThumbnailsByIds;
+    @Value("${selectPersonsAndPhotosByIds}")
+    String selectPersonsAndPhotosByIds;
     @Value("${deletePhotoById}")
     String deletePhotoById;
     @Value("${deleteThumbnailById}")
