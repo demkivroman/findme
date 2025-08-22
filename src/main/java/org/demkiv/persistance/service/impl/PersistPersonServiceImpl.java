@@ -70,16 +70,29 @@ public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, O
 
     private void sendSubscriptionNotification(Finder savedFinder) {
         String email = savedFinder.getEmail();
+
         if (StringUtils.isEmpty(email)) {
             log.warn("Email subscription is not sent, because email is not provided.");
             return;
         }
+
+        Optional<Subscriptions> foundSubscription = subscriptionsRepository.findByEmail(email);
+        Subscriptions subscription = foundSubscription.orElse(null);
+        if (foundSubscription.isPresent() && subscription.getStatus() == SubscriptionStatus.CONFIRMED) {
+            return;
+        }
+
         String token = UUID.randomUUID().toString();
         String confirmationLink = config.getDomain() + "/findme/api/confirm?token=" + token;
         String emailBody = String.format(SUBSCRIPTION_TEXT, confirmationLink);
-        boolean isSent = sendConfirmationMail(emailBody, email);
-        if (isSent) {
+        sendConfirmationMail(emailBody, email);
+        if (foundSubscription.isEmpty()) {
             storeSubscriptionToDB(token, email);
+        } else {
+            subscription.setToken(token);
+            subscription.setEmail(email);
+            subscriptionsRepository.save(subscription);
+            log.info("Subscription is updated in database {}", subscription);
         }
     }
 
@@ -88,20 +101,15 @@ public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, O
                 .token(token)
                 .email(email)
                 .status(SubscriptionStatus.PENDING)
+                .createdAt(LocalDateTime.now())
                 .build();
         subscriptionsRepository.save(subscriptions);
         log.info("Subscription has been stored to database {}", subscriptions);
     }
 
-    private boolean sendConfirmationMail(String emailBody, String email) {
-        Optional<Subscriptions> foundSubscription = subscriptionsRepository.findByEmail(email);
-        Subscriptions subscription = foundSubscription.orElse(null);
-        if (foundSubscription.isPresent()) {
-            if (subscription.getStatus() == SubscriptionStatus.CONFIRMED) {
-                return false;
-            }
-        }
 
+
+    private void sendConfirmationMail(String emailBody, String email) {
         EmailModel emailModel = EmailModel.builder()
                 .emailFrom(config.getEmailFrom())
                 .emailTo(email)
@@ -109,7 +117,6 @@ public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, O
                 .body(emailBody)
                 .build();
         emailSender.send(emailModel);
-        return true;
     }
 
     @Override
@@ -154,18 +161,22 @@ public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, O
     }
 
     private Finder getFinder(PersonForm personForm) {
-        Optional<Finder> foundFinder = finderRepository.findByPhone(personForm.getFinderPhone());
-        if (foundFinder.isPresent()) {
-            Finder finder = foundFinder.get();
-            mergeFinderInfo(personForm, finder);
-            return finder;
+        if (StringUtils.isNotEmpty(personForm.getFinderPhone())) {
+            Optional<Finder> foundFinder = finderRepository.findByPhone(personForm.getFinderPhone());
+            if (foundFinder.isPresent()) {
+                Finder finder = foundFinder.get();
+                updateFinderInfo(personForm, finder);
+                return finder;
+            }
         }
 
-        Optional<Finder> foundFinderByEmail = finderRepository.findByEmail(personForm.getFinderEmail());
-        if (foundFinderByEmail.isPresent()) {
-            Finder finder = foundFinderByEmail.get();
-            mergeFinderInfo(personForm, finder);
-            return finder;
+        if (StringUtils.isNotEmpty(personForm.getFinderEmail())) {
+            Optional<Finder> foundFinderByEmail = finderRepository.findByEmail(personForm.getFinderEmail());
+            if (foundFinderByEmail.isPresent()) {
+                Finder finder = foundFinderByEmail.get();
+                updateFinderInfo(personForm, finder);
+                return finder;
+            }
         }
         return Finder.builder()
                 .fullname(personForm.getFinderFullName())
@@ -175,17 +186,20 @@ public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, O
                 .build();
     }
 
-    private void mergeFinderInfo(PersonForm personForm, Finder finder) {
-        if (!personForm.getFinderFullName().isEmpty()) {
+    private void updateFinderInfo(PersonForm personForm, Finder finder) {
+        if (StringUtils.isNotEmpty(personForm.getFinderFullName()) && !personForm.getFinderFullName().equals(finder.getFullname())) {
             finder.setFullname(personForm.getFinderFullName());
         }
-        if (!personForm.getFinderEmail().isEmpty()) {
-            finder.setEmail(personForm.getFinderEmail());
-        }
-        if (!personForm.getFinderPhone().isEmpty()) {
+
+        if (StringUtils.isNotEmpty(personForm.getFinderPhone()) && !personForm.getFinderPhone().equals(finder.getPhone())) {
             finder.setPhone(personForm.getFinderPhone());
         }
-        if (!personForm.getFinderInformation().isEmpty()) {
+
+        if (StringUtils.isNotEmpty(personForm.getFinderEmail()) && !personForm.getFinderEmail().equals(finder.getEmail())) {
+            finder.setEmail(personForm.getFinderEmail());
+        }
+
+        if (StringUtils.isNotEmpty(personForm.getFinderInformation()) && !personForm.getFinderInformation().equals(finder.getInformation())) {
             finder.setInformation(personForm.getFinderInformation());
         }
     }

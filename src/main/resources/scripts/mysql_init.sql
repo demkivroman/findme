@@ -67,7 +67,7 @@ CREATE TABLE subscriptions (
    id BIGINT PRIMARY KEY AUTO_INCREMENT,
    email VARCHAR(255) NOT NULL,
    token VARCHAR(255) UNIQUE,
-   status ENUM('pending', 'confirmed') DEFAULT 'pending',
+   status ENUM('PENDING', 'CONFIRMED'),
    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
