@@ -29,6 +29,7 @@
         <slf4j.version>2.0.7</slf4j.version>
         <logback.version>1.5.6</logback.version>
         <aws-java-sdk.version>1.12.765</aws-java-sdk.version>
+        <java-lang.version>3.14.0</java-lang.version>
     </properties>
 
     <dependencies>
@@ -133,6 +134,11 @@
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-s3</artifactId>
             <version>${aws-java-sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${java-lang.version}</version>
         </dependency>
     </dependencies>
 

@@ -62,3 +62,12 @@ create table findmeDB.THUMBNAIL
     URL       varchar(200) UNIQUE not null,
     FOREIGN KEY (PERSON_ID) REFERENCES PERSON (ID)
 );
+
+CREATE TABLE subscriptions (
+   id BIGINT PRIMARY KEY AUTO_INCREMENT,
+   email VARCHAR(255) NOT NULL,
+   token VARCHAR(255) UNIQUE,
+   status ENUM('pending', 'confirmed') DEFAULT 'pending',
+   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+

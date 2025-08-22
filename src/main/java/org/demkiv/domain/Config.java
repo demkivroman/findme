@@ -22,4 +22,8 @@ public class Config {
     String convertThumbnailCommand;
     @Value("${convertPhotoCommand}")
     String convertPhotoCommand;
+    @Value("${domain}")
+    String domain;
+    @Value("${emailFrom}")
+    String emailFrom;
 }
