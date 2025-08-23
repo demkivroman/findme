@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface SubscriptionsRepository extends JpaRepository<Subscriptions, Long> {
 
     Optional<Subscriptions> findByEmail(String email);
+
+    Optional<Subscriptions> findByToken(String token);
 }

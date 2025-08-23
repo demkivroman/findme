@@ -83,7 +83,7 @@ public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, O
         }
 
         String token = UUID.randomUUID().toString();
-        String confirmationLink = config.getDomain() + "/findme/api/confirm?token=" + token;
+        String confirmationLink = config.getDomain() + "/findme/api/subscription/confirm?token=" + token;
         String emailBody = String.format(SUBSCRIPTION_TEXT, confirmationLink);
         sendConfirmationMail(emailBody, email);
         if (foundSubscription.isEmpty()) {

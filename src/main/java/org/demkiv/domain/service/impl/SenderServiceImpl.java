@@ -2,26 +2,32 @@ package org.demkiv.domain.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.demkiv.domain.Config;
 import org.demkiv.domain.architecture.EntitySender;
 import org.demkiv.domain.service.SenderService;
 import org.demkiv.persistance.dao.PersonRepository;
+import org.demkiv.persistance.dao.SubscriptionsRepository;
 import org.demkiv.persistance.entity.Person;
+import org.demkiv.persistance.entity.SubscriptionStatus;
+import org.demkiv.persistance.entity.Subscriptions;
 import org.demkiv.web.model.EmailModel;
 import org.demkiv.web.model.form.EmailForm;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class SenderServiceImpl implements SenderService {
 
-    @Value("${emailFrom}")
-    private String emailFrom;
+    private Config config;
     private final PersonRepository personRepository;
     @Qualifier("emailSender")
     private final EntitySender<Boolean, EmailModel> emailSender;
+    private final SubscriptionsRepository subscriptionsRepository;
+
 
     @Override
     public void sendEmail(EmailForm emailForm) {
@@ -37,12 +43,24 @@ public class SenderServiceImpl implements SenderService {
             subject = "Email from Findme site.";
         }
         EmailModel emailModel = EmailModel.builder()
-                .emailFrom(emailFrom)
+                .emailFrom(config.getEmailFrom())
                 .emailTo(finderEmail)
                 .body(emailForm.getBody())
                 .subject(subject)
                 .build();
         emailSender.send(emailModel);
         log.info("Email sent to {}. For person {}", finderEmail, foundPerson.getFullname());
+    }
+
+    @Override
+    public boolean emailConfirmation(String token) {
+        Optional<Subscriptions> foundSubscription = subscriptionsRepository.findByToken(token);
+        if (foundSubscription.isPresent()) {
+            Subscriptions subscription = foundSubscription.get();
+            subscription.setStatus(SubscriptionStatus.CONFIRMED);
+            subscriptionsRepository.save(subscription);
+            return true;
+        }
+        return false;
     }
 }

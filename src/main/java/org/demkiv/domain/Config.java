@@ -24,6 +24,8 @@ public class Config {
     String convertPhotoCommand;
     @Value("${domain}")
     String domain;
+    @Value("${frontDomain}")
+    String frontDomain;
     @Value("${emailFrom}")
     String emailFrom;
 }
