@@ -1,5 +1,7 @@
 package org.demkiv.domain.service.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.demkiv.domain.Config;
@@ -14,6 +16,7 @@ import org.demkiv.web.model.EmailModel;
 import org.demkiv.web.model.form.EmailForm;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Optional;
 
@@ -62,5 +65,65 @@ public class SenderServiceImpl implements SenderService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void handleComplaintNotification(String message) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(message);
+            String notificationType = jsonNode.get("Type").asText();
+
+            if ("SubscriptionConfirmation".equals(notificationType)) {
+                String subscribeURL = jsonNode.get("SubscribeURL").asText();
+                confirmSubscription(subscribeURL);
+            } else if ("Notification".equals(notificationType)) {
+                JsonNode messageNode = objectMapper.readTree(jsonNode.get("Message").asText());
+
+                if (messageNode.has("complaint")) {
+                    JsonNode complaintData = messageNode.path("complaint");
+                    JsonNode complaintRecipients = complaintData.path("complainedRecipients");
+                    for (JsonNode recipient : complaintRecipients) {
+                        String email = recipient.path("emailAddress").asText();
+                        processComplaint(email);
+                    }
+                }
+
+                if (messageNode.has("bounce")) {
+                    JsonNode bounceData = messageNode.path("bounce");
+                    JsonNode bouncedRecipients = bounceData.path("bouncedRecipients");
+                    for (JsonNode recipient : bouncedRecipients) {
+                        String email = recipient.path("emailAddress").asText();
+                        processBounce(email);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error while processing SNS notification", e);
+        }
+    }
+
+    private void processComplaint(String email) {
+        Optional<Subscriptions> subscriptionOpt = subscriptionsRepository.findByEmail(email);
+        subscriptionOpt.ifPresent(subscription -> {
+            subscription.setStatus(SubscriptionStatus.COMPLAINED);
+            subscriptionsRepository.save(subscription);
+            log.info("Complaint status is set to email {}", email);
+        });
+    }
+
+    private void confirmSubscription(String subscribeURL) {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getForObject(subscribeURL, String.class);
+        log.info("Subscription confirmation sent to SNS. Url {}", subscribeURL);
+    }
+
+    private void processBounce(String email) {
+        Optional<Subscriptions> opt = subscriptionsRepository.findByEmail(email);
+        opt.ifPresent(sub -> {
+            sub.setStatus(SubscriptionStatus.UNSUBSCRIBED);
+            subscriptionsRepository.save(sub);
+            log.info("Bounce status is set to email {}", email);
+        });
     }
 }

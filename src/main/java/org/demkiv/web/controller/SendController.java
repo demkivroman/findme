@@ -42,4 +42,9 @@ public class SendController {
             response.sendRedirect(config.getFrontDomain() + "/confirmation-failure");
         }
     }
+
+    @PostMapping("/api/notifications/complaints")
+    public void handleComplaintNotification(@RequestBody String message) {
+        senderService.handleComplaintNotification(message);
+    }
 }
