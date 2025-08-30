@@ -51,17 +51,22 @@ public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, O
 
     @Override
     public Optional<Long> saveEntity(PersonForm personForm) {
-        if (Objects.nonNull(personForm)) {
+        if (Objects.isNull(personForm)) {
             Finder finder = getFinder(personForm);
-            Finder savedFinder = finderRepository.save(finder);
-            log.info("Finder is stored to database {}", finder);
+            Finder savedFinder = null;
+            if (Objects.nonNull(finder)) {
+                savedFinder = finderRepository.save(finder);
+                log.info("Finder is stored to database {}", finder);
+            }
             Person person = getPerson(personForm, finder);
             Person savedPerson = personRepository.save(person);
             log.info("Person is stored to database {}", savedPerson);
             PersonStatus personStatus = getPersonStatus(person);
             PersonStatus savedPersonStatus = personStatusRepository.save(personStatus);
             log.info("PersonStatus is stored to database {}", savedPersonStatus);
-            sendSubscriptionNotification(savedFinder);
+            if (Objects.nonNull(finder)) {
+                sendSubscriptionNotification(savedFinder);
+            }
             return Optional.of(savedPerson.getId());
         }
         log.error("Trying save empty person.");
@@ -161,6 +166,10 @@ public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, O
     }
 
     private Finder getFinder(PersonForm personForm) {
+        if (isFinderEmpty(personForm)) {
+            return null;
+        }
+        
         if (StringUtils.isNotEmpty(personForm.getFinderPhone())) {
             Optional<Finder> foundFinder = finderRepository.findByPhone(personForm.getFinderPhone());
             if (foundFinder.isPresent()) {
@@ -184,6 +193,14 @@ public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, O
                 .phone(personForm.getFinderPhone())
                 .information(personForm.getFinderInformation())
                 .build();
+    }
+    
+    private boolean isFinderEmpty(PersonForm personForm) {
+        return StringUtils.isBlank(personForm.getFinderFullName()) &&
+                StringUtils.isBlank(personForm.getFinderEmail()) &&
+                StringUtils.isBlank(personForm.getFinderInformation()) &&
+                StringUtils.isBlank(personForm.getFinderPhone()) &&
+                StringUtils.isBlank(personForm.getFinderId());
     }
 
     private void updateFinderInfo(PersonForm personForm, Finder finder) {
