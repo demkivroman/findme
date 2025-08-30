@@ -13,8 +13,6 @@ import org.demkiv.persistance.dao.SubscriptionsRepository;
 import org.demkiv.persistance.entity.Finder;
 import org.demkiv.persistance.entity.Person;
 import org.demkiv.persistance.entity.PersonStatus;
-import org.demkiv.persistance.entity.SubscriptionStatus;
-import org.demkiv.persistance.entity.Subscriptions;
 import org.demkiv.persistance.service.SaveUpdateService;
 import org.demkiv.web.model.EmailModel;
 import org.demkiv.web.model.form.PersonForm;
@@ -27,19 +25,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 @Service("persistPerson")
 @RequiredArgsConstructor
 @Transactional
 public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, Optional<?>> {
-
-    private static final String SUBSCRIPTION_TEXT = """
-            <h4>Email confirmation from FindMe resource</h4>
-            <p>Please confirm your subscription by clicking the link below:</p>
-            <a href="%s">Confirm Subscription</a>
-            """;
 
     private final Config config;
     private final FinderRepository finderRepository;
@@ -52,76 +43,22 @@ public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, O
     @Override
     public Optional<Long> saveEntity(PersonForm personForm) {
         if (Objects.isNull(personForm)) {
-            Finder finder = getFinder(personForm);
-            Finder savedFinder = null;
-            if (Objects.nonNull(finder)) {
-                savedFinder = finderRepository.save(finder);
-                log.info("Finder is stored to database {}", finder);
-            }
-            Person person = getPerson(personForm, finder);
-            Person savedPerson = personRepository.save(person);
-            log.info("Person is stored to database {}", savedPerson);
-            PersonStatus personStatus = getPersonStatus(person);
-            PersonStatus savedPersonStatus = personStatusRepository.save(personStatus);
-            log.info("PersonStatus is stored to database {}", savedPersonStatus);
-            if (Objects.nonNull(finder)) {
-                sendSubscriptionNotification(savedFinder);
-            }
-            return Optional.of(savedPerson.getId());
-        }
-        log.error("Trying save empty person.");
-        throw new FindMeServiceException("Trying save empty person.");
-    }
-
-    private void sendSubscriptionNotification(Finder savedFinder) {
-        String email = savedFinder.getEmail();
-
-        if (StringUtils.isEmpty(email)) {
-            log.warn("Email subscription is not sent, because email is not provided.");
-            return;
+            log.error("Trying save empty person.");
+            throw new FindMeServiceException("Trying save empty person.");
         }
 
-        Optional<Subscriptions> foundSubscription = subscriptionsRepository.findByEmail(email);
-        Subscriptions subscription = foundSubscription.orElse(null);
-        if (foundSubscription.isPresent() && subscription.getStatus() == SubscriptionStatus.CONFIRMED) {
-            return;
+        Finder finder = getFinder(personForm);
+        if (Objects.nonNull(finder)) {
+            Finder savedFinder = finderRepository.save(finder);
+            log.info("Finder is stored to database {}", savedFinder);
         }
-
-        String token = UUID.randomUUID().toString();
-        String confirmationLink = config.getDomain() + "/findme/api/subscription/confirm?token=" + token;
-        String emailBody = String.format(SUBSCRIPTION_TEXT, confirmationLink);
-        sendConfirmationMail(emailBody, email);
-        if (foundSubscription.isEmpty()) {
-            storeSubscriptionToDB(token, email);
-        } else {
-            subscription.setToken(token);
-            subscription.setEmail(email);
-            subscriptionsRepository.save(subscription);
-            log.info("Subscription is updated in database {}", subscription);
-        }
-    }
-
-    private void storeSubscriptionToDB(String token, String email) {
-        Subscriptions subscriptions = Subscriptions.builder()
-                .token(token)
-                .email(email)
-                .status(SubscriptionStatus.PENDING)
-                .createdAt(LocalDateTime.now())
-                .build();
-        subscriptionsRepository.save(subscriptions);
-        log.info("Subscription has been stored to database {}", subscriptions);
-    }
-
-
-
-    private void sendConfirmationMail(String emailBody, String email) {
-        EmailModel emailModel = EmailModel.builder()
-                .emailFrom(config.getEmailFrom())
-                .emailTo(email)
-                .subject("Email confirmation from FindMe resource")
-                .body(emailBody)
-                .build();
-        emailSender.send(emailModel);
+        Person person = getPerson(personForm, finder);
+        Person savedPerson = personRepository.save(person);
+        log.info("Person is stored to database {}", savedPerson);
+        PersonStatus personStatus = getPersonStatus(person);
+        PersonStatus savedPersonStatus = personStatusRepository.save(personStatus);
+        log.info("PersonStatus is stored to database {}", savedPersonStatus);
+        return Optional.of(savedPerson.getId());
     }
 
     @Override

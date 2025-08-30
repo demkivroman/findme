@@ -7,4 +7,5 @@ public interface SenderService {
     void sendEmail(EmailForm  emailForm);
     boolean emailConfirmation(String token);
     void handleComplaintNotification(String message);
+    boolean senSubscriptionNotification(String email);
 }

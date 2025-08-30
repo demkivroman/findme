@@ -18,19 +18,26 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class SenderServiceImpl implements SenderService {
 
-    private Config config;
+    private static final String SUBSCRIPTION_TEXT = """
+            <h4>Email confirmation from FindMe resource</h4>
+            <p>Please confirm your subscription by clicking the link below:</p>
+            <a href="%s">Confirm Subscription</a>
+            """;
+
+    private final Config config;
     private final PersonRepository personRepository;
     @Qualifier("emailSender")
     private final EntitySender<Boolean, EmailModel> emailSender;
     private final SubscriptionsRepository subscriptionsRepository;
-
 
     @Override
     public void sendEmail(EmailForm emailForm) {
@@ -125,5 +132,56 @@ public class SenderServiceImpl implements SenderService {
             subscriptionsRepository.save(sub);
             log.info("Bounce status is set to email {}", email);
         });
+    }
+
+    @Override
+    public boolean senSubscriptionNotification(String email) {
+        Optional<Subscriptions> foundSubscription = subscriptionsRepository.findByEmail(email);
+        Subscriptions subscription = foundSubscription.orElse(null);
+        if (foundSubscription.isPresent() && subscription.getStatus() == SubscriptionStatus.CONFIRMED) {
+            return true;
+        }
+
+        String token = UUID.randomUUID().toString();
+        String confirmationLink = config.getDomain() + "/findme/api/subscription/confirm?token=" + token;
+        String emailBody = String.format(SUBSCRIPTION_TEXT, confirmationLink);
+        try {
+            sendConfirmationMail(emailBody, email);
+        }  catch (Exception e) {
+            log.error("Error while sending confirmation mail {}", email, e);
+            return false;
+        }
+
+        if (foundSubscription.isEmpty()) {
+            storeSubscriptionToDB(token, email);
+        } else {
+            subscription.setToken(token);
+            subscription.setEmail(email);
+            subscription.setStatus(SubscriptionStatus.PENDING);
+            subscriptionsRepository.save(subscription);
+            log.info("Subscription is updated in database {}", subscription);
+        }
+        return true;
+    }
+
+    private void sendConfirmationMail(String emailBody, String email) {
+        EmailModel emailModel = EmailModel.builder()
+                .emailFrom(config.getEmailFrom())
+                .emailTo(email)
+                .subject("Email confirmation from FindMe resource")
+                .body(emailBody)
+                .build();
+        emailSender.send(emailModel);
+    }
+
+    private void storeSubscriptionToDB(String token, String email) {
+        Subscriptions subscriptions = Subscriptions.builder()
+                .token(token)
+                .email(email)
+                .status(SubscriptionStatus.PENDING)
+                .createdAt(LocalDateTime.now())
+                .build();
+        subscriptionsRepository.save(subscriptions);
+        log.info("Subscription has been stored to database {}", subscriptions);
     }
 }

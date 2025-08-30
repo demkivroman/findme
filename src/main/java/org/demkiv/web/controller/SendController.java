@@ -9,6 +9,7 @@ import org.demkiv.web.model.form.EmailForm;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -46,5 +47,18 @@ public class SendController {
     @PostMapping("/api/notifications/complaints")
     public void handleComplaintNotification(@RequestBody String message) {
         senderService.handleComplaintNotification(message);
+    }
+
+    @GetMapping(value = "/api/subscription/notification/{email}",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Boolean> sendSubscriptionNotification(@PathVariable String email) {
+        boolean isSubscriptionNotified = senderService.senSubscriptionNotification(email);
+        if (isSubscriptionNotified) {
+            log.info("Subscription notification sent to {}", email);
+            return ResponseEntity.ok().body(true);
+        } else {
+            log.error("Subscription notification failed to {}", email);
+            return ResponseEntity.ok().body(false);
+        }
     }
 }
