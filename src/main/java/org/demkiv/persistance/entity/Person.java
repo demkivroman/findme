@@ -25,7 +25,7 @@ public class Person {
     private String description;
 
     @ManyToOne
-    @JoinColumn(name="finder_id", nullable=false)
+    @JoinColumn(name="finder_id")
     private Finder finder;
     @OneToMany(mappedBy="person")
     private Set<Posts> posts;
