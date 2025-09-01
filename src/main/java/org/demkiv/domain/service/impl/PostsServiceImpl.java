@@ -37,8 +37,7 @@ public class PostsServiceImpl implements EntityPersist<PostForm, Optional<?>>, E
 
     @Override
     public List<?> findEntity(String personId) {
-        List<?> posts = queryService.getPersonPosts(personId);
-        log.info("Found {} posts for person ID = {}", posts.size(), personId);
-        return posts;
+//        log.info("Found {} posts for person ID = {}", posts.size(), personId);
+        return null;
     }
 }

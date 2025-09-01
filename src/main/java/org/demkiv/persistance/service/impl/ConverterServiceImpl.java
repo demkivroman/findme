@@ -1,15 +1,12 @@
 package org.demkiv.persistance.service.impl;
 
-import org.demkiv.persistance.model.dto.FinderDTO;
 import org.demkiv.persistance.model.dto.PersonDTO;
 import org.demkiv.persistance.model.dto.PhotoDTO;
-import org.demkiv.persistance.model.dto.PostDTO;
 import org.demkiv.persistance.service.ConverterService;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -31,24 +28,13 @@ public class ConverterServiceImpl implements ConverterService {
         String time = dateTimeArr[1].substring(0, dateTimeArr[1].lastIndexOf("."));
 
         return PersonDTO.builder()
-                .id(getCorrectFieldValue(row, "person_id"))
+                .id(Long.parseLong(getCorrectFieldValue(row, "person_id")))
                 .fullName(getCorrectFieldValue(row, "person_fullname"))
                 .birthday(birthday.length > 0 ? birthday[0] : null)
                 .description(getCorrectFieldValue(row, "description"))
                 .age(birthday.length > 0 ? age : -1)
                 .date(dateTimeArr[0])
                 .time(time)
-                .build();
-    }
-
-    @Override
-    public FinderDTO convertQueryRowToFinderDTO(Map<String, Object> row) {
-        return FinderDTO.builder()
-                .id(getCorrectFieldValue(row, "finder_id"))
-                .fullName(getCorrectFieldValue(row, "finder_fullname"))
-                .isPhoneProvided(!getCorrectFieldValue(row, "phone").isEmpty())
-                .isEmailProvided(!getCorrectFieldValue(row, "email").isEmpty())
-                .information(getCorrectFieldValue(row, "information"))
                 .build();
     }
 
@@ -61,21 +47,8 @@ public class ConverterServiceImpl implements ConverterService {
         }
 
         return PhotoDTO.builder()
-                .id(photoId)
+                .id(Long.valueOf(photoId))
                 .url(photoUrl)
-                .build();
-    }
-
-    @Override
-    public PostDTO convertQueryRowToPostDTO(Map<String, Object> row) {
-        String dateTime = getCorrectFieldValue(row, "time").replaceAll("\\..*", "");
-        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime timestamp = LocalDateTime.parse(dateTime, df);
-        return PostDTO.builder()
-                .id(getCorrectFieldValue(row, "id"))
-                .author(getCorrectFieldValue(row, "author"))
-                .post(getCorrectFieldValue(row, "post"))
-                .timestamp(timestamp)
                 .build();
     }
 

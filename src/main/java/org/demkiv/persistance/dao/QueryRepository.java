@@ -1,15 +1,11 @@
 package org.demkiv.persistance.dao;
 
 import lombok.RequiredArgsConstructor;
-import org.demkiv.domain.FindMeServiceException;
 import org.demkiv.domain.configuration.SqlQueriesProvider;
-import org.demkiv.persistance.model.dto.FinderDTO;
 import org.demkiv.persistance.model.dto.PersonDTO;
 import org.demkiv.persistance.model.dto.PhotoDTO;
-import org.demkiv.persistance.model.response.PersonDetailModel;
 import org.demkiv.persistance.model.response.SearchPersonsModel;
 import org.demkiv.persistance.service.ConverterService;
-import org.demkiv.web.model.PersonResponseModel;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import java.util.*;
@@ -43,27 +39,6 @@ public class QueryRepository {
                         .collect(Collectors.toList());
     }
 
-    public PersonResponseModel<PersonDetailModel> getDetailedPersonInfoFromDB(String personId) {
-        final String personInfoQuery = String.format(sqlQueriesProvider.getPersonDetailedInformation(), personId);
-        final String postsTotalQuery = String.format(sqlQueriesProvider.getPostsTotalQuery(), personId);
-
-        List<Map<String, Object>> queryResult = jdbcTemplate.queryForList(String.format(personInfoQuery, personId));
-        if (queryResult.isEmpty()) {
-            throw new FindMeServiceException(String.format("Person with id - %s is not present in DB.", personId));
-        }
-        String postsCount = jdbcTemplate.queryForObject(String.format(postsTotalQuery, personId), String.class);
-        return convertQueryResultsToPersonDetailedModel(queryResult, postsCount);
-    }
-
-    public List<?> getPersonPosts(String personId) {
-        final String query = String.format(sqlQueriesProvider.getPersonPosts(), personId);
-        List<Map<String, Object>> queryResult = jdbcTemplate.queryForList(String.format(query, personId));
-        return queryResult.stream()
-                .map(converter::convertQueryRowToPostDTO)
-                .sorted(Comparator.reverseOrder())
-                .collect(Collectors.toList());
-    }
-
     public boolean deletePhotoByIdFromDB(String photoId) {
         final String query = String.format(sqlQueriesProvider.getDeletePhotoById(), photoId);
         jdbcTemplate.execute(query);
@@ -83,41 +58,6 @@ public class QueryRepository {
 
     public List<Long> getPersonIds() {
         return jdbcTemplate.queryForList(sqlQueriesProvider.getPersonIds(), Long.class);
-    }
-
-    public List<PhotoDTO> getImagesUrlByPersonId(String personId) {
-        final String query = String.format(sqlQueriesProvider.getGetImagesUrlByPersonId(), personId);
-        List<Map<String, Object>> queryResult = jdbcTemplate.queryForList(query);
-        List<PhotoDTO> l = queryResult.stream()
-                .map(converter::convertQueryRowToPhotoDTO)
-                .collect(Collectors.toList());
-        return l;
-    }
-
-    private PersonResponseModel<PersonDetailModel> convertQueryResultsToPersonDetailedModel(
-            List<Map<String, Object>> queryResult,
-            String postsCount) {
-        Set<PersonDTO> personSet = new LinkedHashSet<>();
-        Set<FinderDTO> finderSet = new LinkedHashSet<>();
-        Set<PhotoDTO> photoSet = new LinkedHashSet<>();
-
-        queryResult
-                .forEach(rowMap -> {
-                    personSet.add(converter.convertQueryRowToPersonDTO(rowMap));
-                    finderSet.add(converter.convertQueryRowToFinderDTO(rowMap));
-                    photoSet.add(converter.convertQueryRowToPhotoDTO(rowMap));
-                });
-
-        PersonDetailModel detail = PersonDetailModel.builder()
-                .person(personSet.iterator().next())
-                .finder(finderSet.iterator().next())
-                .photos(photoSet.stream().filter(Objects::nonNull).collect(Collectors.toSet()))
-                .totalPosts(postsCount)
-                .build();
-
-        return PersonResponseModel.<PersonDetailModel>builder()
-                .person(detail)
-                .build();
     }
 
     private List<?> convertQueryResults(List<Map<String, Object>> queryResult) {
@@ -144,7 +84,7 @@ public class QueryRepository {
                     .person(personDTO)
                     .photo((photoDTO == null) ? List.of() : List.of(photoDTO))
                     .build();
-            persons.putIfAbsent(personDTO.getId(), searchModel);
+            persons.putIfAbsent(String.valueOf(personDTO.getId()), searchModel);
         }
     }
 }

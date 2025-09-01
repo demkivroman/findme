@@ -12,7 +12,6 @@ import org.demkiv.persistance.dao.PersonRepository;
 import org.demkiv.persistance.entity.Person;
 import org.demkiv.persistance.entity.PersonPayment;
 import org.demkiv.persistance.entity.PersonStatus;
-import org.demkiv.persistance.entity.Photo;
 import org.demkiv.persistance.model.dto.PersonDTO;
 import org.demkiv.persistance.model.dto.PhotoDTO;
 import org.demkiv.persistance.model.response.PayedPersonInfoModel;
@@ -80,7 +79,7 @@ public class PersonPaymentImpl implements EntitySaver<PaymentForm, Boolean>, Ent
                 .stream()
                 .map(entity -> {
                     PhotoDTO photoDTO = PhotoDTO.builder().build();
-                    photoDTO.setId(String.valueOf(entity.getId()));
+                    photoDTO.setId(Long.valueOf(String.valueOf(entity.getId())));
                     photoDTO.setUrl(entity.getUrl());
                     return photoDTO;
                 })
@@ -89,7 +88,7 @@ public class PersonPaymentImpl implements EntitySaver<PaymentForm, Boolean>, Ent
         int age = Objects.isNull(birthDay) ? 0 : LocalDate.now().getYear() - birthDay.getYear();
         String[] createdAtArr = status.getCreatedAt().toString().split("T");
         PersonDTO personDTO = PersonDTO.builder()
-                .id(String.valueOf(person.getId()))
+                .id(Long.parseLong(String.valueOf(person.getId())))
                 .fullName(person.getFullname())
                 .birthday(person.getBirthday()
                         .toInstant()

@@ -11,10 +11,6 @@ import org.springframework.stereotype.Component;
 public class SqlQueriesProvider {
     @Value("${findPersonInformation}")
     String findPersonInformation;
-    @Value("${personDetailedInformation}")
-    String personDetailedInformation;
-    @Value("${postsTotalQuery}")
-    String postsTotalQuery;
     @Value("${personPosts}")
     String personPosts;
     @Value("${personIds}")

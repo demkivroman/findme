@@ -11,7 +11,6 @@ import org.demkiv.domain.service.EntityConverter;
 import org.demkiv.domain.service.PersonService;
 import org.demkiv.persistance.dao.PersonRepository;
 import org.demkiv.persistance.dao.PersonStatusRepository;
-import org.demkiv.persistance.dao.PostsRepository;
 import org.demkiv.persistance.dao.QueryRepository;
 import org.demkiv.persistance.dao.SubscriptionsRepository;
 import org.demkiv.persistance.entity.Finder;
@@ -92,7 +91,7 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
         String email = finder != null ? finder.getEmail() : null;
         Optional<Subscriptions> emailStatus = subscriptionsRepository.findByEmail(email);
         PersonDTO personDTO = converter.convertToPersonDTO(person);
-        FinderDTO finderDTO = converter.convertToFinderDTO(finder, emailStatus.get());
+        FinderDTO finderDTO = converter.convertToFinderDTO(finder,  Objects.nonNull(finder) ? emailStatus.get() : null);
         List<PhotoDTO> photoDTO = converter.convertToPhotoDTO(photos);
         PersonDetailModel personDetailModel = PersonDetailModel.builder()
                 .person(personDTO)
@@ -100,7 +99,6 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
                 .finder(finderDTO)
                 .totalPosts(person.getPosts().size())
                 .build();
-        PersonResponseModel<?> foundInfo = queryRepository.getDetailedPersonInfoFromDB(personId);
         log.info("Detailed person information retrieved from DB. ID - {}", personId);
         return PersonResponseModel.builder()
                 .person(personDetailModel)
@@ -187,7 +185,7 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
     @Override
     @Transactional
     public List<?> getPhotoUrlsFromDBForPerson(String id) {
-        return queryRepository.getImagesUrlByPersonId(id);
+        return null;
     }
 
     private String getThumbnailNameFromUrl(String url) {
