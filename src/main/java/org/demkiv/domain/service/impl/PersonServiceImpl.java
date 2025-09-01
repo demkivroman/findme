@@ -7,12 +7,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.demkiv.domain.FindMeServiceException;
 import org.demkiv.domain.architecture.EntityPersist;
 import org.demkiv.domain.architecture.EntitySender;
+import org.demkiv.domain.service.EntityConverter;
 import org.demkiv.domain.service.PersonService;
 import org.demkiv.persistance.dao.PersonRepository;
 import org.demkiv.persistance.dao.PersonStatusRepository;
+import org.demkiv.persistance.dao.PostsRepository;
 import org.demkiv.persistance.dao.QueryRepository;
+import org.demkiv.persistance.dao.SubscriptionsRepository;
 import org.demkiv.persistance.entity.Finder;
 import org.demkiv.persistance.entity.Person;
+import org.demkiv.persistance.entity.Photo;
+import org.demkiv.persistance.entity.Subscriptions;
+import org.demkiv.persistance.model.dto.FinderDTO;
+import org.demkiv.persistance.model.dto.PersonDTO;
+import org.demkiv.persistance.model.dto.PhotoDTO;
+import org.demkiv.persistance.model.response.PersonDetailModel;
 import org.demkiv.persistance.service.SaveUpdateService;
 import org.demkiv.web.model.EmailModel;
 import org.demkiv.web.model.PersonResponseModel;
@@ -39,6 +48,8 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
     private final EntitySender<Boolean, EmailModel> emailSender;
     private final PersonStatusRepository personStatusRepository;
     private final PersonRepository personRepository;
+    private final SubscriptionsRepository subscriptionsRepository;
+    private final EntityConverter converter;
 
     @Autowired
     public PersonServiceImpl(
@@ -46,12 +57,16 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
             QueryRepository queryRepository,
             @Qualifier("emailSender") EntitySender<Boolean, EmailModel> emailSender,
             PersonStatusRepository personStatusRepository,
-            PersonRepository personRepository) {
+            PersonRepository personRepository,
+            SubscriptionsRepository subscriptionsRepository,
+            EntityConverter converter) {
         this.service = service;
         this.queryRepository = queryRepository;
         this.emailSender = emailSender;
         this.personStatusRepository = personStatusRepository;
         this.personRepository = personRepository;
+        this.subscriptionsRepository = subscriptionsRepository;
+        this.converter = converter;
     }
 
     @Override
@@ -67,9 +82,29 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
     @Override
     @Transactional
     public PersonResponseModel<?> getDetailedPersonInfo(String personId) {
+        Optional<Person> foundPerson = personRepository.findById(Long.parseLong(personId));
+        if (foundPerson.isEmpty()) {
+            throw new FindMeServiceException("Person with id " + personId + " not found");
+        }
+        Person person = foundPerson.get();
+        Finder finder = person.getFinder();
+        Set<Photo> photos = person.getPhotos();
+        String email = finder != null ? finder.getEmail() : null;
+        Optional<Subscriptions> emailStatus = subscriptionsRepository.findByEmail(email);
+        PersonDTO personDTO = converter.convertToPersonDTO(person);
+        FinderDTO finderDTO = converter.convertToFinderDTO(finder, emailStatus.get());
+        List<PhotoDTO> photoDTO = converter.convertToPhotoDTO(photos);
+        PersonDetailModel personDetailModel = PersonDetailModel.builder()
+                .person(personDTO)
+                .photos(photoDTO)
+                .finder(finderDTO)
+                .totalPosts(person.getPosts().size())
+                .build();
         PersonResponseModel<?> foundInfo = queryRepository.getDetailedPersonInfoFromDB(personId);
         log.info("Detailed person information retrieved from DB. ID - {}", personId);
-        return foundInfo;
+        return PersonResponseModel.builder()
+                .person(personDetailModel)
+                .build();
     }
 
     @Override

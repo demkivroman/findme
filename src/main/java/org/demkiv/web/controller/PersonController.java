@@ -147,9 +147,9 @@ public class PersonController {
 
     @GetMapping(value = "/api/person/information/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseModel<PersonResponseModel<?>> getDetailedPersonInfo(@PathVariable String id) {
+    public ResponseModel<?> getDetailedPersonInfo(@PathVariable String id) {
         PersonResponseModel<?> result = personService.getDetailedPersonInfo(id);
-        return ResponseModel.<PersonResponseModel<?>>builder()
+        return ResponseModel.builder()
                 .mode("Success")
                 .body(result)
                 .build();
