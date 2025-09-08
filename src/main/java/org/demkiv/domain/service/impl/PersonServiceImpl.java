@@ -139,6 +139,13 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
     }
 
     @Override
+    public String processCaptchaCreation() {
+        String captcha = generateCaptcha();
+
+        return "";
+    }
+
+    @Override
     public boolean getCaptchaFromSessionAndValidate(ValidateCaptchaForm captchaForm, HttpServletRequest request) {
         HttpSession session = request.getSession();
         ObjectMapper oMapper = new ObjectMapper();
@@ -204,7 +211,7 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
 
     private String generateCaptcha() {
         final int captchaLength = 10;
-        final char[] numericAlphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$@&!".toCharArray();
+        final char[] numericAlphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-".toCharArray();
         StringBuilder captchaBuilder = new StringBuilder();
 
         for (int i = 0; i < captchaLength; i++) {

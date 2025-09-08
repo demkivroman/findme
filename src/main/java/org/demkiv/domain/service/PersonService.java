@@ -15,4 +15,5 @@ public interface PersonService {
     boolean deletePhotoAndThumbnailFromDB(String id, String url);
     List<?> getPhotoUrlsFromDBForPerson(String id);
     boolean markPersonAsFound(long personId);
+    String processCaptchaCreation();
 }
