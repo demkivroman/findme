@@ -171,11 +171,11 @@ public class PersonController {
     }
 
     @GetMapping(value = "/api/captcha/create/{personId}")
-    public ResponseModel<Boolean> createCaptchaMessage(@PathVariable long personId, HttpServletRequest request) {
-        boolean result = personService.generateCaptchaAndPushToSessionAndSendEmail(personId, request);
-        return ResponseModel.<Boolean>builder()
+    public ResponseModel<String> createCaptchaMessage(@PathVariable long personId) {
+        String captchaKey = personService.processCaptchaCreation(personId);
+        return ResponseModel.<String>builder()
                 .mode("Success")
-                .body(result)
+                .body(captchaKey)
                 .build();
     }
 

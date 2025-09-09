@@ -9,11 +9,10 @@ import java.util.List;
 public interface PersonService {
     PersonResponseModel<?> getDetailedPersonInfo(String personId);
     List<?> getRandomPersons(int count);
-    boolean generateCaptchaAndPushToSessionAndSendEmail(Long personId, HttpServletRequest request);
     boolean getCaptchaFromSessionAndValidate(ValidateCaptchaForm captchaForm, HttpServletRequest request);
     String generateSessionId();
     boolean deletePhotoAndThumbnailFromDB(String id, String url);
     List<?> getPhotoUrlsFromDBForPerson(String id);
     boolean markPersonAsFound(long personId);
-    String processCaptchaCreation();
+    String processCaptchaCreation(long personId);
 }

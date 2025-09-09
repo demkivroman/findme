@@ -9,6 +9,7 @@ import org.demkiv.domain.architecture.EntityPersist;
 import org.demkiv.domain.architecture.EntitySender;
 import org.demkiv.domain.service.EntityConverter;
 import org.demkiv.domain.service.PersonService;
+import org.demkiv.domain.util.CaptchaCache;
 import org.demkiv.persistance.dao.PersonRepository;
 import org.demkiv.persistance.dao.PersonStatusRepository;
 import org.demkiv.persistance.dao.QueryRepository;
@@ -41,6 +42,8 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
 
     @Value("${emailFrom}")
     private String emailFrom;
+    @Value("${captcha.ttl}")
+    private long captchaTtl;
 
     private final SaveUpdateService<PersonForm, Optional<?>> service;
     private final QueryRepository queryRepository;
@@ -49,6 +52,7 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
     private final PersonRepository personRepository;
     private final SubscriptionsRepository subscriptionsRepository;
     private final EntityConverter converter;
+    private final CaptchaCache captchaCache;
 
     @Autowired
     public PersonServiceImpl(
@@ -66,6 +70,7 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
         this.personRepository = personRepository;
         this.subscriptionsRepository = subscriptionsRepository;
         this.converter = converter;
+        this.captchaCache = CaptchaCache.getInstance();
     }
 
     @Override
@@ -114,35 +119,20 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
     }
 
     @Override
-    public boolean generateCaptchaAndPushToSessionAndSendEmail(Long personId, HttpServletRequest request) {
+    public String processCaptchaCreation(long personId) {
         String captcha = generateCaptcha();
-
-        HttpSession session = request.getSession();
-        ObjectMapper oMapper = new ObjectMapper();
-        Map<String, Object> capchaMap = oMapper.convertValue(session.getAttribute("captcha"), Map.class);
-        if (capchaMap == null) {
-            session.setAttribute("captcha", Map.of((String.valueOf(personId)), captcha));
-        } else {
-            capchaMap.put(String.valueOf(personId), captcha);
-            session.setAttribute("captcha", capchaMap);
-        }
-
+        String key = UUID.randomUUID().toString();
+        captchaCache.put(key, captcha, captchaTtl);
         Person foundPerson = personRepository.findById(personId).get();
         String finderEmail = foundPerson.getFinder().getEmail();
         EmailModel emailModel = EmailModel.builder()
                 .emailFrom(emailFrom)
                 .emailTo(finderEmail)
-                .body(String.format("This is code to use for %s. Captcha - %s", foundPerson.getFullname(), captcha))
+                .body(String.format("Please use this code for %s. Captcha - %s", foundPerson.getFullname(), captcha))
                 .subject(String.format("Captcha code for %s", foundPerson.getFullname()))
                 .build();
-        return emailSender.send(emailModel);
-    }
-
-    @Override
-    public String processCaptchaCreation() {
-        String captcha = generateCaptcha();
-
-        return "";
+        emailSender.send(emailModel);
+        return key;
     }
 
     @Override
@@ -209,7 +199,7 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
         return true;
     }
 
-    private String generateCaptcha() {
+    protected String generateCaptcha() {
         final int captchaLength = 10;
         final char[] numericAlphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-".toCharArray();
         StringBuilder captchaBuilder = new StringBuilder();
