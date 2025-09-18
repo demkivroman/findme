@@ -1,7 +1,9 @@
 package org.demkiv.domain.util;
 
 import lombok.Getter;
+import lombok.ToString;
 
+@ToString
 @Getter
 public class CacheEntry {
 

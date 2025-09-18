@@ -182,8 +182,8 @@ public class PersonController {
     @PostMapping(value = "/api/captcha/validate",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseModel<Boolean> validateCaptchaMessage(@RequestBody ValidateCaptchaForm captchaForm, HttpServletRequest request) {
-        boolean result = personService.getCaptchaFromSessionAndValidate(captchaForm, request);
+    public ResponseModel<Boolean> validateCaptchaMessage(@RequestBody ValidateCaptchaForm captchaForm) {
+        boolean result = personService.checkCaptcha(captchaForm);
         return ResponseModel.<Boolean>builder()
                 .mode("Success")
                 .body(result)

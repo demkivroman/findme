@@ -46,7 +46,7 @@ public class PhotoServiceImpl implements EntitySaver<PersonPhotoForm, Boolean> {
     @Transactional
     public Boolean saveEntity(PersonPhotoForm personPhotoForm) {
         try {
-            log.info("Start uploading person photo prcess");
+            log.info("Start uploading person photo process");
             Path photoPath = personPhotoForm.getPhotoPath();
             String convertedPhotoPath = getConvertedPhotoPath(photoPath);
             Files.copy(photoPath, Path.of(convertedPhotoPath), StandardCopyOption.REPLACE_EXISTING);
@@ -59,7 +59,7 @@ public class PhotoServiceImpl implements EntitySaver<PersonPhotoForm, Boolean> {
             personPhotoForm.setUrl(String.format(config.getPhotosStoreUrl(), photoInTempDir.getName()));
             savePhotoToDB(personPhotoForm);
             return true;
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             log.error("Error when storing an image. " + ex.getMessage());
             throw new FindMeServiceException("Error when storing an image. " + ex.getMessage(), ex);
         }

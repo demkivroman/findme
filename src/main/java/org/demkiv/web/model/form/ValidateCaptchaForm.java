@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 @Builder
 public class ValidateCaptchaForm {
-    String personId;
+    String captchaId;
     String captcha;
 }

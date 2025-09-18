@@ -1,7 +1,10 @@
 package org.demkiv.domain.util;
 
+import lombok.ToString;
+
 import java.util.concurrent.ConcurrentHashMap;
 
+@ToString
 public class CaptchaCache {
 
     private static CaptchaCache instance;

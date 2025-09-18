@@ -136,19 +136,10 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
     }
 
     @Override
-    public boolean getCaptchaFromSessionAndValidate(ValidateCaptchaForm captchaForm, HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        ObjectMapper oMapper = new ObjectMapper();
-        Map<String, Object> capchaMap = oMapper.convertValue(session.getAttribute("captcha"), Map.class);
-
-        if (capchaMap == null) {
-            return false;
-        }
-
-        String captcha = capchaMap.get(captchaForm.getPersonId()).toString();
-        log.info("Captcha retrieved from Session. PERSON_ID - {}, Captcha - {}", captchaForm.getPersonId(), captcha);
-
-        return captcha.equals(captchaForm.getCaptcha());
+    public boolean checkCaptcha(ValidateCaptchaForm captchaForm) {
+        String captcha = captchaCache.get(captchaForm.getCaptchaId());
+        log.debug("Captcha Cache {}", captchaCache);
+        return captchaForm.getCaptcha().equals(captcha);
     }
 
     @Override
