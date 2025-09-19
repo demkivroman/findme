@@ -10,8 +10,6 @@ public interface PersonService {
     List<?> getRandomPersons(int count);
     boolean checkCaptcha(ValidateCaptchaForm captchaForm);
     String generateSessionId();
-    boolean deletePhotoAndThumbnailFromDB(String id, String url);
-    List<?> getPhotoUrlsFromDBForPerson(String id);
     boolean markPersonAsFound(long personId);
     String processCaptchaCreation(long personId);
 }

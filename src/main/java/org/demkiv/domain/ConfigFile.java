@@ -3,7 +3,6 @@ package org.demkiv.domain;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.demkiv.domain.upload.S3Uploader;
 import org.demkiv.domain.util.PropertyLoader;
 
 import java.io.File;

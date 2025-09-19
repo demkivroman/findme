@@ -1,6 +1,5 @@
 package org.demkiv.web.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.demkiv.domain.FindMeServiceException;
@@ -11,7 +10,6 @@ import org.demkiv.web.model.PersonResponseModel;
 import org.demkiv.web.model.ResponseModel;
 import org.demkiv.web.model.form.PersonForm;
 import org.demkiv.web.model.form.PersonPhotoForm;
-import org.demkiv.web.model.form.PhotoForm;
 import org.demkiv.web.model.form.ValidateCaptchaForm;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -73,7 +71,7 @@ public class PersonController {
                     .build();
 
             log.info("Processing save for person ID {}", personId);
-            photoService.saveEntity(photoForm);
+            photoService.addPhoto(photoForm);
 
             return ResponseModel.builder()
                     .mode("Success")
@@ -124,14 +122,12 @@ public class PersonController {
     }
 
 
-    @PostMapping(value = "/api/person/delete/photo",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "/api/person/delete/photo/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseModel<Boolean> deletePersonPhoto(@RequestBody PhotoForm photoForm) {
-        boolean result = personService.deletePhotoAndThumbnailFromDB(photoForm.getId(), photoForm.getUrl());
+    public ResponseModel<Boolean> deletePersonPhoto(String id) {
+        photoService.deletePhoto(id);
         return ResponseModel.<Boolean>builder()
                 .mode("Success")
-                .body(result)
                 .build();
     }
 

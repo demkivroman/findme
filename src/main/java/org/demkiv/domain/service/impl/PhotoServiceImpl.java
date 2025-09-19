@@ -6,6 +6,7 @@ import org.demkiv.domain.FindMeServiceException;
 import org.demkiv.domain.architecture.EntitySaver;
 import org.demkiv.domain.architecture.FileUploader;
 import org.demkiv.domain.model.S3UploaderModel;
+import org.demkiv.domain.service.PhotoService;
 import org.demkiv.persistance.dao.PersonRepository;
 import org.demkiv.persistance.dao.PhotoRepository;
 import org.demkiv.persistance.entity.Person;
@@ -24,7 +25,8 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-public class PhotoServiceImpl implements EntitySaver<PersonPhotoForm, Boolean> {
+@Transactional
+public class PhotoServiceImpl implements PhotoService {
     private final FileUploader<S3UploaderModel> s3Uploader;
     private final PhotoRepository photoRepository;
     private final PersonRepository personRepository;
@@ -43,8 +45,7 @@ public class PhotoServiceImpl implements EntitySaver<PersonPhotoForm, Boolean> {
     }
 
     @Override
-    @Transactional
-    public Boolean saveEntity(PersonPhotoForm personPhotoForm) {
+    public void addPhoto(PersonPhotoForm personPhotoForm) {
         try {
             log.info("Start uploading person photo process");
             Path photoPath = personPhotoForm.getPhotoPath();
@@ -58,7 +59,6 @@ public class PhotoServiceImpl implements EntitySaver<PersonPhotoForm, Boolean> {
             s3Uploader.upload(s3PhotosModel);
             personPhotoForm.setUrl(String.format(config.getPhotosStoreUrl(), photoInTempDir.getName()));
             savePhotoToDB(personPhotoForm);
-            return true;
         } catch (Exception ex) {
             log.error("Error when storing an image. " + ex.getMessage());
             throw new FindMeServiceException("Error when storing an image. " + ex.getMessage(), ex);
@@ -88,5 +88,11 @@ public class PhotoServiceImpl implements EntitySaver<PersonPhotoForm, Boolean> {
         String photoPath = path.toString();
         String pathWithoutExtension = photoPath.substring(0, photoPath.lastIndexOf("."));
         return pathWithoutExtension  + "_converted.gif";
+    }
+
+    @Override
+    public void deletePhoto(String id) {
+        photoRepository.deleteById(Long.valueOf(id));
+        log.info("Photo deleted from database. ID is {}", id);
     }
 }

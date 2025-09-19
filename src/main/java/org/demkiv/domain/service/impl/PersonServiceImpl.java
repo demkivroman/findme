@@ -1,8 +1,5 @@
 package org.demkiv.domain.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.demkiv.domain.FindMeServiceException;
 import org.demkiv.domain.architecture.EntityPersist;
@@ -146,40 +143,6 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
     public String generateSessionId() {
         UUID uuid = UUID.randomUUID();
         return uuid.toString();
-    }
-
-    @Override
-    @Transactional
-    public boolean deletePhotoAndThumbnailFromDB(String id, String url) {
-        boolean isDeleted = queryRepository.deletePhotoByIdFromDB(id);
-        if (!isDeleted) {
-            throw new FindMeServiceException("Could not delete photo from database");
-        }
-        log.info("Deleted photo from DB. ID - {}", id);
-
-        String thumbnailName = getThumbnailNameFromUrl(url);
-        List<String> thumbnailIds = queryRepository.findThumbnailIdByName(thumbnailName);
-        thumbnailIds.forEach(itemId -> {
-            boolean isThumbnailDeleted = queryRepository.deleteThumbnailByIdFromDB(itemId);
-            if (!isThumbnailDeleted) {
-                throw new FindMeServiceException("Could not delete thumbnail from database");
-            }
-            log.info("Deleted thumbnail from DB. ID - {}. Name - {}.", itemId, thumbnailName);
-        });
-
-        return true;
-    }
-
-    @Override
-    @Transactional
-    public List<?> getPhotoUrlsFromDBForPerson(String id) {
-        return null;
-    }
-
-    private String getThumbnailNameFromUrl(String url) {
-        String nameSuffix = url.substring(url.lastIndexOf('/') + 1);
-        String name = nameSuffix.substring(0, nameSuffix.lastIndexOf('.'));
-        return name + "_thumbnail.gif";
     }
 
     @Override
