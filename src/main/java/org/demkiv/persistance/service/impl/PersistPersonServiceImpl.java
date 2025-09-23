@@ -3,20 +3,15 @@ package org.demkiv.persistance.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.demkiv.domain.Config;
 import org.demkiv.domain.FindMeServiceException;
-import org.demkiv.domain.architecture.EntitySender;
 import org.demkiv.persistance.dao.FinderRepository;
 import org.demkiv.persistance.dao.PersonRepository;
 import org.demkiv.persistance.dao.PersonStatusRepository;
-import org.demkiv.persistance.dao.SubscriptionsRepository;
 import org.demkiv.persistance.entity.Finder;
 import org.demkiv.persistance.entity.Person;
 import org.demkiv.persistance.entity.PersonStatus;
 import org.demkiv.persistance.service.SaveUpdateService;
-import org.demkiv.web.model.EmailModel;
 import org.demkiv.web.model.form.PersonForm;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,13 +27,9 @@ import java.util.Optional;
 @Transactional
 public class PersistPersonServiceImpl implements SaveUpdateService<PersonForm, Optional<?>> {
 
-    private final Config config;
     private final FinderRepository finderRepository;
     private final PersonRepository personRepository;
     private final PersonStatusRepository personStatusRepository;
-    private final SubscriptionsRepository subscriptionsRepository;
-    @Qualifier("emailSender")
-    private final EntitySender<Boolean, EmailModel>  emailSender;
 
     @Override
     public Optional<Long> saveEntity(PersonForm personForm) {

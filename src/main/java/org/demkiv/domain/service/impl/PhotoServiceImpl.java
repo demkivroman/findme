@@ -1,5 +1,6 @@
 package org.demkiv.domain.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.demkiv.domain.Config;
 import org.demkiv.domain.FindMeServiceException;
@@ -7,6 +8,7 @@ import org.demkiv.domain.architecture.EntitySaver;
 import org.demkiv.domain.architecture.FileUploader;
 import org.demkiv.domain.model.S3UploaderModel;
 import org.demkiv.domain.service.PhotoService;
+import org.demkiv.domain.service.S3Service;
 import org.demkiv.persistance.dao.PersonRepository;
 import org.demkiv.persistance.dao.PhotoRepository;
 import org.demkiv.persistance.entity.Person;
@@ -25,24 +27,13 @@ import java.util.Optional;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 @Transactional
 public class PhotoServiceImpl implements PhotoService {
-    private final FileUploader<S3UploaderModel> s3Uploader;
+    private final S3Service s3Service;
     private final PhotoRepository photoRepository;
     private final PersonRepository personRepository;
     private final Config config;
-
-    @Autowired
-    public PhotoServiceImpl(
-            @Qualifier("s3Uploader") FileUploader<S3UploaderModel> s3Uploader,
-            PhotoRepository photoRepository,
-            PersonRepository personRepository,
-            Config config) {
-        this.s3Uploader = s3Uploader;
-        this.photoRepository = photoRepository;
-        this.personRepository = personRepository;
-        this.config = config;
-    }
 
     @Override
     public void addPhoto(PersonPhotoForm personPhotoForm) {
@@ -56,7 +47,7 @@ public class PhotoServiceImpl implements PhotoService {
                     .directory("photos")
                     .file(photoInTempDir)
                     .build();
-            s3Uploader.upload(s3PhotosModel);
+            s3Service.upload(s3PhotosModel);
             personPhotoForm.setUrl(String.format(config.getPhotosStoreUrl(), photoInTempDir.getName()));
             savePhotoToDB(personPhotoForm);
         } catch (Exception ex) {
@@ -92,7 +83,14 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public void deletePhoto(String id) {
-        photoRepository.deleteById(Long.valueOf(id));
+        Optional<Photo> foundPhoto = photoRepository.findById(Long.parseLong(id));
+        if (foundPhoto.isEmpty()) {
+            log.error("Can't find person in database by id " + id);
+            return;
+        }
+        Photo photo = foundPhoto.get();
+        s3Service.deletePhotoFromS3(photo.getUrl());
+        photoRepository.delete(photo);
         log.info("Photo deleted from database. ID is {}", id);
     }
 }

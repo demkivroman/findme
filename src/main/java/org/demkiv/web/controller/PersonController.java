@@ -124,7 +124,7 @@ public class PersonController {
 
     @PostMapping(value = "/api/person/delete/photo/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseModel<Boolean> deletePersonPhoto(String id) {
+    public ResponseModel<Boolean> deletePersonPhoto(@PathVariable String id) {
         photoService.deletePhoto(id);
         return ResponseModel.<Boolean>builder()
                 .mode("Success")
