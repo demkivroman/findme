@@ -11,10 +11,10 @@ import org.springframework.context.annotation.PropertySource;
 @Data
 public class Config {
 
+    @Value("${bucketPhotoDirectory}")
+    String bucketPhotoDirectory;
     @Value("${photosStoreUrl}")
     String photosStoreUrl;
-    @Value("${convertThumbnailCommand}")
-    String convertThumbnailCommand;
     @Value("${convertPhotoCommand}")
     String convertPhotoCommand;
     @Value("${domain}")

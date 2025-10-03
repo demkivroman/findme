@@ -44,7 +44,7 @@ public class PhotoServiceImpl implements PhotoService {
             Files.copy(photoPath, Path.of(convertedPhotoPath), StandardCopyOption.REPLACE_EXISTING);
             File photoInTempDir = new File(convertedPhotoPath);
             S3UploaderModel s3PhotosModel = S3UploaderModel.builder()
-                    .directory("photos")
+                    .directory(config.getBucketPhotoDirectory())
                     .file(photoInTempDir)
                     .build();
             s3Service.upload(s3PhotosModel);
