@@ -10,14 +10,9 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource(value = "classpath:application.properties")
 @Data
 public class Config {
-    @Value("${photosStorePath}")
-    String photosStorePath;
+
     @Value("${photosStoreUrl}")
     String photosStoreUrl;
-    @Value("${thumbnailStorePath}")
-    String thumbnailStorePath;
-    @Value("${thumbnailStoreUrl}")
-    String thumbnailStoreUrl;
     @Value("${convertThumbnailCommand}")
     String convertThumbnailCommand;
     @Value("${convertPhotoCommand}")
