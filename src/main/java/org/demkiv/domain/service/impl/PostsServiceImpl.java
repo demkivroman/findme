@@ -4,7 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.demkiv.domain.architecture.EntityFinder;
 import org.demkiv.domain.architecture.EntityPersist;
-import org.demkiv.persistance.dao.QueryRepository;
+import org.demkiv.persistance.dao.PersonRepository;
+import org.demkiv.persistance.dao.PostsRepository;
+import org.demkiv.persistance.entity.Person;
+import org.demkiv.persistance.entity.Posts;
+import org.demkiv.persistance.model.dto.PostDTO;
 import org.demkiv.persistance.service.impl.PersistPostsServiceImpl;
 import org.demkiv.web.model.form.PostForm;
 import org.springframework.stereotype.Service;
@@ -19,7 +23,8 @@ import java.util.Optional;
 @Transactional
 public class PostsServiceImpl implements EntityPersist<PostForm, Optional<?>>, EntityFinder<String, List<?>> {
     private final PersistPostsServiceImpl postsService;
-    private final QueryRepository queryService;
+    private final PostsRepository postsRepository;
+    private final PersonRepository personRepository;
 
     @Override
     public Optional<?> saveEntity(PostForm entity) {
@@ -37,7 +42,23 @@ public class PostsServiceImpl implements EntityPersist<PostForm, Optional<?>>, E
 
     @Override
     public List<?> findEntity(String personId) {
-//        log.info("Found {} posts for person ID = {}", posts.size(), personId);
-        return null;
+        Optional<Person> foundPerson = personRepository.findById(Long.parseLong(personId));
+        if (foundPerson.isEmpty()) {
+            log.error("Person [ {} ] not found in database. When getting posts", personId);
+            return List.of();
+        }
+
+        List<Posts> posts = postsRepository.findAllByPerson(foundPerson.get());
+        log.info("Found {} posts for person ID = {}", posts.size(), personId);
+
+        return posts.stream()
+                .map(post -> PostDTO.builder()
+                        .id(String.valueOf(post.getId()))
+                        .post(post.getPost())
+                        .author(post.getAuthor())
+                        .timestamp(post.getTime())
+                        .build()
+                )
+                .toList();
     }
 }
