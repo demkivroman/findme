@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.demkiv.domain.Config;
+import org.demkiv.domain.FindMeServiceException;
 import org.demkiv.domain.architecture.EntitySender;
 import org.demkiv.domain.service.SenderService;
 import org.demkiv.persistance.dao.PersonRepository;
@@ -41,22 +43,21 @@ public class SenderServiceImpl implements SenderService {
 
     @Override
     public void sendEmail(EmailForm emailForm) {
-        long personId = Long.parseLong(emailForm.getPersonId());
-        Person foundPerson = personRepository.findById(personId).get();
+        long personId = Long.parseLong(emailForm.personId());
+        Person foundPerson = personRepository.findById(personId)
+                .orElseThrow(() -> new FindMeServiceException("Person with id " + personId + " not found"));
         String finderEmail = foundPerson.getFinder().getEmail();
-        String subject;
-        if (emailForm.getSendMode().equalsIgnoreCase("email")) {
-            subject = String.format("Email from Findme site on [%s]", foundPerson.getFullname());
-        } else if (emailForm.getSendMode().equalsIgnoreCase("sms")) {
-            subject = String.format("SMS from Findme site on [%s]", foundPerson.getFullname());
-        } else {
-            subject = "Email from Findme site.";
+        if (StringUtils.isEmpty(finderEmail)) {
+            log.error("Email could not be found");
+            return;
         }
+
         EmailModel emailModel = EmailModel.builder()
                 .emailFrom(config.getEmailFrom())
                 .emailTo(finderEmail)
-                .body(emailForm.getBody())
-                .subject(subject)
+                .body(emailForm.body()+ "\n" +
+                        emailForm.footer())
+                .subject(emailForm.subject())
                 .build();
         emailSender.send(emailModel);
         log.info("Email sent to {}. For person {}", finderEmail, foundPerson.getFullname());
