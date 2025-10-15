@@ -52,12 +52,25 @@ public class SendController {
     @GetMapping(value = "/api/subscription/notification/{email}",
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> sendSubscriptionNotification(@PathVariable String email) {
-        boolean isSubscriptionNotified = senderService.senSubscriptionNotification(email);
+        boolean isSubscriptionNotified = senderService.sendSubscriptionNotification(email);
         if (isSubscriptionNotified) {
             log.info("Subscription notification sent to {}", email);
             return ResponseEntity.ok().body(true);
         } else {
             log.error("Subscription notification failed to {}", email);
+            return ResponseEntity.ok().body(false);
+        }
+    }
+
+    @GetMapping(value = "/api/subscription/notification/{personId}/{lang}",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Boolean> sendSubscriptionNotification(@PathVariable String personId, @PathVariable String lang) {
+        boolean isSubscriptionNotified = senderService.sendSubscriptionNotification(personId, lang);
+        if (isSubscriptionNotified) {
+            log.info("Subscription notification sent for person {}", personId);
+            return ResponseEntity.ok().body(true);
+        } else {
+            log.error("Sending subscription notification failed for person {}", personId);
             return ResponseEntity.ok().body(false);
         }
     }

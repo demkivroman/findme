@@ -11,6 +11,7 @@ import org.demkiv.domain.architecture.EntitySender;
 import org.demkiv.domain.service.SenderService;
 import org.demkiv.persistance.dao.PersonRepository;
 import org.demkiv.persistance.dao.SubscriptionsRepository;
+import org.demkiv.persistance.entity.Finder;
 import org.demkiv.persistance.entity.Person;
 import org.demkiv.persistance.entity.SubscriptionStatus;
 import org.demkiv.persistance.entity.Subscriptions;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -136,7 +138,17 @@ public class SenderServiceImpl implements SenderService {
     }
 
     @Override
-    public boolean senSubscriptionNotification(String email) {
+    public boolean sendSubscriptionNotification(String personId, String lang) {
+        return personRepository.findById(Long.parseLong(personId))
+                .map(Person::getFinder)
+                .filter(finder -> !StringUtils.isEmpty(finder.getEmail()))
+                .map(Finder::getEmail)
+                .map(this::sendSubscriptionNotification)
+                .orElse(false);
+    }
+
+    @Override
+    public boolean sendSubscriptionNotification(String email) {
         Optional<Subscriptions> foundSubscription = subscriptionsRepository.findByEmail(email);
         Subscriptions subscription = foundSubscription.orElse(null);
         if (foundSubscription.isPresent() && subscription.getStatus() == SubscriptionStatus.CONFIRMED) {
