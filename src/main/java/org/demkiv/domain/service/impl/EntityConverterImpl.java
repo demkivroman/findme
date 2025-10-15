@@ -92,9 +92,10 @@ public class EntityConverterImpl implements EntityConverter {
         return FinderDTO.builder()
                 .id(String.valueOf(finder.getId()))
                 .fullName(finder.getFullname())
-                .emailStatus(emailStatus.getStatus())
+                .emailStatus(emailStatus != null ? emailStatus.getStatus() : null)
                 .information(finder.getInformation())
                 .isPhoneProvided(StringUtils.isNoneBlank(finder.getPhone()))
+                .isEmailProvided(StringUtils.isNoneBlank(finder.getEmail()))
                 .build();
     }
 

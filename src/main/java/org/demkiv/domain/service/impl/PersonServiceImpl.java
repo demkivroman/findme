@@ -93,7 +93,7 @@ public class PersonServiceImpl implements EntityPersist<PersonForm, Optional<?>>
         String email = finder != null ? finder.getEmail() : null;
         Optional<Subscriptions> emailStatus = subscriptionsRepository.findByEmail(email);
         PersonDTO personDTO = converter.convertToPersonDTO(person);
-        FinderDTO finderDTO = converter.convertToFinderDTO(finder,  Objects.nonNull(finder) ? emailStatus.get() : null);
+        FinderDTO finderDTO = converter.convertToFinderDTO(finder, emailStatus.orElse(null));
         List<PhotoDTO> photoDTO = converter.convertToPhotoDTO(photos);
         PersonDetailModel personDetailModel = PersonDetailModel.builder()
                 .person(personDTO)
