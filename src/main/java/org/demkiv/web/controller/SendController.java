@@ -21,6 +21,7 @@ import java.io.IOException;
 @RestController
 @RequiredArgsConstructor
 public class SendController {
+
     private final SenderService senderService;
     private final Config config;
 
@@ -49,10 +50,10 @@ public class SendController {
         senderService.handleComplaintNotification(message);
     }
 
-    @GetMapping(value = "/api/subscription/notification/{email}",
+    @GetMapping(value = "/api/subscription/email/notification/{email}/{lang}",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Boolean> sendSubscriptionNotification(@PathVariable String email) {
-        boolean isSubscriptionNotified = senderService.sendSubscriptionNotification(email);
+    public ResponseEntity<Boolean> subscriptionNotification(@PathVariable String email, @PathVariable String lang) {
+        boolean isSubscriptionNotified = senderService.sendSubscriptionNotification(email, lang);
         if (isSubscriptionNotified) {
             log.info("Subscription notification sent to {}", email);
             return ResponseEntity.ok().body(true);
@@ -65,7 +66,7 @@ public class SendController {
     @GetMapping(value = "/api/subscription/notification/{personId}/{lang}",
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> sendSubscriptionNotification(@PathVariable String personId, @PathVariable String lang) {
-        boolean isSubscriptionNotified = senderService.sendSubscriptionNotification(personId, lang);
+        boolean isSubscriptionNotified = senderService.sendPersonSubscriptionNotification(personId, lang);
         if (isSubscriptionNotified) {
             log.info("Subscription notification sent for person {}", personId);
             return ResponseEntity.ok().body(true);

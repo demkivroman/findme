@@ -22,7 +22,7 @@ public class EmailSenderImpl implements EntitySender<Boolean, EmailModel> {
     public Boolean send(EmailModel entity) {
         try {
             MimeMessage message = emailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, "utf-8");
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setFrom(entity.getEmailFrom());
             helper.setTo(entity.getEmailTo());
             helper.setSubject(entity.getSubject());

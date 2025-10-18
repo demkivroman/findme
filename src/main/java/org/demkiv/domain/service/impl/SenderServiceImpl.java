@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.demkiv.domain.Config;
 import org.demkiv.domain.FindMeServiceException;
+import org.demkiv.domain.Language;
 import org.demkiv.domain.architecture.EntitySender;
 import org.demkiv.domain.service.SenderService;
 import org.demkiv.persistance.dao.PersonRepository;
@@ -18,11 +19,12 @@ import org.demkiv.persistance.entity.Subscriptions;
 import org.demkiv.web.model.EmailModel;
 import org.demkiv.web.model.form.EmailForm;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,11 +33,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SenderServiceImpl implements SenderService {
 
-    private static final String SUBSCRIPTION_TEXT = """
-            <h4>Email confirmation from FindMe resource</h4>
-            <p>Please confirm your subscription by clicking the link below:</p>
-            <a href="%s">Confirm Subscription</a>
-            """;
+    private final MessageSource messageSource;
 
     private final Config config;
     private final PersonRepository personRepository;
@@ -138,17 +136,19 @@ public class SenderServiceImpl implements SenderService {
     }
 
     @Override
-    public boolean sendSubscriptionNotification(String personId, String lang) {
+    public boolean sendPersonSubscriptionNotification(String personId, String lang) {
         return personRepository.findById(Long.parseLong(personId))
                 .map(Person::getFinder)
                 .filter(finder -> !StringUtils.isEmpty(finder.getEmail()))
                 .map(Finder::getEmail)
-                .map(this::sendSubscriptionNotification)
+                .map(email -> sendSubscriptionNotification(email, lang))
                 .orElse(false);
     }
 
     @Override
-    public boolean sendSubscriptionNotification(String email) {
+    public boolean sendSubscriptionNotification(String email, String lang) {
+        Locale locale = new Locale(Language.getLanguageCodeByName(lang));
+        String SUBSCRIPTION_TEXT = messageSource.getMessage("email.subscription.text", null, locale);
         Optional<Subscriptions> foundSubscription = subscriptionsRepository.findByEmail(email);
         Subscriptions subscription = foundSubscription.orElse(null);
         if (foundSubscription.isPresent() && subscription.getStatus() == SubscriptionStatus.CONFIRMED) {
@@ -159,7 +159,7 @@ public class SenderServiceImpl implements SenderService {
         String confirmationLink = config.getDomain() + "/findme/api/subscription/confirm?token=" + token;
         String emailBody = String.format(SUBSCRIPTION_TEXT, confirmationLink);
         try {
-            sendConfirmationMail(emailBody, email);
+            sendConfirmationMail(emailBody, email, lang);
         }  catch (Exception e) {
             log.error("Error while sending confirmation mail {}", email, e);
             return false;
@@ -177,11 +177,13 @@ public class SenderServiceImpl implements SenderService {
         return true;
     }
 
-    private void sendConfirmationMail(String emailBody, String email) {
+    private void sendConfirmationMail(String emailBody, String email, String lang) {
+        Locale locale = new Locale(Language.getLanguageCodeByName(lang));
+        String subject = messageSource.getMessage("email.confirmation.subject", null, locale);
         EmailModel emailModel = EmailModel.builder()
                 .emailFrom(config.getEmailFrom())
                 .emailTo(email)
-                .subject("Email confirmation from FindMe resource")
+                .subject(subject)
                 .body(emailBody)
                 .build();
         emailSender.send(emailModel);
