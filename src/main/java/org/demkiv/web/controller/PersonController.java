@@ -82,6 +82,33 @@ public class PersonController {
         }
     }
 
+    @PostMapping(value = "/api/test/person/save/photo",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseModel<?> saveTestPersonPhoto(
+            @RequestParam("person_id") long personId,
+            @RequestParam("photo") MultipartFile photo) {
+
+        try(TempDirectory tempDirectory = new TempDirectory("temp_photo")) {
+            Path photoPath = getTempPhotoPath(tempDirectory.getPath(), photo);
+            PersonPhotoForm photoForm = PersonPhotoForm.builder()
+                    .personId(personId)
+                    .photoPath(photoPath)
+                    .tempDirectory(tempDirectory.getPath())
+                    .build();
+
+            log.info("Processing save for person ID {}", personId);
+            photoService.addPhoto(photoForm);
+
+            return ResponseModel.builder()
+                    .mode("Success")
+                    .build();
+        } catch (IOException e) {
+            log.error("Failed to save person photo in controller [/api/person/save/photo] for person ID {}", personId, e);
+            throw new RuntimeException(e);
+        }
+    }
+
     private Path getTempPhotoPath(Path tempDirectory, MultipartFile photo) {
         if (photo == null || photo.isEmpty()) {
             log.error("Uploaded photo is null or empty");

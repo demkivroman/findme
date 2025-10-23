@@ -7,6 +7,7 @@ import org.demkiv.domain.FindMeServiceException;
 import org.demkiv.domain.architecture.EntitySaver;
 import org.demkiv.domain.architecture.FileUploader;
 import org.demkiv.domain.model.S3UploaderModel;
+import org.demkiv.domain.service.ImageConverter;
 import org.demkiv.domain.service.PhotoService;
 import org.demkiv.domain.service.S3Service;
 import org.demkiv.persistance.dao.PersonRepository;
@@ -30,9 +31,11 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Transactional
 public class PhotoServiceImpl implements PhotoService {
+
     private final S3Service s3Service;
     private final PhotoRepository photoRepository;
     private final PersonRepository personRepository;
+    private final ImageConverter imageConverter;
     private final Config config;
 
     @Override
@@ -54,6 +57,11 @@ public class PhotoServiceImpl implements PhotoService {
             log.error("Error when storing an image. " + ex.getMessage());
             throw new FindMeServiceException("Error when storing an image. " + ex.getMessage(), ex);
         }
+    }
+
+    @Override
+    public void addTestPhoto(PersonPhotoForm personPhotoForm) {
+
     }
 
     private void savePhotoToDB(PersonPhotoForm personPhotoForm) {
