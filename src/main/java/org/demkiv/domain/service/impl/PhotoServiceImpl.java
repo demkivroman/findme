@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -60,8 +62,20 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
-    public void addTestPhoto(PersonPhotoForm personPhotoForm) {
+    public void addTestPhoto(PersonPhotoForm personPhotoForm) throws IOException {
+        personPhotoForm.setTempDirectory(Path.of("/home/roman/Downloads/testPhotos"));
+        String filename = Optional.of(personPhotoForm.getPhotoPath().getFileName())
+                .map(Path::toString)
+                .map(name -> name.replaceAll("(\\.\\w+)$", ""))
+                .map(name -> name + "_converted.jpg")
+                .orElse("");
 
+        byte[] originalBytes = Files.readAllBytes(personPhotoForm.getPhotoPath());
+//        byte[] convertedImage = imageConverter.resizeKeepAspect(originalBytes, 500, 500);
+        byte[] convertedImage = imageConverter.cropToSquare(originalBytes, 350);
+        try (FileOutputStream fos = new FileOutputStream(new File(personPhotoForm.getTempDirectory().toFile(), filename))) {
+            fos.write(convertedImage);
+        }
     }
 
     private void savePhotoToDB(PersonPhotoForm personPhotoForm) {

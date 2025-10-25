@@ -98,7 +98,7 @@ public class PersonController {
                     .build();
 
             log.info("Processing save for person ID {}", personId);
-            photoService.addPhoto(photoForm);
+            photoService.addTestPhoto(photoForm);
 
             return ResponseModel.builder()
                     .mode("Success")
