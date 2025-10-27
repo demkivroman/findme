@@ -15,6 +15,8 @@ public class Config {
     String bucketPhotoDirectory;
     @Value("${photosStoreUrl}")
     String photosStoreUrl;
+    @Value("${photosStoreConvertedUrl}")
+    String photoStoreConvertedUrl;
     @Value("${convertPhotoCommand}")
     String convertPhotoCommand;
     @Value("${domain}")

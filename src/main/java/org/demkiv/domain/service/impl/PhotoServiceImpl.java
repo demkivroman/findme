@@ -2,6 +2,7 @@ package org.demkiv.domain.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.demkiv.domain.Config;
 import org.demkiv.domain.FindMeServiceException;
 import org.demkiv.domain.architecture.EntitySaver;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -34,6 +36,7 @@ import java.util.Optional;
 @Transactional
 public class PhotoServiceImpl implements PhotoService {
 
+    private static final String CONVERTED_PHOTO_DIRECTORY = "converted";
     private final S3Service s3Service;
     private final PhotoRepository photoRepository;
     private final PersonRepository personRepository;
@@ -45,62 +48,60 @@ public class PhotoServiceImpl implements PhotoService {
         try {
             log.info("Start uploading person photo process");
             Path photoPath = personPhotoForm.getPhotoPath();
-            String convertedPhotoPath = getConvertedPhotoPath(photoPath);
-            Files.copy(photoPath, Path.of(convertedPhotoPath), StandardCopyOption.REPLACE_EXISTING);
-            File photoInTempDir = new File(convertedPhotoPath);
-            S3UploaderModel s3PhotosModel = S3UploaderModel.builder()
-                    .directory(config.getBucketPhotoDirectory())
-                    .file(photoInTempDir)
-                    .build();
-            s3Service.upload(s3PhotosModel);
-            personPhotoForm.setUrl(String.format(config.getPhotosStoreUrl(), photoInTempDir.getName()));
-            savePhotoToDB(personPhotoForm);
+            File convertedPhoto = convertPhotoToSquare(photoPath);
+            String photoKey = Optional.of(photoPath)
+                            .map(Path::getFileName)
+                            .map(name -> config.getBucketPhotoDirectory() + "/" + name)
+                            .orElse("");
+            s3Service.upload(photoKey, Objects.requireNonNull(photoPath).toFile());
+            String convertedPhotoKey = Optional.of(convertedPhoto)
+                            .map(File::getName)
+                            .map(name -> config.getBucketPhotoDirectory() + "/" + CONVERTED_PHOTO_DIRECTORY + "/" + name)
+                            .orElse("");
+            s3Service.upload(convertedPhotoKey, convertedPhoto);
+            savePhotoToDB(personPhotoForm.getPersonId(), photoKey, convertedPhotoKey);
         } catch (Exception ex) {
             log.error("Error when storing an image. " + ex.getMessage());
             throw new FindMeServiceException("Error when storing an image. " + ex.getMessage(), ex);
         }
     }
 
-    @Override
-    public void addTestPhoto(PersonPhotoForm personPhotoForm) throws IOException {
-        personPhotoForm.setTempDirectory(Path.of("/home/roman/Downloads/testPhotos"));
-        String filename = Optional.of(personPhotoForm.getPhotoPath().getFileName())
-                .map(Path::toString)
-                .map(name -> name.replaceAll("(\\.\\w+)$", ""))
-                .map(name -> name + "_converted.jpg")
-                .orElse("");
-
-        byte[] originalBytes = Files.readAllBytes(personPhotoForm.getPhotoPath());
-//        byte[] convertedImage = imageConverter.resizeKeepAspect(originalBytes, 500, 500);
+    private File convertPhotoToSquare(Path photoOrigin) throws IOException {
+        String  photoPath = getConvertedPhotoPath(photoOrigin);
+        byte[] originalBytes = Files.readAllBytes(photoOrigin);
         byte[] convertedImage = imageConverter.cropToSquare(originalBytes, 350);
-        try (FileOutputStream fos = new FileOutputStream(new File(personPhotoForm.getTempDirectory().toFile(), filename))) {
+        try (FileOutputStream fos = new FileOutputStream(photoPath)) {
             fos.write(convertedImage);
+            return new File(photoPath);
         }
     }
 
-    private void savePhotoToDB(PersonPhotoForm personPhotoForm) {
-        Optional<Person> personEntity = personRepository.findById(personPhotoForm.getPersonId());
+    private void savePhotoToDB(long personId, String photoKey, String convertedPhotoKey) throws IOException {
+        Optional<Person> personEntity = personRepository.findById(personId);
         if (personEntity.isEmpty()) {
-            log.error("Can't find person in database by id " + personPhotoForm.getPersonId());
-            throw new FindMeServiceException("Can't find person in database by id " + personPhotoForm.getPersonId());
+            log.error("Can't find person in database by id " + personId);
+            throw new FindMeServiceException("Can't find person in database by id " + personId);
         }
 
-        Photo photoEntity = getPhoto(personEntity.get(), personPhotoForm.getUrl());
+        Photo photoEntity = getPhoto(personEntity.get(), photoKey, convertedPhotoKey);
         photoRepository.save(photoEntity);
-        log.info("Photo is saved to database. URL is {}", personPhotoForm.getUrl());
+        log.info("Photo is saved to database. URLS is {}, {}", photoKey, convertedPhotoKey);
     }
 
-    private Photo getPhoto(Person person, String url) {
+    private Photo getPhoto(Person person, String photoKey, String convertedPhotoKey) {
         return Photo.builder()
-                .url(url)
+                .url(String.format(config.getPhotosStoreUrl(), photoKey))
+                .convertedUrl(String.format(config.getPhotoStoreConvertedUrl(), convertedPhotoKey))
                 .person(person)
                 .build();
     }
 
     private String getConvertedPhotoPath(Path path) {
-        String photoPath = path.toString();
-        String pathWithoutExtension = photoPath.substring(0, photoPath.lastIndexOf("."));
-        return pathWithoutExtension  + "_converted.gif";
+        return Optional.of(path)
+                .map(Path::toString)
+                .map(name -> name.replaceAll("(\\.\\w+)$", ""))
+                .map(name -> name + "_converted.jpg")
+                .orElse("");
     }
 
     @Override

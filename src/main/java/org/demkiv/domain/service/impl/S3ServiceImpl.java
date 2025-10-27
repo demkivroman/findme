@@ -12,6 +12,8 @@ import org.demkiv.domain.model.S3UploaderModel;
 import org.demkiv.domain.service.S3Service;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -21,11 +23,10 @@ public class S3ServiceImpl implements S3Service {
     private final ConfigFile config;
 
     @Override
-    public void upload(S3UploaderModel model) {
+    public void upload(String key, File photo) {
         try {
-            String key = String.format("%s/%s", model.getDirectory(), model.getFile().getName());
             AmazonS3 client = getAmazonS3Client();
-            client.putObject(config.getS3BucketName(), key, model.getFile());
+            client.putObject(config.getS3BucketName(), key, photo);
             log.info("Uploaded file to S3 {}", key);
         } catch (Exception ex) {
             log.error("File is not uploaded to S3.", ex);

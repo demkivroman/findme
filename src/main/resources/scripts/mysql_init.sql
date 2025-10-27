@@ -51,7 +51,8 @@ create table findmeDB.PHOTO
 (
     ID        INT AUTO_INCREMENT PRIMARY KEY,
     PERSON_ID INT not null ,
-    URL       varchar(200) UNIQUE not null,
+    URL varchar(200),
+    CONVERTED_URL varchar(200),
     FOREIGN KEY (PERSON_ID) REFERENCES PERSON (ID)
 );
 

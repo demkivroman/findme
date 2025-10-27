@@ -8,4 +8,5 @@ import lombok.Data;
 public class PhotoDTO {
     private Long id;
     private String url;
+    private String convertedUrl;
 }
