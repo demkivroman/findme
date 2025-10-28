@@ -105,6 +105,7 @@ public class EntityConverterImpl implements EntityConverter {
                 .map(photo -> PhotoDTO.builder()
                         .id(photo.getId())
                         .url(photo.getUrl())
+                        .convertedUrl(photo.getConvertedUrl())
                         .build())
                 .toList();
     }
