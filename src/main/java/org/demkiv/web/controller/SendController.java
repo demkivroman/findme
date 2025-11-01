@@ -38,10 +38,10 @@ public class SendController {
         boolean isConfirmed = senderService.emailConfirmation(token);
         if (isConfirmed) {
             log.info("Confirmed subscription");
-            response.sendRedirect(config.getFrontDomain()+ "/confirmation-success");
+            response.sendRedirect(config.getDomain()+ "/confirmation-success");
         } else {
             log.error("Subscription confirmation failed");
-            response.sendRedirect(config.getFrontDomain() + "/confirmation-failure");
+            response.sendRedirect(config.getDomain() + "/confirmation-failure");
         }
     }
 

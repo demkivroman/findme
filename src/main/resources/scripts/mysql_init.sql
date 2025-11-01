@@ -53,7 +53,7 @@ create table findmeDB.PHOTO
     PERSON_ID INT not null ,
     URL varchar(200),
     CONVERTED_URL varchar(200),
-    FOREIGN KEY (PERSON_ID) REFERENCES PERSON (ID)
+    FOREIGN KEY (PERSON_ID) REFERENCES findmeDB.PERSON (ID)
 );
 
 CREATE TABLE subscriptions (

@@ -1,5 +1,13 @@
 package org.demkiv.domain.service.impl;
 
+import org.bytedeco.javacpp.BytePointer;
+import org.bytedeco.opencv.global.opencv_imgcodecs;
+import org.bytedeco.opencv.global.opencv_imgproc;
+import org.bytedeco.opencv.opencv_core.Mat;
+import org.bytedeco.opencv.opencv_core.RectVector;
+import org.bytedeco.opencv.opencv_core.Rect;
+import org.bytedeco.opencv.opencv_core.Size;
+import org.bytedeco.opencv.opencv_objdetect.CascadeClassifier;
 import org.demkiv.domain.service.ImageConverter;
 import org.springframework.stereotype.Service;
 
@@ -8,7 +16,12 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 
 @Service
 public class ImageConverterImpl implements ImageConverter {
@@ -84,5 +97,74 @@ public class ImageConverterImpl implements ImageConverter {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ImageIO.write(resized, "jpg", out);
         return out.toByteArray();
+    }
+
+    @Override
+    public byte[] cropFaceToSquare(byte[] originalBytes, int size) throws IOException {
+        // Load image into Mat
+        Mat image = opencv_imgcodecs.imdecode(new Mat(new BytePointer(originalBytes)), opencv_imgcodecs.IMREAD_COLOR);
+        if (image.empty()) {
+            throw new IOException("Failed to decode image");
+        }
+
+        // Load cascade from resource
+        File cascadeFile = loadCascadeFromResources("/haarcascade_frontalface_default.xml");
+        CascadeClassifier faceDetector = new CascadeClassifier(cascadeFile.getAbsolutePath());
+        if (faceDetector.empty()) {
+            throw new IOException("Failed to load cascade classifier");
+        }
+
+        // Detect faces
+        RectVector faces = new RectVector();
+        faceDetector.detectMultiScale(image, faces);
+        if (faces.size() == 0) {
+            throw new IOException("No faces found");
+        }
+
+        // Take first face
+        Rect face = faces.get(0);
+
+        // Optional padding
+        int padding = (int) (0.2 * Math.max(face.width(), face.height()));
+        int x = Math.max(face.x() - padding, 0);
+        int y = Math.max(face.y() - padding, 0);
+        int width = Math.min(face.width() + 2 * padding, image.cols() - x);
+        int height = Math.min(face.height() + 2 * padding, image.rows() - y);
+        Rect faceRect = new Rect(x, y, width, height);
+
+        // Crop the face
+        Mat faceMat = new Mat(image, faceRect);
+
+        // Resize to target size
+        Mat resizedFace = new Mat();
+        opencv_imgproc.resize(faceMat, resizedFace, new Size(size, size));
+
+        // Encode to JPEG
+        BytePointer buf = new BytePointer();
+        opencv_imgcodecs.imencode(".jpg", resizedFace, buf);
+        byte[] byteArray = new byte[(int) buf.limit()];
+        buf.get(byteArray);
+
+        // Clean up
+        buf.deallocate();
+        cascadeFile.delete();
+
+        return byteArray;
+    }
+
+    private File loadCascadeFromResources(String resourcePath) throws IOException {
+        InputStream is = getClass().getResourceAsStream(resourcePath);
+        if (is == null) {
+            throw new FileNotFoundException("Resource not found: " + resourcePath);
+        }
+        File tempFile = File.createTempFile("haarcascade", ".xml");
+        try (OutputStream os = new FileOutputStream(tempFile)) {
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = is.read(buffer)) != -1) {
+                os.write(buffer, 0, read);
+            }
+        }
+        return tempFile;
     }
 }

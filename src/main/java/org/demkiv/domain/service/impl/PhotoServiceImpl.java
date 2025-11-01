@@ -69,7 +69,7 @@ public class PhotoServiceImpl implements PhotoService {
     private File convertPhotoToSquare(Path photoOrigin) throws IOException {
         String  photoPath = getConvertedPhotoPath(photoOrigin);
         byte[] originalBytes = Files.readAllBytes(photoOrigin);
-        byte[] convertedImage = imageConverter.cropToSquare(originalBytes, 350);
+        byte[] convertedImage = imageConverter.resizeWithPadding(originalBytes, 350);
         try (FileOutputStream fos = new FileOutputStream(photoPath)) {
             fos.write(convertedImage);
             return new File(photoPath);

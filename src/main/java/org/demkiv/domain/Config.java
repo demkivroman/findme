@@ -17,12 +17,8 @@ public class Config {
     String photosStoreUrl;
     @Value("${photosStoreConvertedUrl}")
     String photoStoreConvertedUrl;
-    @Value("${convertPhotoCommand}")
-    String convertPhotoCommand;
     @Value("${domain}")
     String domain;
-    @Value("${frontDomain}")
-    String frontDomain;
     @Value("${emailFrom}")
     String emailFrom;
 }
